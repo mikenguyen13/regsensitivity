@@ -1,0 +1,32 @@
+# Generic R + RStudio + macOS + TeX exclusions.
+# Project-specific or private patterns live in .git/info/exclude
+# (which is local-only and NEVER committed).
+
+# R session / RStudio metadata
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# Build artefacts
+*.tar.gz
+*.log
+*.aux
+*.bbl
+*.blg
+*.out
+*.toc
+*.synctex.gz
+
+# Generated docs and build outputs (regenerated from source)
+output/
+docs/
+
+# OS junk
+.DS_Store
+
+# Locally-generated LICENSE stub (CRAN convention; re-created from
+# DESCRIPTION on build, kept out of git so GitHub detects MIT cleanly
+# from LICENSE.md).
+LICENSE

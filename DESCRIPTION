@@ -1,0 +1,45 @@
+Package: regsensitivity
+Type: Package
+Title: Regression Sensitivity Analysis for Omitted Variable Bias
+Version: 0.1.1
+Authors@R:
+    person("Mike", "Nguyen", , "nguyennghia1301@gmail.com",
+           role = c("aut", "cre", "cph"))
+Description: Sensitivity analysis for linear regression coefficients in the
+    presence of omitted variables. Implements the identified-set and
+    breakdown-point analyses of 'Diegert', 'Masten' and 'Poirier' (2026)
+    <doi:10.48550/arXiv.2206.02303>, 'Oster' (2019)
+    <doi:10.1080/07350015.2016.1227711> and 'Masten' and 'Poirier' (2026)
+    <doi:10.48550/arXiv.2208.00552>. Provides bounds on regression
+    coefficients under relaxations of the no-omitted-variables
+    assumption indexed by interpretable sensitivity parameters, the
+    breakdown point of a hypothesis about the long-regression
+    coefficient, and plotting helpers.
+License: MIT + file LICENSE
+URL: https://github.com/mikenguyen13/regsensitivity,
+    https://mikenguyen13.github.io/regsensitivity/
+BugReports: https://github.com/mikenguyen13/regsensitivity/issues
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+Depends: R (>= 4.1)
+Imports:
+    stats,
+    nloptr (>= 2.0.0),
+    ggplot2 (>= 3.4.0),
+    rlang (>= 1.0.0)
+Suggests:
+    haven (>= 2.5.0),
+    testthat (>= 3.0.0),
+    knitr (>= 1.40),
+    rmarkdown (>= 2.20),
+    pdftools,
+    covr,
+    pkgdown
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Config/Needs/website: pkgdown
+Config/Needs/coverage: covr
+Config/Needs/lint: lintr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3

@@ -1,0 +1,40 @@
+url: ~
+template:
+  bootstrap: 5
+
+reference:
+  - title: "Main analyses"
+    contents:
+      - regsensitivity
+      - regsen_bounds
+      - regsen_breakdown
+      - regsen_summary
+  - title: "Inference"
+    contents:
+      - regsen_boot
+  - title: "Calibration"
+    contents:
+      - calibrate_rho
+      - calibrate_partial_r2
+  - title: "Helpers"
+    contents:
+      - hypothesis_helpers
+  - title: "Visualization"
+    contents:
+      - plot.regsensitivity
+  - title: "Data"
+    contents:
+      - bfg2020
+  - title: "Package"
+    contents:
+      - regsensitivity-package
+
+articles:
+  - title: "Get started"
+    navbar: ~
+    contents:
+      - regsensitivity
+  - title: "Replication"
+    contents:
+      - dmp2022-replication
+      - mp2022-stylized

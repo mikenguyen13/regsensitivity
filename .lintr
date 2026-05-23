@@ -1,0 +1,18 @@
+linters: linters_with_defaults(
+    # Package uses 4-space indent (matches `.editorconfig`).
+    indentation_linter         = indentation_linter(indent = 4L),
+    line_length_linter         = line_length_linter(100),
+    # Disable opinionated checks that don't catch real bugs.
+    object_name_linter         = NULL,
+    object_length_linter       = NULL,
+    object_usage_linter        = NULL,
+    commented_code_linter      = NULL,
+    cyclocomp_linter           = NULL
+  )
+encoding: "UTF-8"
+exclusions: list(
+    "tests/testthat",
+    "vignettes",
+    "inst",
+    "data-raw"
+  )

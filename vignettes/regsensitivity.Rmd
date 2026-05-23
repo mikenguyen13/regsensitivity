@@ -1,0 +1,184 @@
+---
+title: "regsensitivity: a tour"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{regsensitivity: a tour}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6, fig.height = 4
+)
+```
+
+This vignette replicates the BFG2020 empirical application used in the Stata
+`regsensitivity` vignette, walking through the **Diegert-Masten-Poirier
+(2026)** and **Oster (2019) / Masten-Poirier (2026)** analyses.
+
+```{r}
+library(regsensitivity)
+library(ggplot2)
+data(bfg2020)
+bfg2020$statea <- factor(bfg2020$statea)
+
+controls <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
+              "elev_mean", "d_coa", "d_riv", "d_lak", "ave_gyi", "statea")
+form <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+    log_area_2010 + lat + lon + temp_mean + rain_mean + elev_mean +
+    d_coa + d_riv + d_lak + ave_gyi + statea
+compare <- setdiff(controls, "statea")
+```
+
+The "short" regression coefficient (with no controls) and the "medium"
+regression coefficient (with state FE and the comparison controls) give a
+first sense of how much controls move the estimate:
+
+```{r}
+short <- lm(avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6, data = bfg2020)
+med   <- lm(form, data = bfg2020)
+coef(short)[2]
+coef(med)["tye_tfe890_500kNI_100_l6"]
+```
+
+## DMP (2026) bounds
+
+`regsen_bounds()` is the workhorse. Out of the box it sweeps over a grid of
+`rxbar` from 0 to the threshold where the identified set first becomes
+$(-\infty,+\infty)$, holding `cbar` fixed at the supplied value.
+
+```{r}
+bnds <- regsen_bounds(form, bfg2020, compare = compare, cbar = 0.1)
+print(bnds)
+```
+
+The bounds widen monotonically as `rxbar` (the strength of the unobservable's
+effect on the treatment) grows. The breakdown point reported in the header
+is the `rxbar` value at which the hypothesis ($\beta>0$, in this case)
+first fails.
+
+```{r}
+plot(bnds)
+```
+
+Sweeping over multiple `cbar` values lets you see how stronger correlations
+between the comparison controls and the unobservable affect the bounds:
+
+```{r}
+multi <- regsen_bounds(form, bfg2020, compare = compare,
+                        rxbar = seq(0, 2, length.out = 21),
+                        cbar = c(0, 0.2, 0.4, 0.6, 0.8, 1.0))
+plot(multi)
+```
+
+### Constrained `rybar`
+
+Setting `rybar` to a finite value adds a constraint on the unobservable's
+effect on the outcome. When `cbar > 0` this is a nonconvex problem and we
+solve it with a global optimizer (`nloptr` / DIRECT-L); when `cbar = 0` it
+has a closed form. Both cases run through the same `regsen_bounds()` call:
+
+```{r}
+fin <- regsen_bounds(form, bfg2020, compare = compare, rybar = 2)
+print(fin)
+```
+
+You can also express `rybar` as a function of `rxbar`, e.g. `rybar = rxbar`:
+
+```{r}
+expr <- regsen_bounds(form, bfg2020, compare = compare,
+                       rybar_expr = function(rx) rx,
+                       rxbar = seq(0, 1, 0.1))
+expr$results
+```
+
+## DMP breakdown
+
+`regsen_breakdown()` reports the breakdown point as a function of one of
+the sensitivity parameters, holding the others fixed:
+
+```{r}
+bd <- regsen_breakdown(form, bfg2020, compare = compare,
+                        cbar = seq(0, 1, 0.05))
+plot(bd)
+```
+
+You can also sweep across hypothesis values:
+
+```{r}
+hyp <- regsen_breakdown(form, bfg2020, compare = compare,
+                         beta = bnd_lb(seq(-1, 1, 0.2)))
+print(hyp)
+```
+
+## Oster (2019) bounds
+
+Switching to the Oster analysis with `analysis = "oster"`:
+
+```{r}
+o <- regsen_bounds(form, bfg2020, compare = compare,
+                    analysis = "oster")
+print(o)
+```
+
+Plotting the equality identified set (rotated so that delta is on the
+x-axis and beta on the y-axis):
+
+```{r}
+o2 <- regsen_bounds(form, bfg2020, compare = compare,
+                     analysis = "oster",
+                     delta = seq(-3, 3, 0.05))
+plot(o2, ylim = c(-5, 8))
+```
+
+### Oster, |delta| <= d (bound)
+
+```{r}
+ob <- regsen_bounds(form, bfg2020, compare = compare,
+                     analysis = "oster",
+                     delta = seq(0, 0.999, 0.001),
+                     delta_type = "bound")
+plot(ob, ylim = c(-50, 50))
+```
+
+## Oster breakdown
+
+```{r}
+obd_eq <- regsen_breakdown(form, bfg2020, compare = compare,
+                            analysis = "oster",
+                            r2long = seq(0.15, 1, 0.05),
+                            beta = bnd_eq(0))
+plot(obd_eq)
+
+obd_sign <- regsen_breakdown(form, bfg2020, compare = compare,
+                              analysis = "oster",
+                              r2long = seq(0.15, 1, 0.05))
+plot(obd_sign)
+```
+
+## Summary call
+
+When you don't know where to start, `regsen_summary()` runs the default
+DMP bounds analysis plus an Oster breakdown sweep at a few standard
+`r2long` values, matching the behaviour of Stata's `regsensitivity` with
+no subcommand.
+
+```{r}
+s <- regsen_summary(form, bfg2020, compare = compare)
+print(s)
+```
+
+## References
+
+* Diegert, P., Masten, M., and Poirier, A. (2026). Assessing Omitted
+  Variable Bias when the Controls are Endogenous. arXiv:2206.02303.
+* Oster, E. (2019). Unobservable Selection and Coefficient Stability:
+  Theory and Evidence. *JBES* 37(2), 187--204.
+* Masten, M., and Poirier, A. (2026). The Effect of Omitted Variables on
+  the Sign of Regression Coefficients. arXiv:2208.00552.
+* Bazzi, S., Fiszbein, M., and Gebresilasse, M. (2020). Frontier
+  Culture: The Roots and Persistence of "Rugged Individualism" in the
+  United States. *Econometrica* 88(6), 2329--2368.

@@ -1,0 +1,62 @@
+cff-version: 1.2.0
+title: "regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias"
+message: "Please cite this software using the metadata below."
+type: software
+version: 0.1.1
+date-released: "2026-05-23"
+license: MIT
+repository-code: "https://github.com/mikenguyen13/regsensitivity"
+url: "https://mikenguyen13.github.io/regsensitivity/"
+authors:
+  - family-names: Nguyen
+    given-names: Mike
+keywords:
+  - sensitivity-analysis
+  - omitted-variable-bias
+  - econometrics
+  - causal-inference
+  - r-package
+preferred-citation:
+  type: software
+  title: "regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias"
+  authors:
+    - family-names: Nguyen
+      given-names: Mike
+  year: 2026
+  version: 0.1.1
+  url: "https://github.com/mikenguyen13/regsensitivity"
+references:
+  - type: article
+    title: "Assessing Omitted Variable Bias when the Controls are Endogenous"
+    authors:
+      - family-names: Diegert
+        given-names: Paul
+      - family-names: Masten
+        given-names: Matthew A.
+      - family-names: Poirier
+        given-names: Alexandre
+    year: 2026
+    journal: "arXiv preprint"
+    url: "https://arxiv.org/abs/2206.02303"
+  - type: article
+    title: "Unobservable Selection and Coefficient Stability: Theory and Evidence"
+    authors:
+      - family-names: Oster
+        given-names: Emily
+    year: 2019
+    journal: "Journal of Business & Economic Statistics"
+    volume: 37
+    issue: 2
+    start: 187
+    end: 204
+    doi: "10.1080/07350015.2016.1227711"
+  - type: article
+    title: "The Effect of Omitted Variables on the Sign of Regression Coefficients"
+    authors:
+      - family-names: Masten
+        given-names: Matthew A.
+      - family-names: Poirier
+        given-names: Alexandre
+    year: 2026
+    journal: "arXiv preprint"
+    url: "https://arxiv.org/abs/2208.00552"

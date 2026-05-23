@@ -1,0 +1,310 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "identifier": "regsensitivity",
+  "description": "Sensitivity analysis for linear regression coefficients in the presence of omitted variables. Implements the identified-set and breakdown-point analyses of 'Diegert', 'Masten' and 'Poirier' (2026) <doi:10.48550/arXiv.2206.02303>, 'Oster' (2019) <doi:10.1080/07350015.2016.1227711> and 'Masten' and 'Poirier' (2026) <doi:10.48550/arXiv.2208.00552>. Provides bounds on regression coefficients under relaxations of the no-omitted-variables assumption indexed by interpretable sensitivity parameters, the breakdown point of a hypothesis about the long-regression coefficient, and plotting helpers.",
+  "name": "regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias",
+  "relatedLink": "https://mikenguyen13.github.io/regsensitivity/",
+  "codeRepository": "https://github.com/mikenguyen13/regsensitivity",
+  "issueTracker": "https://github.com/mikenguyen13/regsensitivity/issues",
+  "license": "https://spdx.org/licenses/MIT",
+  "version": "0.1.1",
+  "programmingLanguage": {
+    "@type": "ComputerLanguage",
+    "name": "R",
+    "url": "https://r-project.org"
+  },
+  "runtimePlatform": "R version 4.5.2 (2025-10-31)",
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Mike",
+      "familyName": "Nguyen"
+    }
+  ],
+  "copyrightHolder": [
+    {
+      "@type": "Person",
+      "givenName": "Mike",
+      "familyName": "Nguyen"
+    }
+  ],
+  "maintainer": [
+    {
+      "@type": "Person",
+      "givenName": "Mike",
+      "familyName": "Nguyen"
+    }
+  ],
+  "softwareSuggestions": [
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "haven",
+      "name": "haven",
+      "version": ">= 2.5.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=haven"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "testthat",
+      "name": "testthat",
+      "version": ">= 3.0.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=testthat"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "knitr",
+      "name": "knitr",
+      "version": ">= 1.40",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=knitr"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "rmarkdown",
+      "name": "rmarkdown",
+      "version": ">= 2.20",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=rmarkdown"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "pdftools",
+      "name": "pdftools",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=pdftools"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "covr",
+      "name": "covr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=covr"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "pkgdown",
+      "name": "pkgdown",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=pkgdown"
+    }
+  ],
+  "softwareRequirements": {
+    "1": {
+      "@type": "SoftwareApplication",
+      "identifier": "R",
+      "name": "R",
+      "version": ">= 4.1"
+    },
+    "2": {
+      "@type": "SoftwareApplication",
+      "identifier": "stats",
+      "name": "stats"
+    },
+    "3": {
+      "@type": "SoftwareApplication",
+      "identifier": "nloptr",
+      "name": "nloptr",
+      "version": ">= 2.0.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=nloptr"
+    },
+    "4": {
+      "@type": "SoftwareApplication",
+      "identifier": "ggplot2",
+      "name": "ggplot2",
+      "version": ">= 3.4.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=ggplot2"
+    },
+    "5": {
+      "@type": "SoftwareApplication",
+      "identifier": "rlang",
+      "name": "rlang",
+      "version": ">= 1.0.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=rlang"
+    },
+    "SystemRequirements": {}
+  },
+  "fileSize": "263.054KB",
+  "citation": [
+    {
+      "@type": "SoftwareSourceCode",
+      "datePublished": "2026",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Mike",
+          "familyName": "Nguyen"
+        }
+      ],
+      "name": "{regsensitivity}: Regression Sensitivity Analysis for Omitted Variable Bias",
+      "url": "https://github.com/mikenguyen13/regsensitivity",
+      "description": "R package version 0.1.1"
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "datePublished": "2026",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Paul",
+          "familyName": "Diegert"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Matthew A.",
+          "familyName": "Masten"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Alexandre",
+          "familyName": "Poirier"
+        }
+      ],
+      "name": "Assessing Omitted Variable Bias when the Controls are Endogenous",
+      "url": "https://arxiv.org/abs/2206.02303",
+      "isPartOf": {
+        "@type": "PublicationIssue",
+        "datePublished": "2026",
+        "isPartOf": {
+          "@type": [
+            "PublicationVolume",
+            "Periodical"
+          ],
+          "name": "arXiv preprint"
+        }
+      }
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "datePublished": "2019",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Emily",
+          "familyName": "Oster"
+        }
+      ],
+      "name": "Unobservable Selection and Coefficient Stability: Theory and Evidence",
+      "identifier": "10.1080/07350015.2016.1227711",
+      "pagination": "187--204",
+      "@id": "https://doi.org/10.1080/07350015.2016.1227711",
+      "sameAs": "https://doi.org/10.1080/07350015.2016.1227711",
+      "isPartOf": {
+        "@type": "PublicationIssue",
+        "issueNumber": "2",
+        "datePublished": "2019",
+        "isPartOf": {
+          "@type": [
+            "PublicationVolume",
+            "Periodical"
+          ],
+          "volumeNumber": "37",
+          "name": "Journal of Business & Economic Statistics"
+        }
+      }
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "datePublished": "2026",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Matthew A.",
+          "familyName": "Masten"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Alexandre",
+          "familyName": "Poirier"
+        }
+      ],
+      "name": "The Effect of Omitted Variables on the Sign of Regression Coefficients",
+      "url": "https://arxiv.org/abs/2208.00552",
+      "isPartOf": {
+        "@type": "PublicationIssue",
+        "datePublished": "2026",
+        "isPartOf": {
+          "@type": [
+            "PublicationVolume",
+            "Periodical"
+          ],
+          "name": "arXiv preprint"
+        }
+      }
+    }
+  ],
+  "releaseNotes": "https://github.com/mikenguyen13/regsensitivity/blob/main/NEWS.md",
+  "readme": "https://github.com/mikenguyen13/regsensitivity/blob/main/README.md",
+  "contIntegration": [
+    "https://github.com/mikenguyen13/regsensitivity/actions/workflows/R-CMD-check.yaml",
+    "https://app.codecov.io/gh/mikenguyen13/regsensitivity"
+  ],
+  "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental",
+  "keywords": [
+    "causal-inference",
+    "cran",
+    "econometrics",
+    "omitted-variable-bias",
+    "oster",
+    "r",
+    "r-package",
+    "regression",
+    "sensitivity-analysis",
+    "breakdown-point"
+  ]
+}

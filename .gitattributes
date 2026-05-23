@@ -1,0 +1,19 @@
+# Tell GitHub's Linguist which files to ignore for language-stats / blame.
+# https://github.com/github-linguist/linguist/blob/main/docs/overrides.md
+
+# Upstream Stata package reference files (not source code of this R package).
+inst/stata-reference/** linguist-vendored
+inst/stata-reference/* linguist-vendored
+
+# Generated artefacts.
+*.Rd linguist-generated
+NAMESPACE linguist-generated
+
+# Bundled bibliography references.
+*.bib linguist-detectable=false
+
+# Treat .Rmd vignettes as primary R content.
+*.Rmd linguist-language=R
+
+# Hide pkgdown build artifacts.
+docs/* linguist-generated

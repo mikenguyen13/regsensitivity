@@ -1,0 +1,56 @@
+citHeader(
+    "When citing the R package, please use the first entry below. ",
+    "When citing the underlying methodology in academic work, please ",
+    "also cite the relevant methodology paper(s)."
+)
+
+# --- The R package itself (sole author: Mike Nguyen) ---
+bibentry(
+    bibtype = "Manual",
+    title   = "{regsensitivity}: Regression Sensitivity Analysis for Omitted Variable Bias",
+    author  = person("Mike", "Nguyen"),
+    year    = format(Sys.Date(), "%Y"),
+    note    = sprintf("R package version %s", meta$Version),
+    url     = "https://github.com/mikenguyen13/regsensitivity",
+    header  = "To cite the R package itself:"
+)
+
+# --- Underlying methodology references (independent works) ---
+
+bibentry(
+    bibtype = "Article",
+    title   = "Assessing Omitted Variable Bias when the Controls are Endogenous",
+    author  = c(person("Paul", "Diegert"),
+                person("Matthew A.", "Masten"),
+                person("Alexandre", "Poirier")),
+    year    = "2026",
+    journal = "arXiv preprint",
+    eprint  = "2206.02303",
+    url     = "https://arxiv.org/abs/2206.02303",
+    header  = "For the DMP (2026) methodology this package implements:"
+)
+
+bibentry(
+    bibtype = "Article",
+    title   = "Unobservable Selection and Coefficient Stability: Theory and Evidence",
+    author  = person("Emily", "Oster"),
+    year    = "2019",
+    journal = "Journal of Business & Economic Statistics",
+    volume  = "37",
+    number  = "2",
+    pages   = "187--204",
+    doi     = "10.1080/07350015.2016.1227711",
+    header  = "For the Oster (2019) methodology:"
+)
+
+bibentry(
+    bibtype = "Article",
+    title   = "The Effect of Omitted Variables on the Sign of Regression Coefficients",
+    author  = c(person("Matthew A.", "Masten"),
+                person("Alexandre", "Poirier")),
+    year    = "2026",
+    journal = "arXiv preprint",
+    eprint  = "2208.00552",
+    url     = "https://arxiv.org/abs/2208.00552",
+    header  = "For the Masten-Poirier (2026) extensions:"
+)
