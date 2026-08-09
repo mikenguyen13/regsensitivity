@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![R-CMD-check](https://github.com/mikenguyen13/regsensitivity/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mikenguyen13/regsensitivity/actions/workflows/R-CMD-check.yaml) [![Codecov](https://codecov.io/gh/mikenguyen13/regsensitivity/graph/badge.svg)](https://app.codecov.io/gh/mikenguyen13/regsensitivity) [![CRAN status](https://www.r-pkg.org/badges/version/regsensitivity)](https://CRAN.R-project.org/package=regsensitivity) [![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/regsensitivity)](https://CRAN.R-project.org/package=regsensitivity)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <!-- badges: end -->
 
