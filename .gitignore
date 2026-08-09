@@ -30,3 +30,8 @@ docs/
 # DESCRIPTION on build, kept out of git so GitHub detects MIT cleanly
 # from LICENSE.md).
 LICENSE
+
+# Paper drafts (ignored while under review)
+paper/
+paper-jss/
+paper-rj/
