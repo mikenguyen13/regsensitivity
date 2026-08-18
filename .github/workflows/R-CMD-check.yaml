@@ -1,0 +1,65 @@
+# Standard R-CMD-check workflow from r-lib/actions. Bumps with future
+# upstream changes automatically because we reference the @v2 tag, not
+# pinned shas. CRAN's release / oldrel / devel matrix protects against
+# breakage on R upgrades.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  schedule:
+    - cron: "0 4 * * 1"   # weekly Monday -- catches dep breakage even without a PR
+
+name: R-CMD-check
+
+jobs:
+  R-CMD-check:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: macos-latest,   r: 'release'}
+          - {os: windows-latest, r: 'release'}
+          - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release'}
+          - {os: ubuntu-latest,  r: 'release'}
+          - {os: ubuntu-latest,  r: 'oldrel-1'}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - name: Regenerate LICENSE stub
+        # LICENSE is gitignored (so GitHub's licensee detects MIT cleanly
+        # from LICENSE.md). DESCRIPTION still references it via
+        # `License: MIT + file LICENSE`, so we recreate it for the check.
+        shell: bash
+        run: |
+          year=$(date +%Y)
+          {
+            echo "YEAR: $year"
+            echo "COPYRIGHT HOLDER: Mike Nguyen"
+          } > LICENSE
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
