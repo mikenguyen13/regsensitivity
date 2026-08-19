@@ -13,19 +13,20 @@
 
 0 errors | 0 warnings | 2 notes
 
-Both notes are from the local run and we believe both are benign:
-
-* "Found the following (possibly) invalid URLs" flags the pkgdown site
-  <https://mikenguyen13.github.io/regsensitivity/> listed in DESCRIPTION.
-  The site is published by the `pkgdown` GitHub Actions workflow on push
-  to `main`, so the URL resolves once this version is tagged. Please let
-  us know if you would prefer the URL removed until then.
+* "New submission" — expected; this is the first submission of the
+  package to CRAN.
 
 * "checking HTML version of manual" reports that the local `tidy` binary
   is too old to run HTML validation. This is a property of our machine,
   not of the package, and does not reproduce on the CRAN check farm.
 
-This is a new submission, so the "New submission" note is expected.
+All URLs in DESCRIPTION and the README resolve (HTTP 200), including the
+pkgdown site at <https://mikenguyen13.github.io/regsensitivity/>.
+
+The package is also checked on every push by GitHub Actions across
+macOS-latest (R-release), windows-latest (R-release), and ubuntu-latest
+on R-devel, R-release and R-oldrel-1; all five pass with 0 errors and
+0 warnings.
 
 ## References
 

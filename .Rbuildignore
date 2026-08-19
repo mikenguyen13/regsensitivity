@@ -23,3 +23,5 @@
 ^codemeta\.json$
 ^REndo$
 ^\.claude$
+^\.git-rewrite$
+^\.DS_Store$
