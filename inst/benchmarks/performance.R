@@ -46,3 +46,15 @@ t1 <- Sys.time()
 cat(sprintf("  R=99 standard bootstrap     : %.2fs (~ %.0fms/replicate)\n",
             as.numeric(t1 - t0, units = "secs"),
             1000 * as.numeric(t1 - t0, units = "secs") / 99))
+
+## The cluster bootstrap is the variant reported in the paper's timing
+## table; it is slower because each replicate resamples whole grid cells.
+t0 <- Sys.time()
+suppressMessages(regsen_boot(form, d, compare = w1, cbar = 1,
+                              cluster = "km_grid_cel_code",
+                              R = 99, show_progress = FALSE,
+                              seed = 1))
+t1 <- Sys.time()
+cat(sprintf("  R=99 cluster bootstrap      : %.2fs (~ %.0fms/replicate)\n",
+            as.numeric(t1 - t0, units = "secs"),
+            1000 * as.numeric(t1 - t0, units = "secs") / 99))
