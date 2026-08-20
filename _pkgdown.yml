@@ -1,6 +1,10 @@
-url: ~
+url: https://mikenguyen13.github.io/regsensitivity/
 template:
   bootstrap: 5
+
+authors:
+  Mike Nguyen:
+    href: https://orcid.org/0000-0002-3432-8595
 
 reference:
   - title: "Main analyses"
@@ -30,11 +34,17 @@ reference:
       - regsensitivity-package
 
 articles:
+  # vignettes/regsensitivity.Rmd is auto-promoted to the "Get started"
+  # navbar link, so it must not also head a navbar dropdown section --
+  # that is what rendered an empty row in the Articles menu.
   - title: "Get started"
     navbar: ~
     contents:
       - regsensitivity
-  - title: "Replication"
+  # Without an explicit `navbar:` a section is kept off the dropdown and
+  # reachable only via "More articles...", which hid both replications.
+  - title: "Replication studies"
+    navbar: "Replications"
     contents:
       - dmp2022-replication
       - mp2022-stylized
