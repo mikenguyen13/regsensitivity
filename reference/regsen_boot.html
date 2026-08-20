@@ -66,6 +66,7 @@ scalar <code>$breakdown</code> field of <code><a href="regsen_bounds.html">regse
 <span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ncores <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  show_progress <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -106,7 +107,17 @@ used.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional integer seed for reproducibility.</p></dd>
+<dd><p>Optional integer seed for reproducibility. Results are
+identical for a given <code>seed</code> regardless of <code>ncores</code>: each replicate
+draws its own seed from a vector generated once up front, so nothing
+depends on how the work was divided.</p></dd>
+
+
+<dt id="arg-ncores">ncores<a class="anchor" aria-label="anchor" href="#arg-ncores"></a></dt>
+<dd><p>Number of cores for the replications. <code>1</code> (default) runs
+serially. Above 1 the package forks on macOS and Linux and falls back
+to a PSOCK cluster on Windows, which has no fork. A progress bar is
+not shown when running in parallel.</p></dd>
 
 
 <dt id="arg-show-progress">show_progress<a class="anchor" aria-label="anchor" href="#arg-show-progress"></a></dt>
@@ -146,7 +157,7 @@ the hypothesis first fails.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Cluster bootstrap  : km_grid_cel_code</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Confidence level   : 95%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Point estimate     : 0.8036</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   95% CI            : [0.5309, 0.8669]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   95% CI            : [0.4997, 0.8612]</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

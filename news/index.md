@@ -26,6 +26,17 @@
   default, since a journal figure carries its description in the
   caption.
 
+### Inference
+
+- [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md)
+  gains `ncores`, running replications in parallel: forking on macOS and
+  Linux, a PSOCK cluster on Windows. A progress bar is not shown in
+  parallel, since it cannot report meaningfully from several workers.
+- Results for a given `seed` are now identical regardless of `ncores`.
+  Each replicate seeds itself from a vector drawn once up front, rather
+  than relying on parallel RNG substreams, which would have made the
+  numbers depend on how the work happened to be divided.
+
 ### Documentation
 
 - New vignette “Publication-ready plots and tables”, covering figure

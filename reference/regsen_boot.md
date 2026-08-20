@@ -17,6 +17,7 @@ regsen_boot(
   cluster = NULL,
   level = 0.95,
   seed = NULL,
+  ncores = 1L,
   show_progress = interactive()
 )
 ```
@@ -54,7 +55,17 @@ regsen_boot(
 
 - seed:
 
-  Optional integer seed for reproducibility.
+  Optional integer seed for reproducibility. Results are identical for a
+  given `seed` regardless of `ncores`: each replicate draws its own seed
+  from a vector generated once up front, so nothing depends on how the
+  work was divided.
+
+- ncores:
+
+  Number of cores for the replications. `1` (default) runs serially.
+  Above 1 the package forks on macOS and Linux and falls back to a PSOCK
+  cluster on Windows, which has no fork. A progress bar is not shown
+  when running in parallel.
 
 - show_progress:
 
@@ -94,6 +105,6 @@ print(bb)
 #>   Cluster bootstrap  : km_grid_cel_code
 #>   Confidence level   : 95%
 #>   Point estimate     : 0.8036
-#>   95% CI            : [0.5309, 0.8669]
+#>   95% CI            : [0.4997, 0.8612]
 # }
 ```

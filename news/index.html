@@ -58,6 +58,12 @@
 <li>Passing <code>NA</code> to <code>title</code>, <code>subtitle</code>, <code>xtitle</code> or <code>ytitle</code> drops the annotation. The auto-generated subtitle is no longer applied by default, since a journal figure carries its description in the caption.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="inference-development-version">Inference<a class="anchor" aria-label="anchor" href="#inference-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/regsen_boot.html">regsen_boot()</a></code> gains <code>ncores</code>, running replications in parallel: forking on macOS and Linux, a PSOCK cluster on Windows. A progress bar is not shown in parallel, since it cannot report meaningfully from several workers.</li>
+<li>Results for a given <code>seed</code> are now identical regardless of <code>ncores</code>. Each replicate seeds itself from a vector drawn once up front, rather than relying on parallel RNG substreams, which would have made the numbers depend on how the work happened to be divided.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
 <ul><li>New vignette “Publication-ready plots and tables”, covering figure sizing for journals, greyscale and colour-vision safety, and the LaTeX / HTML / Markdown table output.</li>
 <li>New vignette “Coming from the Stata package”, mapping every command and option in the Stata package’s own vignette onto its R equivalent. It doubles as a coverage check: a gap would show as a missing row rather than going unnoticed.</li>
