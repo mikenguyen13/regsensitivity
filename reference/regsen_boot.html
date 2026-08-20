@@ -117,7 +117,9 @@ depends on how the work was divided.</p></dd>
 <dd><p>Number of cores for the replications. <code>1</code> (default) runs
 serially. Above 1 the package forks on macOS and Linux and falls back
 to a PSOCK cluster on Windows, which has no fork. A progress bar is
-not shown when running in parallel.</p></dd>
+not shown when running in parallel. Capped at <code>R</code>, and at 2 while
+<code>R CMD check --as-cran</code> is running, which forbids more; results do not
+depend on the cap.</p></dd>
 
 
 <dt id="arg-show-progress">show_progress<a class="anchor" aria-label="anchor" href="#arg-show-progress"></a></dt>

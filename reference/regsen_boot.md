@@ -65,7 +65,9 @@ regsen_boot(
   Number of cores for the replications. `1` (default) runs serially.
   Above 1 the package forks on macOS and Linux and falls back to a PSOCK
   cluster on Windows, which has no fork. A progress bar is not shown
-  when running in parallel.
+  when running in parallel. Capped at `R`, and at 2 while
+  `R CMD check --as-cran` is running, which forbids more; results do not
+  depend on the cap.
 
 - show_progress:
 
