@@ -11,9 +11,8 @@
 
 *Install*
 [![CRAN status](https://img.shields.io/cran/v/regsensitivity)](https://CRAN.R-project.org/package=regsensitivity)
-[![GitHub release](https://img.shields.io/github/v/release/mikenguyen13/regsensitivity?label=github)](https://github.com/mikenguyen13/regsensitivity/releases)
+[![GitHub tag](https://img.shields.io/github/v/tag/mikenguyen13/regsensitivity?label=github)](https://github.com/mikenguyen13/regsensitivity/tags)
 [![R >= 4.1](https://img.shields.io/badge/R-%E2%89%A5%204.1-blue.svg)](https://cran.r-project.org/)
-[![Dependencies](https://tinyverse.netlify.app/badge/regsensitivity)](https://tinyverse.netlify.app/)
 
 *Project*
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
