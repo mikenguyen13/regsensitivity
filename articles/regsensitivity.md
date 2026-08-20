@@ -12,12 +12,11 @@ library(ggplot2)
 data(bfg2020)
 bfg2020$statea <- factor(bfg2020$statea)
 
-controls <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
-              "elev_mean", "d_coa", "d_riv", "d_lak", "ave_gyi", "statea")
 form <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
     log_area_2010 + lat + lon + temp_mean + rain_mean + elev_mean +
     d_coa + d_riv + d_lak + ave_gyi + statea
-compare <- setdiff(controls, "statea")
+compare <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
+             "elev_mean", "d_coa", "d_riv", "d_lak", "ave_gyi")
 ```
 
 The “short” regression coefficient (with no controls) and the “medium”

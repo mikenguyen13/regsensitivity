@@ -49,7 +49,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Replications</h6></li>
     <li><a class="dropdown-item" href="../articles/dmp2022-replication.html">Replication: Diegert, Masten and Poirier (2026)</a></li>
-    <li><a class="dropdown-item" href="../articles/mp2022-stylized.html">Replication: Masten and Poirier (2026) stylized examples</a></li>
+    <li><a class="dropdown-item" href="../articles/mp2022-stylized.html">Stylized examples from Masten and Poirier (2026)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
@@ -92,12 +92,11 @@ the Stata <code>regsensitivity</code> vignette, walking through the
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">bfg2020</span><span class="op">)</span></span>
 <span><span class="va">bfg2020</span><span class="op">$</span><span class="va">statea</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">bfg2020</span><span class="op">$</span><span class="va">statea</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">controls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_area_2010"</span>, <span class="st">"lat"</span>, <span class="st">"lon"</span>, <span class="st">"temp_mean"</span>, <span class="st">"rain_mean"</span>,</span>
-<span>              <span class="st">"elev_mean"</span>, <span class="st">"d_coa"</span>, <span class="st">"d_riv"</span>, <span class="st">"d_lak"</span>, <span class="st">"ave_gyi"</span>, <span class="st">"statea"</span><span class="op">)</span></span>
 <span><span class="va">form</span> <span class="op">&lt;-</span> <span class="va">avgrep2000to2016</span> <span class="op">~</span> <span class="va">tye_tfe890_500kNI_100_l6</span> <span class="op">+</span></span>
 <span>    <span class="va">log_area_2010</span> <span class="op">+</span> <span class="va">lat</span> <span class="op">+</span> <span class="va">lon</span> <span class="op">+</span> <span class="va">temp_mean</span> <span class="op">+</span> <span class="va">rain_mean</span> <span class="op">+</span> <span class="va">elev_mean</span> <span class="op">+</span></span>
 <span>    <span class="va">d_coa</span> <span class="op">+</span> <span class="va">d_riv</span> <span class="op">+</span> <span class="va">d_lak</span> <span class="op">+</span> <span class="va">ave_gyi</span> <span class="op">+</span> <span class="va">statea</span></span>
-<span><span class="va">compare</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">controls</span>, <span class="st">"statea"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">compare</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_area_2010"</span>, <span class="st">"lat"</span>, <span class="st">"lon"</span>, <span class="st">"temp_mean"</span>, <span class="st">"rain_mean"</span>,</span>
+<span>             <span class="st">"elev_mean"</span>, <span class="st">"d_coa"</span>, <span class="st">"d_riv"</span>, <span class="st">"d_lak"</span>, <span class="st">"ave_gyi"</span><span class="op">)</span></span></code></pre></div>
 <p>The “short” regression coefficient (with no controls) and the
 “medium” regression coefficient (with state FE and the comparison
 controls) give a first sense of how much controls move the estimate:</p>

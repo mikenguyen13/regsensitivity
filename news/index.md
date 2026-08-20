@@ -1,6 +1,6 @@
 # Changelog
 
-## regsensitivity (development version)
+## regsensitivity 0.1.2
 
 ### Plots
 
@@ -21,11 +21,15 @@
 - New
   [`theme_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/theme_regsen.md)
   and
-  [`scale_colour_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md),
-  exported so a plot can be rebuilt with the same look. Defaults are
-  aimed at print: a faint y-grid, a thin panel border, legend on top,
-  and the colourblind-safe Okabe-Ito palette, which also survives
-  greyscale printing.
+  [`scale_colour_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md)
+  (with
+  [`scale_color_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md)
+  and
+  [`scale_fill_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md)
+  aliases), exported so a plot can be rebuilt with the same look.
+  Defaults are aimed at print: a faint y-grid, a thin panel border,
+  legend on top, and the colourblind-safe Okabe-Ito palette, which also
+  survives greyscale printing.
 
 - Axis and legend titles now use plotmath, so they read as the symbols
   in the papers rather than as parameter names.
@@ -37,6 +41,16 @@
   annotation. The auto-generated subtitle is no longer applied by
   default, since a journal figure carries its description in the
   caption.
+
+### Calibration
+
+- New
+  [`calibrate_rho()`](https://mikenguyen13.github.io/regsensitivity/reference/calibrate_rho.md)
+  and
+  [`calibrate_partial_r2()`](https://mikenguyen13.github.io/regsensitivity/reference/calibrate_partial_r2.md),
+  computing the point-identified reference values of DMP (2026) Section
+  3.4 (Table 4) and Table 3, so the sensitivity parameters can be read
+  against the observed covariates they are calibrated to.
 
 ### Verification
 
@@ -62,7 +76,7 @@
   The left panel gains the dashed bounds under the common-maximal-impact
   restriction `rybar = rxbar` and the Table 4 calibration tick marks;
   both zero crossings are reported and agree with the published 0.804
-  and 0.96. The right panel previously plotted the breakdown point
+  and 0.959. The right panel previously plotted the breakdown point
   against `cbar`, a different object from the paper’s, which is the
   breakdown frontier in (rxbar, rybar) space; it is now that frontier,
   one curve per `cbar`.

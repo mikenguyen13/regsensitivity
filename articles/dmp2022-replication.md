@@ -56,11 +56,7 @@ rather than asserted in prose:
 
 ``` r
 
-# `digits` is the precision the paper actually prints each value to, given
-# explicitly rather than inferred. Deriving it from format() is wrong:
-# format() pads a vector to a common width, so format(c(0.804, 0.96)) is
-# c("0.804", "0.960") and 0.96 would be held to a precision it was never
-# printed at.
+# digits: the precision the paper prints each value to.
 compare_published <- function(quantity, published, computed, digits) {
     out <- data.frame(
         quantity  = quantity,
@@ -93,15 +89,13 @@ Breakdown points: this package vs DMP (2026). {.table}
 The first agrees to the precision the paper prints. The second computes
 to 0.9584 against the printed 0.959 – a gap of 0.0006, slightly past
 half a unit of the last printed digit, of the same size and kind as the
-Elevation entry of Table 4 discussed below. The
-[`stopifnot()`](https://rdrr.io/r/base/stopifnot.html) above is
-deliberate: if a future change moved either number, this vignette would
-stop building rather than quietly publishing a wrong replication.
+Elevation entry of Table 4 discussed below. An assertion in the build
+pins both values: if a future change moved either number, this vignette
+would stop building rather than quietly publishing a wrong replication.
 
 ## Table 3: correlations between observed covariates
 
-The `published` column holds the paper’s Table 3 as printed, so the
-comparison is on the page rather than asserted in prose.
+As before, the `published` column is the paper’s Table 3 as printed.
 
 ``` r
 
@@ -121,35 +115,33 @@ dmp_table3 <- c(
     "Land area"                            = 0.098
 )
 
-cmp3 <- data.frame(
-    covariate = tbl3$variable,
+cmp3 <- compare_published(
+    quantity  = tbl3$variable,
     published = unname(dmp_table3[tbl3$variable]),
-    computed  = round(tbl3$R2, 3)
+    digits    = 3,
+    computed  = tbl3$R2
 )
-cmp3$difference <- round(cmp3$computed - cmp3$published, 3)
 knitr::kable(cmp3, caption = "Table 3: this package vs DMP (2026).")
 ```
 
-| covariate                            | published | computed | difference |
-|:-------------------------------------|----------:|---------:|-----------:|
-| Average temperature                  |     0.893 |    0.894 |      0.001 |
-| Centroid Latitude                    |     0.876 |    0.876 |      0.000 |
-| Elevation                            |     0.681 |    0.681 |      0.000 |
-| Average potential agricultural yield |     0.648 |    0.648 |      0.000 |
-| Average rainfall                     |     0.560 |    0.559 |     -0.001 |
-| Distance from centroid to the coast  |     0.487 |    0.487 |      0.000 |
-| Centroid Longitude                   |     0.434 |    0.434 |      0.000 |
-| Distance from centroid to rivers     |     0.135 |    0.135 |      0.000 |
-| Distance from centroid to lakes      |     0.100 |    0.100 |      0.000 |
-| Land area                            |     0.098 |    0.098 |      0.000 |
+| quantity                             | published | computed | difference | agrees |
+|:-------------------------------------|----------:|---------:|-----------:|:-------|
+| Average temperature                  |     0.893 |   0.8938 |     0.0008 | FALSE  |
+| Centroid Latitude                    |     0.876 |   0.8761 |     0.0001 | TRUE   |
+| Elevation                            |     0.681 |   0.6809 |    -0.0001 | TRUE   |
+| Average potential agricultural yield |     0.648 |   0.6475 |    -0.0005 | TRUE   |
+| Average rainfall                     |     0.560 |   0.5588 |    -0.0012 | FALSE  |
+| Distance from centroid to the coast  |     0.487 |   0.4872 |     0.0002 | TRUE   |
+| Centroid Longitude                   |     0.434 |   0.4344 |     0.0004 | TRUE   |
+| Distance from centroid to rivers     |     0.135 |   0.1346 |    -0.0004 | TRUE   |
+| Distance from centroid to lakes      |     0.100 |   0.0999 |    -0.0001 | TRUE   |
+| Land area                            |     0.098 |   0.0981 |     0.0001 | TRUE   |
 
 Table 3: this package vs DMP (2026). {.table}
 
 Eight of the ten agree exactly at the printed precision. Average
-temperature and average rainfall differ by about 0.001: the computed
-values are 0.89382 and 0.55878, each just past half a unit of the last
-printed digit – last-digit differences of the same kind as the Elevation
-entry of Table 4 below, recorded here rather than smoothed over.
+temperature and average rainfall are last-digit differences of the same
+kind as above: the computed values are 0.89382 and 0.55878.
 
 ## Table 4, column (5): rho_k calibration
 
@@ -171,27 +163,27 @@ dmp_table4 <- c(
     "Distance from centroid to lakes"       = 12.1
 )
 
-cmp4 <- data.frame(
-    covariate = tbl4$variable,
+cmp4 <- compare_published(
+    quantity  = tbl4$variable,
     published = unname(dmp_table4[tbl4$variable]),
-    computed  = round(tbl4$rho, 1)
+    digits    = 1,
+    computed  = tbl4$rho
 )
-cmp4$difference <- round(cmp4$computed - cmp4$published, 1)
 knitr::kable(cmp4, caption = "Table 4 column (5): this package vs DMP (2026).")
 ```
 
-| covariate                            | published | computed | difference |
-|:-------------------------------------|----------:|---------:|-----------:|
-| Average potential agricultural yield |     118.3 |    118.3 |        0.0 |
-| Distance from centroid to the coast  |      78.6 |     78.6 |        0.0 |
-| Centroid Longitude                   |      49.9 |     49.9 |        0.0 |
-| Average temperature                  |      37.3 |     37.3 |        0.0 |
-| Average rainfall                     |      29.3 |     29.3 |        0.0 |
-| Centroid Latitude                    |      26.9 |     26.9 |        0.0 |
-| Distance from centroid to rivers     |      25.0 |     25.0 |        0.0 |
-| Land area                            |      22.5 |     22.5 |        0.0 |
-| Elevation                            |      20.2 |     20.3 |        0.1 |
-| Distance from centroid to lakes      |      12.1 |     12.1 |        0.0 |
+| quantity                             | published | computed | difference | agrees |
+|:-------------------------------------|----------:|---------:|-----------:|:-------|
+| Average potential agricultural yield |     118.3 | 118.3396 |     0.0396 | TRUE   |
+| Distance from centroid to the coast  |      78.6 |  78.5811 |    -0.0189 | TRUE   |
+| Centroid Longitude                   |      49.9 |  49.9301 |     0.0301 | TRUE   |
+| Average temperature                  |      37.3 |  37.2628 |    -0.0372 | TRUE   |
+| Average rainfall                     |      29.3 |  29.2864 |    -0.0136 | TRUE   |
+| Centroid Latitude                    |      26.9 |  26.9299 |     0.0299 | TRUE   |
+| Distance from centroid to rivers     |      25.0 |  24.9589 |    -0.0411 | TRUE   |
+| Land area                            |      22.5 |  22.4556 |    -0.0444 | TRUE   |
+| Elevation                            |      20.2 |  20.2516 |     0.0516 | FALSE  |
+| Distance from centroid to lakes      |      12.1 |  12.0645 |    -0.0355 | TRUE   |
 
 Table 4 column (5): this package vs DMP (2026). {.table}
 
@@ -228,10 +220,8 @@ dd <- as.data.frame(dashed); dd$spec <- "rybar = rxbar"
 df <- rbind(sd[, c("rxbar", "bmin", "bmax", "spec")],
             dd[, c("rxbar", "bmin", "bmax", "spec")])
 
-# Past the asymptote the bounds are infinite. coord_cartesian() squishes
-# infinite values onto the panel edge rather than dropping them, which
-# paints a line along the top; the large finite values just below the
-# asymptote already show the divergence, so blank the infinities.
+# Blank infinite bounds so coord_cartesian() does not paint them on
+# the panel edge.
 df$bmin[!is.finite(df$bmin)] <- NA
 df$bmax[!is.finite(df$bmax)] <- NA
 
@@ -265,7 +255,7 @@ The two zero crossings are the two breakdown points of Table 1, Panel C:
 ``` r
 
 c(rybar_inf   = abs(solid$breakdown),     # paper: 0.804
-  rybar_rxbar = abs(dashed$breakdown))    # paper: 0.96
+  rybar_rxbar = abs(dashed$breakdown))    # paper: 0.959
 #>   rybar_inf rybar_rxbar 
 #>   0.8035643   0.9583522
 ```
@@ -293,11 +283,9 @@ frontier <- function(cbar, rys) {
 rys <- c(seq(0.6, 2, by = 0.2), 2.5, 3, 4)
 fr  <- do.call(rbind, lapply(c(1, 0.75, 0.5), frontier, rys = rys))
 
-# Styled as in the paper: thick black for cbar = 1, grey for the
-# relaxations (the further out, the smaller the cbar: outer grey is
-# 0.5, inner grey is 0.75). The grid is deliberately coarse to keep the
-# CRAN build fast; the website's figure-comparison article runs a fine
-# grid.
+# As in the paper: thick black is cbar = 1; the greys are 0.75 and
+# 0.5, moving outward. The coarse grid keeps the CRAN build fast; the
+# website's figure-comparison article runs a fine one.
 ggplot(fr, aes(x = rxbar, y = rybar, group = cbar)) +
     geom_line(aes(linewidth = cbar == "1", colour = cbar == "1"),
                na.rm = TRUE) +
@@ -346,10 +334,7 @@ grows.
 ``` r
 
 # The breakdown point as a function of cbar alone, with each covariate's
-# calibrated rho_k drawn as a reference line. This is the reading the
-# paper's calibration discussion turns on: a covariate whose line sits
-# above the curve is one whose importance, if matched by an unobservable,
-# would be enough to overturn the sign.
+# calibrated rho_k drawn as a reference line.
 bd_cbar <- regsen_breakdown(form, bfg2020, compare = w1,
                              cbar = seq(0, 1, 0.02))
 

@@ -49,7 +49,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Replications</h6></li>
     <li><a class="dropdown-item" href="../articles/dmp2022-replication.html">Replication: Diegert, Masten and Poirier (2026)</a></li>
-    <li><a class="dropdown-item" href="../articles/mp2022-stylized.html">Replication: Masten and Poirier (2026) stylized examples</a></li>
+    <li><a class="dropdown-item" href="../articles/mp2022-stylized.html">Stylized examples from Masten and Poirier (2026)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
@@ -178,34 +178,26 @@ space, one curve per
 <h3 id="regsensitivity-1">regsensitivity<a class="anchor" aria-label="anchor" href="#regsensitivity-1"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Each grid point is one numerical breakdown solve (seconds each), so</span></span>
-<span><span class="co"># the sweep is parallelised over the rybar grid. mclapply forks, which</span></span>
-<span><span class="co"># Windows does not support, so it falls back to one core there.</span></span>
+<code class="sourceCode R"><span><span class="co"># One breakdown solve per grid point, parallelised over the rybar grid</span></span>
+<span><span class="co"># (forking is unavailable on Windows, hence the core fallback).</span></span>
 <span><span class="va">frontier</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">cbar</span>, <span class="va">rys</span>, <span class="va">w</span> <span class="op">=</span> <span class="va">w1</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">cores</span> <span class="op">&lt;-</span> <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">cores</span><span class="op">)</span> <span class="op">||</span> <span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span> <span class="op">==</span> <span class="st">"windows"</span><span class="op">)</span> <span class="va">cores</span> <span class="op">&lt;-</span> <span class="fl">1L</span></span>
-<span>    <span class="va">cores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">4L</span>, <span class="va">cores</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">cores</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span> <span class="op">==</span> <span class="st">"windows"</span><span class="op">)</span> <span class="fl">1L</span> <span class="kw">else</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">4L</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">mclapply</a></span><span class="op">(</span><span class="va">rys</span>, <span class="kw">function</span><span class="op">(</span><span class="va">ry</span><span class="op">)</span> <span class="op">{</span></span>
 <span>        <span class="va">r</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w</span>,</span>
 <span>                                   cbar <span class="op">=</span> <span class="va">cbar</span>, rybar <span class="op">=</span> <span class="va">ry</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>        <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"try-error"</span><span class="op">)</span><span class="op">)</span> <span class="cn">NA_real_</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span>    <span class="op">}</span>, mc.cores <span class="op">=</span> <span class="va">cores</span><span class="op">)</span></span>
-<span>    <span class="co"># A killed worker leaves a NULL; vapply keeps rxbar aligned with rys</span></span>
-<span>    <span class="co"># instead of silently recycling a shortened vector.</span></span>
-<span>    <span class="va">rx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">res</span>, <span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span></span>
-<span>        <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="va">z</span> <span class="kw">else</span> <span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">rx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">res</span>, <span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">)</span> <span class="va">z</span> <span class="kw">else</span> <span class="cn">NA_real_</span>,</span>
+<span>                 <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>rxbar <span class="op">=</span> <span class="va">rx</span>, rybar <span class="op">=</span> <span class="va">rys</span>, cbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">cbar</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="co"># Dense grid where the curve bends (rybar &lt; 1.7). Above that the arm is</span></span>
-<span><span class="co"># numerically the closed-form rybar = Inf constant, so a few anchor</span></span>
-<span><span class="co"># points suffice -- solving finely there recomputes a constant.</span></span>
+<span><span class="co"># Dense where the curve bends; the flat arm above needs only anchors.</span></span>
 <span><span class="va">rys</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">1.7</span>, by <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="va">fr</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.9</span>, <span class="fl">0.75</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="va">frontier</span>, rys <span class="op">=</span> <span class="va">rys</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Styled as in the paper: the thick black curve is cbar = 1 (arbitrarily</span></span>
-<span><span class="co"># endogenous controls); the grey curves relax cbar below 1, shifting the</span></span>
-<span><span class="co"># frontier outward -- outermost to innermost they are cbar = 0.5, 0.75,</span></span>
-<span><span class="co"># 0.9. The dotted guides mark rxbar = rybar = 1.</span></span>
+<span><span class="co"># As in the paper: thick black is cbar = 1; the greys are 0.9, 0.75,</span></span>
+<span><span class="co"># and 0.5, moving outward. Dotted guides mark rxbar = rybar = 1.</span></span>
 <span><span class="va">frontier_plot</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fr</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">fr</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">rxbar</span>, y <span class="op">=</span> <span class="va">rybar</span>, group <span class="op">=</span> <span class="va">cbar</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">1</span>, colour <span class="op">=</span> <span class="st">"grey60"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span>,</span>
@@ -315,7 +307,6 @@ not computed; the vertical arm now sits near 0.29 instead of 0.80.</p>
 <span>  `w1 + state effects` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">s3</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span><span class="op">)</span>      <span class="co"># paper: ~0.30</span></span>
 <span><span class="co">#&gt;            w1 only w1 + state effects </span></span>
 <span><span class="co">#&gt;          0.8035643          0.2909420</span></span></code></pre></div>
-<p>0.2909 against the paper’s “about 30%”.</p>
 </div>
 </div>
 <div class="section level2">
@@ -328,8 +319,8 @@ and breakdown points, but no R-squared values and no variances. A full
 numerical reproduction would require re-running the regressions on the
 Satyanath et al. microdata (Harvard Dataverse, <a href="doi:10.7910/DVN/EE6I7N" class="uri">doi:10.7910/DVN/EE6I7N</a>).
 The figures are shown here for structure, next to the stylized
-reproduction from the <a href="../articles/mp2022-stylized.html">MP
-replication vignette</a>.</p>
+illustration in the <a href="../articles/mp2022-stylized.html">MP
+examples vignette</a>.</p>
 <p><strong>This is not a numerical reproduction, and it should not be
 read as one.</strong> In the published figure the sign-change breakdown
 is 0.586 while the explain-away breakdown is

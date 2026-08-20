@@ -270,8 +270,9 @@ regsensitivity bounds `y' `x' `w', compare(`w1') rybar(=rxbar)
 b_ry  <- regsen_bounds(form, bfg2020, compare = w1, rybar = 2)
 b_eq  <- regsen_bounds(form, bfg2020, compare = w1,
                         rybar_expr = function(rx) rx)
-b_eq$breakdown
-#> [1] 0.9583522
+c(rybar_2 = b_ry$breakdown, rybar_eq = b_eq$breakdown)
+#>   rybar_2  rybar_eq 
+#> 0.8035905 0.9583522
 ```
 
 ### Oster (2019)
@@ -315,6 +316,10 @@ os_sign <- regsen_breakdown(form, bfg2020, compare = w1,
                              analysis = "oster",
                              r2long = seq(0, 1, 0.1),
                              beta = "sign")
+c(explain_away = os_bd$results$breakdown[1],
+  sign_change  = os_sign$results$breakdown[1])
+#> explain_away  sign_change 
+#>          Inf          Inf
 plot(os_sign)
 ```
 
@@ -329,38 +334,3 @@ with no arguments replots whatever ran last. Here each function returns
 its result and [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
 takes it explicitly, which is what lets you keep several analyses side
 by side in one session.
-
-    #> R version 4.6.1 (2026-06-24)
-    #> Platform: x86_64-pc-linux-gnu
-    #> Running under: Ubuntu 24.04.4 LTS
-    #> 
-    #> Matrix products: default
-    #> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
-    #> LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
-    #> 
-    #> locale:
-    #>  [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       
-    #>  [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   
-    #>  [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          
-    #> [10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   
-    #> 
-    #> time zone: UTC
-    #> tzcode source: system (glibc)
-    #> 
-    #> attached base packages:
-    #> [1] stats     graphics  grDevices utils     datasets  methods   base     
-    #> 
-    #> other attached packages:
-    #> [1] ggplot2_4.0.3        regsensitivity_0.1.2
-    #> 
-    #> loaded via a namespace (and not attached):
-    #>  [1] vctrs_0.7.3        cli_3.6.6          knitr_1.51         rlang_1.3.0       
-    #>  [5] xfun_0.60          otel_0.2.0         generics_0.1.4     S7_0.2.2          
-    #>  [9] textshaping_1.0.5  jsonlite_2.0.0     labeling_0.4.3     glue_1.8.1        
-    #> [13] htmltools_0.5.9    ragg_1.5.2         sass_0.4.10        scales_1.4.0      
-    #> [17] rmarkdown_2.31     grid_4.6.1         evaluate_1.0.5     jquerylib_0.1.4   
-    #> [21] fastmap_1.2.0      yaml_2.3.12        lifecycle_1.0.5    compiler_4.6.1    
-    #> [25] RColorBrewer_1.1-3 fs_2.1.0           farver_2.1.2       systemfonts_1.3.2 
-    #> [29] digest_0.6.39      nloptr_2.2.1       R6_2.6.1           bslib_0.12.0      
-    #> [33] withr_3.0.3        tools_4.6.1        gtable_0.3.6       pkgdown_2.2.1     
-    #> [37] cachem_1.1.0       desc_1.4.3

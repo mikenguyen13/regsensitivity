@@ -1,4 +1,4 @@
-# Replication: Masten and Poirier (2026) stylized examples
+# Stylized examples from Masten and Poirier (2026)
 
 This vignette illustrates, on a *stylized* constructed example, the
 figures of **Masten and Poirier (2026),** [*The Effect of Omitted

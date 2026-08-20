@@ -170,52 +170,52 @@ regsen_table(res, format = "latex", notes = TRUE,
 #> \begin{threeparttable}
 #> \begin{tabular}[t]{rrrrr}
 #> \toprule
-#> \$\textbackslash{}bar\{r\}\_x\$ & \$\textbackslash{}bar\{r\}\_y\$ & \$\textbackslash{}bar\{c\}\$ & \$\textbackslash{}beta\_\{\textbackslash{}min\}\$ & \$\textbackslash{}beta\_\{\textbackslash{}max\}\$\\
+#> $\bar{r}_x$ & $\bar{r}_y$ & $\bar{c}$ & $\beta_{\min}$ & $\beta_{\max}$\\
 #> \midrule
-#> 0 & \$+\textbackslash{}infty\$ & 0.100 & 1.39 & 1.39\\
-#> 0.253 & \$+\textbackslash{}infty\$ & 0.100 & 0.505 & 2.27\\
-#> 0.506 & \$+\textbackslash{}infty\$ & 0.100 & -0.443 & 3.21\\
-#> 0.759 & \$+\textbackslash{}infty\$ & 0.100 & -1.49 & 4.26\\
-#> 1.01 & \$+\textbackslash{}infty\$ & 0.100 & -2.70 & 5.47\\
+#> 0 & $+\infty$ & 0.100 & 1.39 & 1.39\\
+#> 0.253 & $+\infty$ & 0.100 & 0.505 & 2.27\\
+#> 0.506 & $+\infty$ & 0.100 & -0.443 & 3.21\\
+#> 0.759 & $+\infty$ & 0.100 & -1.49 & 4.26\\
+#> 1.01 & $+\infty$ & 0.100 & -2.70 & 5.47\\
 #> \addlinespace
-#> 1.27 & \$+\textbackslash{}infty\$ & 0.100 & -4.14 & 6.91\\
-#> 1.52 & \$+\textbackslash{}infty\$ & 0.100 & -6.01 & 8.78\\
-#> 1.77 & \$+\textbackslash{}infty\$ & 0.100 & -8.67 & 11.4\\
-#> 2.02 & \$+\textbackslash{}infty\$ & 0.100 & -13.4 & 16.2\\
-#> 2.28 & \$+\textbackslash{}infty\$ & 0.100 & -29.3 & 32.1\\
+#> 1.27 & $+\infty$ & 0.100 & -4.14 & 6.91\\
+#> 1.52 & $+\infty$ & 0.100 & -6.01 & 8.78\\
+#> 1.77 & $+\infty$ & 0.100 & -8.67 & 11.4\\
+#> 2.02 & $+\infty$ & 0.100 & -13.4 & 16.2\\
+#> 2.28 & $+\infty$ & 0.100 & -29.3 & 32.1\\
 #> \addlinespace
-#> 2.53 & \$+\textbackslash{}infty\$ & 0.100 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
-#> 0 & \$+\textbackslash{}infty\$ & 0.500 & 1.39 & 1.39\\
-#> 0.253 & \$+\textbackslash{}infty\$ & 0.500 & 0.494 & 2.28\\
-#> 0.506 & \$+\textbackslash{}infty\$ & 0.500 & -0.645 & 3.42\\
-#> 0.759 & \$+\textbackslash{}infty\$ & 0.500 & -2.45 & 5.22\\
+#> 2.53 & $+\infty$ & 0.100 & $-\infty$ & $+\infty$\\
+#> 0 & $+\infty$ & 0.500 & 1.39 & 1.39\\
+#> 0.253 & $+\infty$ & 0.500 & 0.494 & 2.28\\
+#> 0.506 & $+\infty$ & 0.500 & -0.645 & 3.42\\
+#> 0.759 & $+\infty$ & 0.500 & -2.45 & 5.22\\
 #> \addlinespace
-#> 1.01 & \$+\textbackslash{}infty\$ & 0.500 & -5.97 & 8.74\\
-#> 1.27 & \$+\textbackslash{}infty\$ & 0.500 & -35.7 & 38.4\\
-#> 1.52 & \$+\textbackslash{}infty\$ & 0.500 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
-#> 1.77 & \$+\textbackslash{}infty\$ & 0.500 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
-#> 2.02 & \$+\textbackslash{}infty\$ & 0.500 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
+#> 1.01 & $+\infty$ & 0.500 & -5.97 & 8.74\\
+#> 1.27 & $+\infty$ & 0.500 & -35.7 & 38.4\\
+#> 1.52 & $+\infty$ & 0.500 & $-\infty$ & $+\infty$\\
+#> 1.77 & $+\infty$ & 0.500 & $-\infty$ & $+\infty$\\
+#> 2.02 & $+\infty$ & 0.500 & $-\infty$ & $+\infty$\\
 #> \addlinespace
-#> 2.28 & \$+\textbackslash{}infty\$ & 0.500 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
-#> 2.53 & \$+\textbackslash{}infty\$ & 0.500 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
-#> 0 & \$+\textbackslash{}infty\$ & 1.00 & 1.39 & 1.39\\
-#> 0.253 & \$+\textbackslash{}infty\$ & 1.00 & 0.494 & 2.28\\
-#> 0.506 & \$+\textbackslash{}infty\$ & 1.00 & -0.645 & 3.42\\
+#> 2.28 & $+\infty$ & 0.500 & $-\infty$ & $+\infty$\\
+#> 2.53 & $+\infty$ & 0.500 & $-\infty$ & $+\infty$\\
+#> 0 & $+\infty$ & 1.00 & 1.39 & 1.39\\
+#> 0.253 & $+\infty$ & 1.00 & 0.494 & 2.28\\
+#> 0.506 & $+\infty$ & 1.00 & -0.645 & 3.42\\
 #> \addlinespace
-#> 0.759 & \$+\textbackslash{}infty\$ & 1.00 & -2.89 & 5.66\\
-#> 1.01 & \$+\textbackslash{}infty\$ & 1.00 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
-#> 1.27 & \$+\textbackslash{}infty\$ & 1.00 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
-#> 1.52 & \$+\textbackslash{}infty\$ & 1.00 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
-#> 1.77 & \$+\textbackslash{}infty\$ & 1.00 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
+#> 0.759 & $+\infty$ & 1.00 & -2.89 & 5.66\\
+#> 1.01 & $+\infty$ & 1.00 & $-\infty$ & $+\infty$\\
+#> 1.27 & $+\infty$ & 1.00 & $-\infty$ & $+\infty$\\
+#> 1.52 & $+\infty$ & 1.00 & $-\infty$ & $+\infty$\\
+#> 1.77 & $+\infty$ & 1.00 & $-\infty$ & $+\infty$\\
 #> \addlinespace
-#> 2.02 & \$+\textbackslash{}infty\$ & 1.00 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
-#> 2.28 & \$+\textbackslash{}infty\$ & 1.00 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
-#> 2.53 & \$+\textbackslash{}infty\$ & 1.00 & \$-\textbackslash{}infty\$ & \$+\textbackslash{}infty\$\\
+#> 2.02 & $+\infty$ & 1.00 & $-\infty$ & $+\infty$\\
+#> 2.28 & $+\infty$ & 1.00 & $-\infty$ & $+\infty$\\
+#> 2.53 & $+\infty$ & 1.00 & $-\infty$ & $+\infty$\\
 #> \bottomrule
 #> \end{tabular}
 #> \begin{tablenotes}[flushleft]
 #> \small
-#> \item Sensitivity analysis: DMP (2026). Outcome: avgrep2000to2016. Treatment: tye_tfe890_500kNI_100_l6. N = 2,036.
+#> \item Sensitivity analysis: DMP (2026). Outcome: avgrep2000to2016. Treatment: tye\_tfe890\_500kNI\_100\_l6. N = 2,036.
 #> \item Hypothesis: Beta > 0.
 #> \end{tablenotes}
 #> \end{threeparttable}

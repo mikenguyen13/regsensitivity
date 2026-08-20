@@ -29,7 +29,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Replications</h6></li>
     <li><a class="dropdown-item" href="../articles/dmp2022-replication.html">Replication: Diegert, Masten and Poirier (2026)</a></li>
-    <li><a class="dropdown-item" href="../articles/mp2022-stylized.html">Replication: Masten and Poirier (2026) stylized examples</a></li>
+    <li><a class="dropdown-item" href="../articles/mp2022-stylized.html">Stylized examples from Masten and Poirier (2026)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
@@ -49,66 +49,70 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="regsensitivity-development-version">regsensitivity (development version)<a class="anchor" aria-label="anchor" href="#regsensitivity-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.1.2" id="regsensitivity-012">regsensitivity 0.1.2<a class="anchor" aria-label="anchor" href="#regsensitivity-012"></a></h2>
 <div class="section level3">
-<h3 id="plots-development-version">Plots<a class="anchor" aria-label="anchor" href="#plots-development-version"></a></h3>
+<h3 id="plots-0-1-2">Plots<a class="anchor" aria-label="anchor" href="#plots-0-1-2"></a></h3>
 <ul><li><p>The Oster equality identified-set plot no longer draws a false vertical connector where the numerically ordered solution branches swap arms across an asymptote. Branches are now split exactly where a step would cross a vertical asymptote of <code>delta(beta)</code>, computed from the model rather than guessed from the drawing. With several <code>r2long</code> values the curves are now drawn (and coloured) per <code>r2long</code> instead of being interleaved into one line.</p></li>
 <li><p><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> gains <code>xline</code>, drawing vertical reference lines. This closes a gap against the Stata package, whose vignette uses <code>xline()</code> to mark values such as <code>rmax</code> or a breakdown point; those figures could not be reproduced in R before.</p></li>
-<li><p>New <code><a href="../reference/theme_regsen.html">theme_regsen()</a></code> and <code><a href="../reference/scale_colour_regsen.html">scale_colour_regsen()</a></code>, exported so a plot can be rebuilt with the same look. Defaults are aimed at print: a faint y-grid, a thin panel border, legend on top, and the colourblind-safe Okabe-Ito palette, which also survives greyscale printing.</p></li>
+<li><p>New <code><a href="../reference/theme_regsen.html">theme_regsen()</a></code> and <code><a href="../reference/scale_colour_regsen.html">scale_colour_regsen()</a></code> (with <code><a href="../reference/scale_colour_regsen.html">scale_color_regsen()</a></code> and <code><a href="../reference/scale_colour_regsen.html">scale_fill_regsen()</a></code> aliases), exported so a plot can be rebuilt with the same look. Defaults are aimed at print: a faint y-grid, a thin panel border, legend on top, and the colourblind-safe Okabe-Ito palette, which also survives greyscale printing.</p></li>
 <li><p>Axis and legend titles now use plotmath, so they read as the symbols in the papers rather than as parameter names.</p></li>
 <li><p><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> gains <code>base_size</code>; use <code>9</code> for a two-column journal figure.</p></li>
 <li><p>Passing <code>NA</code> to <code>title</code>, <code>subtitle</code>, <code>xtitle</code> or <code>ytitle</code> drops the annotation. The auto-generated subtitle is no longer applied by default, since a journal figure carries its description in the caption.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="verification-development-version">Verification<a class="anchor" aria-label="anchor" href="#verification-development-version"></a></h3>
+<h3 id="calibration-0-1-2">Calibration<a class="anchor" aria-label="anchor" href="#calibration-0-1-2"></a></h3>
+<ul><li>New <code><a href="../reference/calibrate_rho.html">calibrate_rho()</a></code> and <code><a href="../reference/calibrate_partial_r2.html">calibrate_partial_r2()</a></code>, computing the point-identified reference values of DMP (2026) Section 3.4 (Table 4) and Table 3, so the sensitivity parameters can be read against the observed covariates they are calibrated to.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="verification-0-1-2">Verification<a class="anchor" aria-label="anchor" href="#verification-0-1-2"></a></h3>
 <ul><li>The Oster (2019) implementation is now checked against the paper rather than against its own past output. A test round-trips Proposition 3 into Proposition 2: the delta reported as the breakdown for a target beta, fed back through the identified set, must return that beta. It does, to machine precision, for several targets.</li>
 <li>
 <code>results$breakdown</code> is documented as <strong>signed</strong>. The sign carries the direction of selection; passing <code><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs()</a></code> of it back into <code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code> lands on a different branch of the Oster cubic. The scalar <code>$breakdown</code> reports the magnitude and exists on <code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code> output only – a <code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code> result carries the value in <code>results$breakdown</code> alone.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="replication-fidelity-development-version">Replication fidelity<a class="anchor" aria-label="anchor" href="#replication-fidelity-development-version"></a></h3>
-<ul><li>The DMP (2026) Figure 1 reproduction now matches the published figure. The left panel gains the dashed bounds under the common-maximal-impact restriction <code>rybar = rxbar</code> and the Table 4 calibration tick marks; both zero crossings are reported and agree with the published 0.804 and 0.96. The right panel previously plotted the breakdown point against <code>cbar</code>, a different object from the paper’s, which is the breakdown frontier in (rxbar, rybar) space; it is now that frontier, one curve per <code>cbar</code>.</li>
+<h3 id="replication-fidelity-0-1-2">Replication fidelity<a class="anchor" aria-label="anchor" href="#replication-fidelity-0-1-2"></a></h3>
+<ul><li>The DMP (2026) Figure 1 reproduction now matches the published figure. The left panel gains the dashed bounds under the common-maximal-impact restriction <code>rybar = rxbar</code> and the Table 4 calibration tick marks; both zero crossings are reported and agree with the published 0.804 and 0.959. The right panel previously plotted the breakdown point against <code>cbar</code>, a different object from the paper’s, which is the breakdown frontier in (rxbar, rybar) space; it is now that frontier, one curve per <code>cbar</code>.</li>
 <li>
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> no longer paints a line along the panel edge when a stretch of the sweep is unbounded. Only the first point of each unbounded run is routed off-panel and the rest are blank, so the curve leaves the plot once instead of running along its boundary. Runs are detected per series, so one beginning at a group boundary still gets its own exit.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<h3 id="bug-fixes-0-1-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-1-2"></a></h3>
 <ul><li>
 <p><code>regsen_bounds(analysis = "oster", delta_type = "bound")</code> reported a bounded identified set where the set is in fact unbounded. The solver correctly returns <code>-Inf</code>/<code>Inf</code> for <code>|delta| &lt;= dbar</code> with <code>dbar &gt;= 1</code>, but the routine accumulating bounds across the grid discarded infinite values alongside <code>NA</code> and carried the last finite bound forward. On the bundled data, <code>delta = c(0.5, 1, 2)</code> reported <code>[1.31, 2.98]</code> at every point instead of <code>(-Inf, Inf)</code> from <code>dbar = 1</code> on.</p>
 <p><code>NA</code> still carries over, since it means the solver failed and carries no information; an infinity is a bound and now propagates. This is the one direction a sensitivity analysis must not err in, since it made results look more robust than they are. Previously validated numbers are unchanged – the snapshot tests pass untouched.</p>
 </li>
 </ul></div>
 <div class="section level3">
-<h3 id="interactive-development-version">Interactive<a class="anchor" aria-label="anchor" href="#interactive-development-version"></a></h3>
+<h3 id="interactive-0-1-2">Interactive<a class="anchor" aria-label="anchor" href="#interactive-0-1-2"></a></h3>
 <ul><li>New <code><a href="../reference/regsen_explore.html">regsen_explore()</a></code>, a shiny application for moving the sensitivity parameters by hand and watching the identified set respond.  is a Suggests, so the rest of the package works without it. Inputs are validated and the model is fitted once before the app opens, so a bad call reports at the console rather than as a banner in a browser tab.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="several-treatments-development-version">Several treatments<a class="anchor" aria-label="anchor" href="#several-treatments-development-version"></a></h3>
+<h3 id="several-treatments-0-1-2">Several treatments<a class="anchor" aria-label="anchor" href="#several-treatments-0-1-2"></a></h3>
 <ul><li>New <code><a href="../reference/regsen_multi.html">regsen_multi()</a></code>, running the analysis once per candidate treatment and collecting the breakdown points into one table, with a <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method ordering treatments by fragility. Every treatment is analysed in the same specification – the others stay as controls – so the rows are comparable. A treatment whose analysis fails yields an <code>NA</code> row with the reason rather than aborting the sweep.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="inference-development-version">Inference<a class="anchor" aria-label="anchor" href="#inference-development-version"></a></h3>
+<h3 id="inference-0-1-2">Inference<a class="anchor" aria-label="anchor" href="#inference-0-1-2"></a></h3>
 <ul><li>
 <code><a href="../reference/regsen_boot.html">regsen_boot()</a></code> gains <code>ncores</code>, running replications in parallel: forking on macOS and Linux, a PSOCK cluster on Windows. A progress bar is not shown in parallel, since it cannot report meaningfully from several workers.</li>
 <li>Results for a given <code>seed</code> are now identical regardless of <code>ncores</code>. Each replicate seeds itself from a vector drawn once up front, rather than relying on parallel RNG substreams, which would have made the numbers depend on how the work happened to be divided.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
+<h3 id="documentation-0-1-2">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-1-2"></a></h3>
 <ul><li>New vignette “Publication-ready plots and tables”, covering figure sizing for journals, greyscale and colour-vision safety, and the LaTeX / HTML / Markdown table output.</li>
 <li>New vignette “Coming from the Stata package”, mapping every command and option in the Stata package’s own vignette onto its R equivalent. It doubles as a coverage check: a gap would show as a missing row rather than going unnoticed.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="interoperability-development-version">Interoperability<a class="anchor" aria-label="anchor" href="#interoperability-development-version"></a></h3>
+<h3 id="interoperability-0-1-2">Interoperability<a class="anchor" aria-label="anchor" href="#interoperability-0-1-2"></a></h3>
 <ul><li>New <code><a href="../reference/regsen_tidy.html">regsen_tidy()</a></code> and <code><a href="../reference/regsen_tidy.html">regsen_glance()</a></code>, broom-style tidiers. They are registered on <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">generics::tidy()</a></code>/<code>glance()</code> when  is installed, so results flow into  and anything else speaking that vocabulary; <code>generics</code> stays a Suggests.</li>
 <li>New <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> method, forwarding to <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="replication-development-version">Replication<a class="anchor" aria-label="anchor" href="#replication-development-version"></a></h3>
+<h3 id="replication-0-1-2">Replication<a class="anchor" aria-label="anchor" href="#replication-0-1-2"></a></h3>
 <ul><li>The DMP (2026) vignette now checks its numbers against the published values in a table, and <code><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot()</a></code>s the comparison, so a regression stops the build instead of quietly shipping a wrong replication.</li>
 <li>Calibration labels in the Figure 1 overlay are staggered across three x positions; at a single x they collided into an unreadable stack.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="tables-development-version">Tables<a class="anchor" aria-label="anchor" href="#tables-development-version"></a></h3>
+<h3 id="tables-0-1-2">Tables<a class="anchor" aria-label="anchor" href="#tables-0-1-2"></a></h3>
 <ul><li>New <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> method returning the results as a plain data frame, so they can be passed to any table package (kableExtra, gt, modelsummary, huxtable, tinytable, xtable).</li>
 <li>New <code><a href="../reference/regsen_table.html">regsen_table()</a></code> rendering results as LaTeX, HTML or Markdown, so the same call works in an Rmd/Qmd knitting to PDF, HTML or Markdown. LaTeX output uses <code>booktabs</code> and puts notes in a <code>threeparttable</code>, with <code>notes = TRUE</code> generating a note recording the analysis, hypothesis and sample size. Infinite bounds render as the correct symbol per format rather than being blanked out.</li>
 </ul></div>
