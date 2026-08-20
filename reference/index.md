@@ -34,6 +34,8 @@
 
 - [`plot(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/plot.regsensitivity.md)
   : Plot a regression sensitivity analysis
+- [`autoplot(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/autoplot.regsensitivity.md)
+  : Autoplot method
 - [`theme_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/theme_regsen.md)
   : Publication-ready theme for sensitivity plots
 - [`scale_colour_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md)
@@ -47,6 +49,9 @@
   : Render a sensitivity analysis as a publication-ready table
 - [`as.data.frame(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/as.data.frame.regsensitivity.md)
   : Extract sensitivity results as a tidy data frame
+- [`regsen_tidy()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_tidy.md)
+  [`regsen_glance()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_tidy.md)
+  : Tidy a sensitivity analysis
 
 ## Data
 

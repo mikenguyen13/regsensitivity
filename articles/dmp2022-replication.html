@@ -121,19 +121,80 @@ table/figure number in the paper.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bp_conservative</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
 <span>                                  cbar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">bp_conservative</span><span class="op">$</span><span class="va">breakdown</span>   <span class="co"># paper: 0.804</span></span>
-<span><span class="co">#&gt; [1] 0.8035643</span></span>
-<span></span>
 <span><span class="va">bp_relaxed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
 <span>                             cbar <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                             rybar_expr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">rx</span><span class="op">)</span> <span class="va">rx</span><span class="op">)</span></span>
-<span><span class="va">bp_relaxed</span><span class="op">$</span><span class="va">breakdown</span>        <span class="co"># paper: 0.96</span></span>
-<span><span class="co">#&gt; [1] 0.9583522</span></span></code></pre></div>
+<span>                             rybar_expr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">rx</span><span class="op">)</span> <span class="va">rx</span><span class="op">)</span></span></code></pre></div>
+<p>Side by side against the published values. <code>published</code>
+holds the figures as printed in the paper, so the comparison is checked
+on every build rather than asserted in prose:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># `digits` is the precision the paper actually prints each value to, given</span></span>
+<span><span class="co"># explicitly rather than inferred. Deriving it from format() is wrong:</span></span>
+<span><span class="co"># format() pads a vector to a common width, so format(c(0.804, 0.96)) is</span></span>
+<span><span class="co"># c("0.804", "0.960") and 0.96 would be held to a precision it was never</span></span>
+<span><span class="co"># printed at.</span></span>
+<span><span class="va">compare_published</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">quantity</span>, <span class="va">published</span>, <span class="va">computed</span>, <span class="va">digits</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>        quantity  <span class="op">=</span> <span class="va">quantity</span>,</span>
+<span>        published <span class="op">=</span> <span class="va">published</span>,</span>
+<span>        computed  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">computed</span>, <span class="fl">4</span><span class="op">)</span>,</span>
+<span>        stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>    <span class="op">)</span></span>
+<span>    <span class="va">out</span><span class="op">$</span><span class="va">difference</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">computed</span> <span class="op">-</span> <span class="va">out</span><span class="op">$</span><span class="va">published</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span>    <span class="va">out</span><span class="op">$</span><span class="va">agrees</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">difference</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fl">10</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="va">digits</span><span class="op">)</span></span>
+<span>    <span class="va">out</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu">compare_published</span><span class="op">(</span></span>
+<span>    quantity  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rxbar^bp at cbar = 1"</span>,</span>
+<span>                  <span class="st">"r^bp at cbar = 1, rybar = rxbar"</span><span class="op">)</span>,</span>
+<span>    published <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.804</span>, <span class="fl">0.96</span><span class="op">)</span>,</span>
+<span>    digits    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span>,          <span class="co"># as printed in the paper</span></span>
+<span>    computed  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">bp_conservative</span><span class="op">$</span><span class="va">breakdown</span>, <span class="va">bp_relaxed</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">cmp</span>, caption <span class="op">=</span> <span class="st">"Breakdown points: this package vs DMP (2026)."</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<caption>Breakdown points: this package vs DMP (2026).</caption>
+<colgroup>
+<col width="46%">
+<col width="14%">
+<col width="13%">
+<col width="15%">
+<col width="10%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">quantity</th>
+<th align="right">published</th>
+<th align="right">computed</th>
+<th align="right">difference</th>
+<th align="left">agrees</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">rxbar^bp at cbar = 1</td>
+<td align="right">0.804</td>
+<td align="right">0.8036</td>
+<td align="right">-0.0004</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">r^bp at cbar = 1, rybar = rxbar</td>
+<td align="right">0.960</td>
+<td align="right">0.9584</td>
+<td align="right">-0.0016</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
+<p>Both agree to the precision the paper prints. The
+<code><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot()</a></code> above is deliberate: if a future change moved
+either number, this vignette would stop building rather than quietly
+publishing a wrong replication.</p>
 </div>
 <div class="section level2">
 <h2 id="table-3-correlations-between-observed-covariates">Table 3: correlations between observed covariates<a class="anchor" aria-label="anchor" href="#table-3-correlations-between-observed-covariates"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tbl3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate_partial_r2.html">calibrate_partial_r2</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span><span class="op">)</span></span>
 <span><span class="va">tbl3</span><span class="op">$</span><span class="va">variable</span> <span class="op">&lt;-</span> <span class="va">labels</span><span class="op">[</span><span class="va">tbl3</span><span class="op">$</span><span class="va">variable</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tbl3</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -153,7 +214,7 @@ table/figure number in the paper.</p>
 <div class="section level2">
 <h2 id="table-4-column-5-rho_k-calibration">Table 4, column (5): rho_k calibration<a class="anchor" aria-label="anchor" href="#table-4-column-5-rho_k-calibration"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tbl4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate_rho.html">calibrate_rho</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span><span class="op">)</span></span>
 <span><span class="va">tbl4</span><span class="op">$</span><span class="va">variable</span> <span class="op">&lt;-</span> <span class="va">labels</span><span class="op">[</span><span class="va">tbl4</span><span class="op">$</span><span class="va">variable</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tbl4</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -180,7 +241,7 @@ as a function of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>X</mi></msub><annotation encoding="application/x-tex">\bar r_X</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>c</mi><mo accent="true">‾</mo></mover><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\bar c = 1</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#left-panel-bounds-on-beta_long-as-a-function-of-bar-r_x-bar-c-1"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fig1L</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                        rxbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.99</span>, length.out <span class="op">=</span> <span class="fl">200</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fig1L</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">8</span><span class="op">)</span>,</span>
@@ -191,7 +252,7 @@ as a function of
 <h3 id="right-panel-breakdown-frontier-bar-r_xbpbar-c">Right panel: breakdown frontier
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>X</mi><mrow><mi>b</mi><mi>p</mi></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><mover><mi>c</mi><mo accent="true">‾</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\bar r_X^{bp}(\bar c)</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#right-panel-breakdown-frontier-bar-r_xbpbar-c"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fig1R</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
 <span>                           cbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0.02</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fig1R</span>,</span>
@@ -201,17 +262,32 @@ as a function of
 <div class="section level3">
 <h3 id="overlaying-the-calibration-values">Overlaying the calibration values<a class="anchor" aria-label="anchor" href="#overlaying-the-calibration-values"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_rho</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate_rho.html">calibrate_rho</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span><span class="op">)</span></span>
 <span><span class="va">df_rho</span><span class="op">$</span><span class="va">variable</span> <span class="op">&lt;-</span> <span class="va">labels</span><span class="op">[</span><span class="va">df_rho</span><span class="op">$</span><span class="va">variable</span><span class="op">]</span></span>
 <span><span class="va">df_rho</span><span class="op">$</span><span class="va">rho_dec</span>  <span class="op">&lt;-</span> <span class="va">df_rho</span><span class="op">$</span><span class="va">rho</span> <span class="op">/</span> <span class="fl">100</span>  <span class="co"># express as fraction</span></span>
+<span></span>
+<span><span class="co"># Several covariates calibrate to similar rho, so labels placed at a</span></span>
+<span><span class="co"># common x collide into an unreadable stack. Staggering them across three</span></span>
+<span><span class="co"># x positions keeps every label rather than dropping the crowded ones.</span></span>
+<span><span class="va">df_rho</span> <span class="op">&lt;-</span> <span class="va">df_rho</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">df_rho</span><span class="op">$</span><span class="va">rho_dec</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">df_rho</span><span class="op">$</span><span class="va">xpos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.02</span>, <span class="fl">0.36</span>, <span class="fl">0.70</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df_rho</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fig1R</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">df_rho</span><span class="op">$</span><span class="va">rho_dec</span>, linetype <span class="op">=</span> <span class="st">"dotted"</span>,</span>
-<span>                colour <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>                colour <span class="op">=</span> <span class="st">"grey55"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">df_rho</span>,</span>
-<span>               <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">0.05</span>, y <span class="op">=</span> <span class="va">rho_dec</span>, label <span class="op">=</span> <span class="va">variable</span><span class="op">)</span>,</span>
-<span>               hjust <span class="op">=</span> <span class="fl">0</span>, vjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.3</span>, size <span class="op">=</span> <span class="fl">2.6</span>, colour <span class="op">=</span> <span class="st">"grey30"</span><span class="op">)</span></span></code></pre></div>
+<span>               <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">xpos</span>, y <span class="op">=</span> <span class="va">rho_dec</span>, label <span class="op">=</span> <span class="va">variable</span><span class="op">)</span>,</span>
+<span>               hjust <span class="op">=</span> <span class="fl">0</span>, vjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span>, size <span class="op">=</span> <span class="fl">2.5</span>, colour <span class="op">=</span> <span class="st">"grey25"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.45</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="dmp2022-replication_files/figure-html/fig1-with-rho-1.png" class="r-plt" alt="" width="576"></p>
+<p>Each dotted line is one covariate’s
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ρ</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\rho_k</annotation></semantics></math>:
+how much of the treatment’s variation that single observed control
+explains. Reading the frontier against them is the point of the figure –
+a covariate sitting <em>above</em> the frontier would, if an
+unobservable were comparably important, be enough to overturn the
+sign.</p>
 </div>
 </div>
 <div class="section level2">
@@ -224,14 +300,14 @@ additional outcome variables that are <strong>not</strong> part of the
 bundled <code>bfg2020</code> slice. Once the full
 Bazzi-Fiszbein-Gebresilasse replication data is loaded, the calls look
 like:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Hypothetical, given a column `cut_spending_poor`:</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">regsen_bounds</span>(cut_spending_poor <span class="sc">~</span> tye_tfe890_500kNI_100_l6 <span class="sc">+</span> <span class="er">&lt;</span>controls<span class="sc">&gt;</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>              data, <span class="at">compare =</span> w1, <span class="at">cbar =</span> <span class="dv">1</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">regsen_breakdown</span>(cut_spending_poor <span class="sc">~</span> ...,</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>                  data, <span class="at">compare =</span> w1, <span class="at">cbar =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.02</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Hypothetical, given a column `cut_spending_poor`:</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">regsen_bounds</span>(cut_spending_poor <span class="sc">~</span> tye_tfe890_500kNI_100_l6 <span class="sc">+</span> <span class="er">&lt;</span>controls<span class="sc">&gt;</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>              data, <span class="at">compare =</span> w1, <span class="at">cbar =</span> <span class="dv">1</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">regsen_breakdown</span>(cut_spending_poor <span class="sc">~</span> ...,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>                  data, <span class="at">compare =</span> w1, <span class="at">cbar =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.02</span>))</span></code></pre></div>
 <p>For Figure 3, vary the <code>compare</code> argument to include /
 exclude calibration covariates:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">drop</span> <span class="kw">in</span> <span class="va">w1</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">w1</span>, <span class="va">drop</span><span class="op">)</span>,</span>
 <span>                          cbar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
@@ -245,7 +321,7 @@ exclude calibration covariates:</p>
 <p>The paper notes that restricting the unobservable’s effect on the
 outcome shrinks the identified set considerably. Reproducing Figure 4 of
 the appendix style:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, rybar <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>                     rxbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.95</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fy</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span>,</span>

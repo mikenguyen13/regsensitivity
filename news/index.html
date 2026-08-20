@@ -54,6 +54,16 @@
 <li>Passing <code>NA</code> to <code>title</code>, <code>subtitle</code>, <code>xtitle</code> or <code>ytitle</code> drops the annotation. The auto-generated subtitle is no longer applied by default, since a journal figure carries its description in the caption.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="interoperability-development-version">Interoperability<a class="anchor" aria-label="anchor" href="#interoperability-development-version"></a></h3>
+<ul><li>New <code><a href="../reference/regsen_tidy.html">regsen_tidy()</a></code> and <code><a href="../reference/regsen_tidy.html">regsen_glance()</a></code>, broom-style tidiers. They are registered on <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">generics::tidy()</a></code>/<code>glance()</code> when  is installed, so results flow into  and anything else speaking that vocabulary; <code>generics</code> stays a Suggests.</li>
+<li>New <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> method, forwarding to <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="replication-development-version">Replication<a class="anchor" aria-label="anchor" href="#replication-development-version"></a></h3>
+<ul><li>The DMP (2026) vignette now checks its numbers against the published values in a table, and <code><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot()</a></code>s the comparison, so a regression stops the build instead of quietly shipping a wrong replication.</li>
+<li>Calibration labels in the Figure 1 overlay are staggered across three x positions; at a single x they collided into an unreadable stack.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="tables-development-version">Tables<a class="anchor" aria-label="anchor" href="#tables-development-version"></a></h3>
 <ul><li>New <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> method returning the results as a plain data frame, so they can be passed to any table package (kableExtra, gt, modelsummary, huxtable, tinytable, xtable).</li>
 <li>New <code><a href="../reference/regsen_table.html">regsen_table()</a></code> rendering results as LaTeX, HTML or Markdown, so the same call works in an Rmd/Qmd knitting to PDF, HTML or Markdown. LaTeX output uses <code>booktabs</code> and puts notes in a <code>threeparttable</code>, with <code>notes = TRUE</code> generating a note recording the analysis, hypothesis and sample size. Infinite bounds render as the correct symbol per format rather than being blanked out.</li>

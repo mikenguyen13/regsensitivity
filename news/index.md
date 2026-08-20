@@ -26,6 +26,31 @@
   default, since a journal figure carries its description in the
   caption.
 
+### Interoperability
+
+- New
+  [`regsen_tidy()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_tidy.md)
+  and
+  [`regsen_glance()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_tidy.md),
+  broom-style tidiers. They are registered on
+  [`generics::tidy()`](https://generics.r-lib.org/reference/tidy.html)/`glance()`
+  when is installed, so results flow into and anything else speaking
+  that vocabulary; `generics` stays a Suggests.
+- New
+  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+  method, forwarding to
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html).
+
+### Replication
+
+- The DMP (2026) vignette now checks its numbers against the published
+  values in a table, and
+  [`stopifnot()`](https://rdrr.io/r/base/stopifnot.html)s the
+  comparison, so a regression stops the build instead of quietly
+  shipping a wrong replication.
+- Calibration labels in the Figure 1 overlay are staggered across three
+  x positions; at a single x they collided into an unreadable stack.
+
 ### Tables
 
 - New [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html)

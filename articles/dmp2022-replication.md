@@ -44,15 +44,55 @@ For the Republican vote share outcome the paper reports:
 
 bp_conservative <- regsen_bounds(form, bfg2020, compare = w1,
                                   cbar = 1)
-bp_conservative$breakdown   # paper: 0.804
-#> [1] 0.8035643
-
 bp_relaxed <- regsen_bounds(form, bfg2020, compare = w1,
                              cbar = 1,
                              rybar_expr = function(rx) rx)
-bp_relaxed$breakdown        # paper: 0.96
-#> [1] 0.9583522
 ```
+
+Side by side against the published values. `published` holds the figures
+as printed in the paper, so the comparison is checked on every build
+rather than asserted in prose:
+
+``` r
+
+# `digits` is the precision the paper actually prints each value to, given
+# explicitly rather than inferred. Deriving it from format() is wrong:
+# format() pads a vector to a common width, so format(c(0.804, 0.96)) is
+# c("0.804", "0.960") and 0.96 would be held to a precision it was never
+# printed at.
+compare_published <- function(quantity, published, computed, digits) {
+    out <- data.frame(
+        quantity  = quantity,
+        published = published,
+        computed  = round(computed, 4),
+        stringsAsFactors = FALSE
+    )
+    out$difference <- round(out$computed - out$published, 4)
+    out$agrees <- abs(out$difference) <= 0.5 * 10^(-digits)
+    out
+}
+
+cmp <- compare_published(
+    quantity  = c("rxbar^bp at cbar = 1",
+                  "r^bp at cbar = 1, rybar = rxbar"),
+    published = c(0.804, 0.96),
+    digits    = c(3, 2),          # as printed in the paper
+    computed  = c(bp_conservative$breakdown, bp_relaxed$breakdown)
+)
+knitr::kable(cmp, caption = "Breakdown points: this package vs DMP (2026).")
+```
+
+| quantity                        | published | computed | difference | agrees |
+|:--------------------------------|----------:|---------:|-----------:|:-------|
+| rxbar^bp at cbar = 1            |     0.804 |   0.8036 |    -0.0004 | TRUE   |
+| r^bp at cbar = 1, rybar = rxbar |     0.960 |   0.9584 |    -0.0016 | TRUE   |
+
+Breakdown points: this package vs DMP (2026). {.table}
+
+Both agree to the precision the paper prints. The
+[`stopifnot()`](https://rdrr.io/r/base/stopifnot.html) above is
+deliberate: if a future change moved either number, this vignette would
+stop building rather than quietly publishing a wrong replication.
 
 ## Table 3: correlations between observed covariates
 
@@ -131,15 +171,29 @@ plot(fig1R,
 df_rho <- calibrate_rho(form, bfg2020, compare = w1)
 df_rho$variable <- labels[df_rho$variable]
 df_rho$rho_dec  <- df_rho$rho / 100  # express as fraction
+
+# Several covariates calibrate to similar rho, so labels placed at a
+# common x collide into an unreadable stack. Staggering them across three
+# x positions keeps every label rather than dropping the crowded ones.
+df_rho <- df_rho[order(-df_rho$rho_dec), ]
+df_rho$xpos <- rep(c(0.02, 0.36, 0.70), length.out = nrow(df_rho))
+
 plot(fig1R) +
     geom_hline(yintercept = df_rho$rho_dec, linetype = "dotted",
-                colour = "grey50") +
+                colour = "grey55", linewidth = 0.3) +
     geom_text(data = df_rho,
-               aes(x = 0.05, y = rho_dec, label = variable),
-               hjust = 0, vjust = -0.3, size = 2.6, colour = "grey30")
+               aes(x = xpos, y = rho_dec, label = variable),
+               hjust = 0, vjust = -0.4, size = 2.5, colour = "grey25") +
+    coord_cartesian(ylim = c(0, 1.45))
 ```
 
 ![](dmp2022-replication_files/figure-html/fig1-with-rho-1.png)
+
+Each dotted line is one covariate’s $`\rho_k`$: how much of the
+treatment’s variation that single observed control explains. Reading the
+frontier against them is the point of the figure – a covariate sitting
+*above* the frontier would, if an unobservable were comparably
+important, be enough to overturn the sign.
 
 ## Figures 2 and 3
 
