@@ -163,13 +163,18 @@ the paper reports -- each curve approaches $\bar r_X = 0.804$ as
 $\bar r_Y$ grows, which is the breakdown point of Table 1, Panel C. The
 horizontal arm lives in a region the package declines to compute:
 
-```{r limit, echo = TRUE, error = TRUE}
-regsen_bounds(form, bfg2020, compare = w1, cbar = 1, rxbar = 2, rybar = 0.6)
+```{r limit, echo = TRUE}
+tryCatch(
+    regsen_bounds(form, bfg2020, compare = w1,
+                  cbar = 1, rxbar = 2, rybar = 0.6),
+    error = conditionMessage
+)
 ```
 
-Rather than return a number it cannot stand behind, it raises that error.
-So the missing arm is a stated limitation of the implementation, not a
-disagreement with the paper.
+Rather than return a number it cannot stand behind, the package raises
+an error carrying that message (`tryCatch()` above captures it for
+display). So the missing arm is a stated limitation of the
+implementation, not a disagreement with the paper.
 
 ## Figure 3: calibrating with state fixed effects
 

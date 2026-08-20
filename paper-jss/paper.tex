@@ -1221,9 +1221,12 @@ Bootstrap confidence interval for the breakdown point
 
 The point estimate is the value DMP report as $80.4$\%. The interval is
 informative for the substantive question: its lower endpoint,
-$0.504$, still exceeds all but two of the $\rho_k$
-values above, so the qualitative conclusion does not rest on the point
-estimate alone. Omitting \code{cluster} gives the i.i.d.\ bootstrap, which
+$0.504$, still exceeds
+$8$ of the
+$10$ $\rho_k$ values above, so the qualitative
+conclusion does not rest on the point estimate alone. (The count is
+computed from the interval, not asserted: the nearest $\rho_k$ sits
+close to the endpoint, and a different seed could move it across.) Omitting \code{cluster} gives the i.i.d.\ bootstrap, which
 is faster but understates uncertainty when the data are spatially
 correlated.
 
@@ -1278,11 +1281,14 @@ Two things are visible. The frontier moves outward as $\cbar$ falls,
 quantifying the substitution between the two assumptions noted after
 \eqref{eq:thm3}. And the $\cbar = 1$ curve is confined to
 $\rxbar < 0.99$, the finiteness
-threshold at that $\cbar$; requesting points beyond it enters the region
-Section~\ref{sec:regimes} described as uncharacterized, which is why the
-loop above guards each call with \code{try()}. Users tracing frontiers at
-high $\cbar$ should expect this and not mistake it for a convergence
-failure.
+threshold at that $\cbar$. The \code{try()} guard in the loop is
+defensive: on this grid no call fails, because
+\code{regsen\_breakdown()} solves along the boundary of the
+characterized region, but \code{regsen\_bounds()} does raise an error
+for points beyond it -- the region Section~\ref{sec:regimes} described
+as uncharacterized -- and the guard costs nothing on grids that stray
+there. Users who do hit that error should not mistake it for a
+convergence failure.
 
 %% ============================================================================
 \section{Replicating Diegert, Masten and Poirier (2026)}\label{sec:replication}
