@@ -325,18 +325,21 @@ and the reason is explicit rather than incidental:
 
 ``` r
 
-regsen_bounds(form, bfg2020, compare = w1,
-              cbar = 1, rxbar = 2, rybar = 0.6)
-#> Error:
-#> ! Bounds calculation not implemented in the region where rxbar > rmax(c) > rybar (see DMP 2026)
+tryCatch(
+    regsen_bounds(form, bfg2020, compare = w1,
+                  cbar = 1, rxbar = 2, rybar = 0.6),
+    error = conditionMessage
+)
+#> [1] "Bounds calculation not implemented in the region where rxbar > rmax(c) > rybar (see DMP 2026)"
 ```
 
 The horizontal arm lives in the region
 $`\bar r_X > r_{max}(\bar c) > \bar r_Y`$, which this package does not
-implement – it raises the error above rather than returning a number it
-cannot stand behind. The vertical arm, which carries the breakdown point
-the paper actually reports, is reproduced exactly: each curve approaches
-$`\bar r_X = 0.804`$ as $`\bar r_Y`$ grows.
+implement – it raises an error carrying the message above rather than
+returning a number it cannot stand behind. The vertical arm, which
+carries the breakdown point the paper actually reports, is reproduced
+exactly: each curve approaches $`\bar r_X = 0.804`$ as $`\bar r_Y`$
+grows.
 
 ### Overlaying the calibration values
 

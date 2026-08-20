@@ -151,14 +151,19 @@ The horizontal arm lives in a region the package declines to compute:
 
 ``` r
 
-regsen_bounds(form, bfg2020, compare = w1, cbar = 1, rxbar = 2, rybar = 0.6)
-#> Error:
-#> ! Bounds calculation not implemented in the region where rxbar > rmax(c) > rybar (see DMP 2026)
+tryCatch(
+    regsen_bounds(form, bfg2020, compare = w1,
+                  cbar = 1, rxbar = 2, rybar = 0.6),
+    error = conditionMessage
+)
+#> [1] "Bounds calculation not implemented in the region where rxbar > rmax(c) > rybar (see DMP 2026)"
 ```
 
-Rather than return a number it cannot stand behind, it raises that
-error. So the missing arm is a stated limitation of the implementation,
-not a disagreement with the paper.
+Rather than return a number it cannot stand behind, the package raises
+an error carrying that message
+([`tryCatch()`](https://rdrr.io/r/base/conditions.html) above captures
+it for display). So the missing arm is a stated limitation of the
+implementation, not a disagreement with the paper.
 
 ## Figure 3: calibrating with state fixed effects
 

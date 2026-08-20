@@ -549,16 +549,18 @@ reconstruction stops near
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>X</mi></msub><mo>=</mo><mn>1</mn><mi>/</mi><mover><mi>c</mi><mo accent="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">\bar r_X = 1/\bar c</annotation></semantics></math>,
 and the reason is explicit rather than incidental:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
-<span>              cbar <span class="op">=</span> <span class="fl">1</span>, rxbar <span class="op">=</span> <span class="fl">2</span>, rybar <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Bounds calculation not implemented in the region where rxbar &gt; rmax(c) &gt; rybar (see DMP 2026)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
+<span>                  cbar <span class="op">=</span> <span class="fl">1</span>, rxbar <span class="op">=</span> <span class="fl">2</span>, rybar <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span>,</span>
+<span>    error <span class="op">=</span> <span class="va">conditionMessage</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Bounds calculation not implemented in the region where rxbar &gt; rmax(c) &gt; rybar (see DMP 2026)"</span></span></code></pre></div>
 <p>The horizontal arm lives in the region
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>X</mi></msub><mo>&gt;</mo><msub><mi>r</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mover><mi>c</mi><mo accent="true">‾</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>Y</mi></msub></mrow><annotation encoding="application/x-tex">\bar r_X &gt; r_{max}(\bar c) &gt; \bar r_Y</annotation></semantics></math>,
-which this package does not implement – it raises the error above rather
-than returning a number it cannot stand behind. The vertical arm, which
-carries the breakdown point the paper actually reports, is reproduced
-exactly: each curve approaches
+which this package does not implement – it raises an error carrying the
+message above rather than returning a number it cannot stand behind. The
+vertical arm, which carries the breakdown point the paper actually
+reports, is reproduced exactly: each curve approaches
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>X</mi></msub><mo>=</mo><mn>0.804</mn></mrow><annotation encoding="application/x-tex">\bar r_X = 0.804</annotation></semantics></math>
 as
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>Y</mi></msub><annotation encoding="application/x-tex">\bar r_Y</annotation></semantics></math>
