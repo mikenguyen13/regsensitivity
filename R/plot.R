@@ -117,8 +117,8 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
         primary <- nonscalar[1]
         secondary <- if (length(nonscalar) > 1) nonscalar[2] else NULL
         df <- res
-        df$bmin_p <- pmax(pmin(df$bmin, ylim[2]), ylim[1])
-        df$bmax_p <- pmax(pmin(df$bmax, ylim[2]), ylim[1])
+        df$bmin_p <- offscreen(df$bmin, ylim, "lower")
+        df$bmax_p <- offscreen(df$bmax, ylim, "upper")
         df$x_var <- df[[primary]]
 
         if (!is.null(secondary)) {
@@ -151,14 +151,14 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
                 data.frame(x = df$x_var, y = df$beta3, branch = 3)
             )
             long <- long[is.finite(long$y), , drop = FALSE]
-            long$y_p <- pmax(pmin(long$y, ylim[2]), ylim[1])
+            long$y_p <- long$y
             p <- ggplot(long, aes(x = .data$x, y = .data$y_p,
                                     group = factor(.data$branch))) +
                 geom_line(linewidth = 0.6)
             primary <- "delta"
         } else {
-            df$bmin_p <- pmax(pmin(df$bmin, ylim[2]), ylim[1])
-            df$bmax_p <- pmax(pmin(df$bmax, ylim[2]), ylim[1])
+            df$bmin_p <- offscreen(df$bmin, ylim, "lower")
+            df$bmax_p <- offscreen(df$bmax, ylim, "upper")
             if (length(unique(df$r2long)) > 1) {
                 df$group <- factor(df$r2long)
                 p <- ggplot(df, aes(x = .data$x_var, group = .data$group,
@@ -222,6 +222,21 @@ plot_breakdown <- function(x, title = NULL, subtitle = NULL,
         ) +
         theme_regsen(base_size = base_size)
     p
+}
+
+
+# An unbounded identified set must not be drawn as a flat line along the
+# axis: that reads as "the bound levels off here", which is the opposite of
+# what it means. Send non-finite bounds well past the panel so the line
+# leaves the plot steeply, and let coord_cartesian() do the clipping --
+# clamping finite values to the limits would flatten them the same way.
+offscreen <- function(v, ylim, side) {
+    pad <- diff(ylim)
+    if (!is.finite(pad) || pad <= 0) pad <- 1
+    out <- v
+    bad <- !is.finite(v)
+    out[bad] <- if (side == "lower") ylim[1] - pad else ylim[2] + pad
+    out
 }
 
 # Small helper since R has no null-coalescing operator.

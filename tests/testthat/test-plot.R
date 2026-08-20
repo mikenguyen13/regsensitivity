@@ -65,3 +65,28 @@ test_that("theme_regsen and the colour scale are usable on their own", {
     expect_s3_class(theme_regsen(base_size = 9, grid = "none"), "theme")
     expect_s3_class(scale_colour_regsen(), "ScaleDiscrete")
 })
+
+test_that("unbounded identified sets leave the panel instead of flattening", {
+    # Clamping bounds to the y-limits drew a flat line along the axis, which
+    # reads as "the bound levels off here" -- the opposite of unbounded.
+    ylim <- c(-10, 10)
+    v <- c(1, Inf, -Inf, NA)
+    lo <- regsensitivity:::offscreen(v, ylim, "lower")
+    hi <- regsensitivity:::offscreen(v, ylim, "upper")
+
+    expect_equal(lo[1], 1)
+    expect_true(all(lo[2:4] < ylim[1]))
+    expect_true(all(hi[2:4] > ylim[2]))
+
+    # A degenerate range must not produce NaN padding.
+    expect_true(is.finite(regsensitivity:::offscreen(Inf, c(0, 0), "upper")))
+})
+
+test_that("theme_regsen defaults to no grid, as econ journals expect", {
+    th <- theme_regsen()
+    expect_s3_class(th$panel.grid.major, "element_blank")
+    expect_s3_class(th$panel.border, "element_blank")
+    # Opting back in still works.
+    expect_false(inherits(theme_regsen(grid = "y")$panel.grid.major.y,
+                          "element_blank"))
+})
