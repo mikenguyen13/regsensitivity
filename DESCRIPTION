@@ -33,6 +33,7 @@ Imports:
     rlang (>= 1.0.0)
 Suggests:
     generics,
+    shiny,
     haven (>= 2.5.0),
     testthat (>= 3.0.0),
     knitr (>= 1.40),

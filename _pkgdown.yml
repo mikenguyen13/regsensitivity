@@ -19,6 +19,9 @@ reference:
   - title: "Several treatments"
     contents:
       - regsen_multi
+  - title: "Interactive"
+    contents:
+      - regsen_explore
   - title: "Calibration"
     contents:
       - calibrate_rho

@@ -17,6 +17,14 @@
   annotation. The auto-generated subtitle is no longer applied by default,
   since a journal figure carries its description in the caption.
 
+## Interactive
+
+* New `regsen_explore()`, a shiny application for moving the sensitivity
+  parameters by hand and watching the identified set respond. \pkg{shiny}
+  is a Suggests, so the rest of the package works without it. Inputs are
+  validated and the model is fitted once before the app opens, so a bad
+  call reports at the console rather than as a banner in a browser tab.
+
 ## Several treatments
 
 * New `regsen_multi()`, running the analysis once per candidate treatment
