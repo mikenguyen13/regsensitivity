@@ -1,4 +1,4 @@
-# regsensitivity
+# regsensitivity <img src="man/figures/logo.png" align="right" height="139" alt="regsensitivity logo: a point estimate opening into an identified set" />
 
 <!-- badges: start -->
 
