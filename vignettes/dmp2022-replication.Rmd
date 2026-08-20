@@ -225,6 +225,14 @@ inverting, which the package does not currently expose.
 ### Overlaying the calibration values
 
 ```{r fig1-with-rho, fig.height = 5}
+# The breakdown point as a function of cbar alone, with each covariate's
+# calibrated rho_k drawn as a reference line. This is the reading the
+# paper's calibration discussion turns on: a covariate whose line sits
+# above the curve is one whose importance, if matched by an unobservable,
+# would be enough to overturn the sign.
+bd_cbar <- regsen_breakdown(form, bfg2020, compare = w1,
+                             cbar = seq(0, 1, 0.02))
+
 df_rho <- calibrate_rho(form, bfg2020, compare = w1)
 df_rho$variable <- labels[df_rho$variable]
 df_rho$rho_dec  <- df_rho$rho / 100  # express as fraction
@@ -235,7 +243,7 @@ df_rho$rho_dec  <- df_rho$rho / 100  # express as fraction
 df_rho <- df_rho[order(-df_rho$rho_dec), ]
 df_rho$xpos <- rep(c(0.02, 0.36, 0.70), length.out = nrow(df_rho))
 
-plot(fig1R) +
+plot(bd_cbar) +
     geom_hline(yintercept = df_rho$rho_dec, linetype = "dotted",
                 colour = "grey55", linewidth = 0.3) +
     geom_text(data = df_rho,
