@@ -25,3 +25,4 @@
 ^\.claude$
 ^\.git-rewrite$
 ^\.DS_Store$
+^reference-papers$
