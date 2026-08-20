@@ -117,9 +117,10 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
         primary <- nonscalar[1]
         secondary <- if (length(nonscalar) > 1) nonscalar[2] else NULL
         df <- res
-        df$bmin_p <- offscreen(df$bmin, ylim, "lower")
-        df$bmax_p <- offscreen(df$bmax, ylim, "upper")
         df$x_var <- df[[primary]]
+        grp <- if (!is.null(secondary)) df[[secondary]] else NULL
+        df$bmin_p <- offscreen_by(df$bmin, grp, ylim, "lower")
+        df$bmax_p <- offscreen_by(df$bmax, grp, ylim, "upper")
 
         if (!is.null(secondary)) {
             df$group <- factor(df[[secondary]])
@@ -157,8 +158,9 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
                 geom_line(linewidth = 0.6)
             primary <- "delta"
         } else {
-            df$bmin_p <- offscreen(df$bmin, ylim, "lower")
-            df$bmax_p <- offscreen(df$bmax, ylim, "upper")
+            ogrp <- if (length(unique(df$r2long)) > 1) df$r2long else NULL
+            df$bmin_p <- offscreen_by(df$bmin, ogrp, ylim, "lower")
+            df$bmax_p <- offscreen_by(df$bmax, ogrp, ylim, "upper")
             if (length(unique(df$r2long)) > 1) {
                 df$group <- factor(df$r2long)
                 p <- ggplot(df, aes(x = .data$x_var, group = .data$group,
@@ -233,9 +235,37 @@ plot_breakdown <- function(x, title = NULL, subtitle = NULL,
 offscreen <- function(v, ylim, side) {
     pad <- diff(ylim)
     if (!is.finite(pad) || pad <= 0) pad <- 1
+    target <- if (side == "lower") ylim[1] - pad else ylim[2] + pad
+
     out <- v
     bad <- !is.finite(v)
-    out[bad] <- if (side == "lower") ylim[1] - pad else ylim[2] + pad
+    if (!any(bad)) return(out)
+
+    # Only the *first* point of each unbounded run is placed off-panel; the
+    # rest become NA. Giving every point the same off-panel value drew a
+    # straight segment between them, which coord_cartesian then clipped into
+    # a horizontal line along the panel edge -- reintroducing the very
+    # plateau this routing exists to avoid. One point is enough to make the
+    # line leave the plot; the break afterwards says there is nothing to draw.
+    starts <- bad & !c(FALSE, utils::head(bad, -1))
+    out[bad] <- NA_real_
+    out[starts] <- target
+    out
+}
+
+
+# offscreen() detects the start of each unbounded run, so it must not see
+# two series concatenated: a run that begins exactly at a group boundary
+# would otherwise be mistaken for the continuation of the previous group's
+# run and lose its exit point. Applying it per group keeps each series
+# independent.
+offscreen_by <- function(v, group, ylim, side) {
+    if (is.null(group)) return(offscreen(v, ylim, side))
+    out <- v
+    for (g in unique(group)) {
+        i <- which(group == g)
+        out[i] <- offscreen(v[i], ylim, side)
+    }
     out
 }
 

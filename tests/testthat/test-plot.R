@@ -75,11 +75,29 @@ test_that("unbounded identified sets leave the panel instead of flattening", {
     hi <- regsensitivity:::offscreen(v, ylim, "upper")
 
     expect_equal(lo[1], 1)
-    expect_true(all(lo[2:4] < ylim[1]))
-    expect_true(all(hi[2:4] > ylim[2]))
+    # Only the first point of an unbounded run goes off-panel; the rest are
+    # NA. Sending every point to the same off-panel value drew a straight
+    # segment between them, which the coord then clipped into a line along
+    # the panel edge -- the plateau this routing exists to prevent.
+    expect_true(lo[2] < ylim[1])
+    expect_true(hi[2] > ylim[2])
+    expect_true(all(is.na(lo[3:4])))
+    expect_true(all(is.na(hi[3:4])))
 
     # A degenerate range must not produce NaN padding.
     expect_true(is.finite(regsensitivity:::offscreen(Inf, c(0, 0), "upper")))
+
+    # A run restarting after finite values gets its own exit point.
+    expect_equal(regsensitivity:::offscreen(c(1, Inf, 2, Inf, Inf), c(-10, 10),
+                                            "upper")[c(2, 4, 5)],
+                 c(30, 30, NA))
+
+    # Grouped series are handled independently, so a run beginning exactly
+    # at a group boundary still gets an exit point.
+    expect_equal(regsensitivity:::offscreen_by(c(1, Inf, Inf, 2),
+                                               c("a", "a", "b", "b"),
+                                               c(-10, 10), "upper"),
+                 c(1, 30, 30, 2))
 })
 
 test_that("theme_regsen defaults to no grid, as econ journals expect", {
