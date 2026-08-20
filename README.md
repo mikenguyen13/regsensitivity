@@ -10,9 +10,7 @@
 [![Codecov test coverage](https://codecov.io/gh/mikenguyen13/regsensitivity/graph/badge.svg)](https://app.codecov.io/gh/mikenguyen13/regsensitivity)
 
 *Install*
-[![CRAN status](https://www.r-pkg.org/badges/version/regsensitivity)](https://CRAN.R-project.org/package=regsensitivity)
-[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/regsensitivity)](https://CRAN.R-project.org/package=regsensitivity)
-[![r-universe](https://mikenguyen13.r-universe.dev/badges/regsensitivity)](https://mikenguyen13.r-universe.dev/regsensitivity)
+[![CRAN status](https://img.shields.io/cran/v/regsensitivity)](https://CRAN.R-project.org/package=regsensitivity)
 [![GitHub release](https://img.shields.io/github/v/release/mikenguyen13/regsensitivity?label=github)](https://github.com/mikenguyen13/regsensitivity/releases)
 [![R >= 4.1](https://img.shields.io/badge/R-%E2%89%A5%204.1-blue.svg)](https://cran.r-project.org/)
 [![Dependencies](https://tinyverse.netlify.app/badge/regsensitivity)](https://tinyverse.netlify.app/)
@@ -48,11 +46,6 @@ install.packages("regsensitivity")
 # Development version from GitHub:
 # install.packages("remotes")
 remotes::install_github("mikenguyen13/regsensitivity")
-
-# Pre-built binary from r-universe:
-install.packages("regsensitivity",
-                 repos = c("https://mikenguyen13.r-universe.dev",
-                           "https://cloud.r-project.org"))
 ```
 
 ## Quickstart
