@@ -34,6 +34,20 @@ test_that("cummin_inf and cummax_neg_inf treat NA as identity", {
                   c(-3, -3, -1, -1, 0))
 })
 
+test_that("an infinite bound propagates instead of being skipped", {
+    # -Inf means "unbounded below", which is information; NA means the
+    # solver failed, which is not. Treating them alike made an unbounded
+    # identified set report the last finite bound, understating sensitivity.
+    expect_equal(regsensitivity:::cummin_inf(c(3, -Inf, 1)),
+                  c(3, -Inf, -Inf))
+    expect_equal(regsensitivity:::cummax_neg_inf(c(1, Inf, 3)),
+                  c(1, Inf, Inf))
+
+    # NA after an infinity carries the infinity, not the last finite value.
+    expect_equal(regsensitivity:::cummin_inf(c(3, -Inf, NA)),
+                  c(3, -Inf, -Inf))
+})
+
 test_that("expand_numlist handles space-separated, range, and numeric", {
     expect_equal(regsensitivity:::expand_numlist(c(0, .5, 1)), c(0, .5, 1))
     expect_equal(regsensitivity:::expand_numlist("0 .5 1"), c(0, .5, 1))

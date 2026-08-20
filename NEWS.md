@@ -17,6 +17,22 @@
   annotation. The auto-generated subtitle is no longer applied by default,
   since a journal figure carries its description in the caption.
 
+## Bug fixes
+
+* `regsen_bounds(analysis = "oster", delta_type = "bound")` reported a
+  bounded identified set where the set is in fact unbounded. The solver
+  correctly returns `-Inf`/`Inf` for `|delta| <= dbar` with `dbar >= 1`,
+  but the routine accumulating bounds across the grid discarded infinite
+  values alongside `NA` and carried the last finite bound forward. On the
+  bundled data, `delta = c(0.5, 1, 2)` reported `[1.31, 2.98]` at every
+  point instead of `(-Inf, Inf)` from `dbar = 1` on.
+
+  `NA` still carries over, since it means the solver failed and carries no
+  information; an infinity is a bound and now propagates. This is the one
+  direction a sensitivity analysis must not err in, since it made results
+  look more robust than they are. Previously validated numbers are
+  unchanged -- the snapshot tests pass untouched.
+
 ## Interactive
 
 * New `regsen_explore()`, a shiny application for moving the sensitivity
