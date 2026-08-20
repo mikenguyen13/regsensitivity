@@ -38,8 +38,8 @@
 #' }
 #' @export
 as.data.frame.regsensitivity <- function(x, row.names = NULL, optional = FALSE,
-                                          digits = NULL, finite_only = FALSE,
-                                          ...) {
+                                          ...,
+                                          digits = NULL, finite_only = FALSE) {
     out <- x$results
     if (is.null(out) || nrow(out) == 0) {
         return(data.frame())
