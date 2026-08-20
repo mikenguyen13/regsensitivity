@@ -22,6 +22,11 @@
   [`plot(`*`<regsensitivity_multi>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
   : Sensitivity analysis for several treatments at once
 
+## Interactive
+
+- [`regsen_explore()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_explore.md)
+  : Explore a sensitivity analysis interactively
+
 ## Calibration
 
 - [`calibrate_rho()`](https://mikenguyen13.github.io/regsensitivity/reference/calibrate_rho.md)

@@ -58,6 +58,10 @@
 <li>Passing <code>NA</code> to <code>title</code>, <code>subtitle</code>, <code>xtitle</code> or <code>ytitle</code> drops the annotation. The auto-generated subtitle is no longer applied by default, since a journal figure carries its description in the caption.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="interactive-development-version">Interactive<a class="anchor" aria-label="anchor" href="#interactive-development-version"></a></h3>
+<ul><li>New <code><a href="../reference/regsen_explore.html">regsen_explore()</a></code>, a shiny application for moving the sensitivity parameters by hand and watching the identified set respond.  is a Suggests, so the rest of the package works without it. Inputs are validated and the model is fitted once before the app opens, so a bad call reports at the console rather than as a banner in a browser tab.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="several-treatments-development-version">Several treatments<a class="anchor" aria-label="anchor" href="#several-treatments-development-version"></a></h3>
 <ul><li>New <code><a href="../reference/regsen_multi.html">regsen_multi()</a></code>, running the analysis once per candidate treatment and collecting the breakdown points into one table, with a <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method ordering treatments by fragility. Every treatment is analysed in the same specification – the others stay as controls – so the rows are comparable. A treatment whose analysis fails yields an <code>NA</code> row with the reason rather than aborting the sweep.</li>
 </ul></div>

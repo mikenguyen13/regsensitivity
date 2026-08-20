@@ -26,6 +26,16 @@
   default, since a journal figure carries its description in the
   caption.
 
+### Interactive
+
+- New
+  [`regsen_explore()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_explore.md),
+  a shiny application for moving the sensitivity parameters by hand and
+  watching the identified set respond. is a Suggests, so the rest of the
+  package works without it. Inputs are validated and the model is fitted
+  once before the app opens, so a bad call reports at the console rather
+  than as a banner in a browser tab.
+
 ### Several treatments
 
 - New
