@@ -58,6 +58,12 @@
 <li>Passing <code>NA</code> to <code>title</code>, <code>subtitle</code>, <code>xtitle</code> or <code>ytitle</code> drops the annotation. The auto-generated subtitle is no longer applied by default, since a journal figure carries its description in the caption.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="replication-fidelity-development-version">Replication fidelity<a class="anchor" aria-label="anchor" href="#replication-fidelity-development-version"></a></h3>
+<ul><li>The DMP (2026) Figure 1 reproduction now matches the published figure. The left panel gains the dashed bounds under the common-maximal-impact restriction <code>rybar = rxbar</code> and the Table 4 calibration tick marks; both zero crossings are reported and agree with the published 0.804 and 0.96. The right panel previously plotted the breakdown point against <code>cbar</code>, a different object from the paper’s, which is the breakdown frontier in (rxbar, rybar) space; it is now that frontier, one curve per <code>cbar</code>.</li>
+<li>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> no longer paints a line along the panel edge when a stretch of the sweep is unbounded. Only the first point of each unbounded run is routed off-panel and the rest are blank, so the curve leaves the plot once instead of running along its boundary. Runs are detected per series, so one beginning at a group boundary still gets its own exit.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
 <ul><li>
 <p><code>regsen_bounds(analysis = "oster", delta_type = "bound")</code> reported a bounded identified set where the set is in fact unbounded. The solver correctly returns <code>-Inf</code>/<code>Inf</code> for <code>|delta| &lt;= dbar</code> with <code>dbar &gt;= 1</code>, but the routine accumulating bounds across the grid discarded infinite values alongside <code>NA</code> and carried the last finite bound forward. On the bundled data, <code>delta = c(0.5, 1, 2)</code> reported <code>[1.31, 2.98]</code> at every point instead of <code>(-Inf, Inf)</code> from <code>dbar = 1</code> on.</p>

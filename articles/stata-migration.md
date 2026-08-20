@@ -314,8 +314,6 @@ os_sign <- regsen_breakdown(form, bfg2020, compare = w1,
                              r2long = seq(0, 1, 0.1),
                              beta = "sign")
 plot(os_sign)
-#> Warning: Removed 2 rows containing missing values or values outside the scale range
-#> (`geom_line()`).
 ```
 
 ![](stata-migration_files/figure-html/oster-breakdown-1.png)

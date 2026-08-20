@@ -142,31 +142,122 @@ Each value matches the paper’s Table 4 to one decimal place.
 
 ### Left panel: bounds on $`\beta_{long}`$ as a function of $`\bar r_X`$, $`\bar c = 1`$
 
+The paper’s left panel carries three things: solid bounds with
+$`\bar r_Y = \infty`$, **dashed** bounds under the common-maximal-impact
+restriction $`\bar r_Y = \bar r_X`$, and tick marks on the horizontal
+axis showing the Table 4 calibration values. All three are reproduced
+below.
+
 ``` r
 
-fig1L <- regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
-                        rxbar = seq(0, 0.99, length.out = 200))
-plot(fig1L, ylim = c(-2, 8),
-     title = "Figure 1 (left): bounds at cbar = 1")
+rx_grid <- seq(0, 1.4, length.out = 300)
+solid  <- regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
+                         rxbar = rx_grid)
+dashed <- regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
+                         rxbar = rx_grid,
+                         rybar_expr = function(rx) rx)
+
+sd <- as.data.frame(solid);  sd$spec <- "rybar = Inf"
+dd <- as.data.frame(dashed); dd$spec <- "rybar = rxbar"
+df <- rbind(sd[, c("rxbar", "bmin", "bmax", "spec")],
+            dd[, c("rxbar", "bmin", "bmax", "spec")])
+
+# Past the asymptote the bounds are infinite. coord_cartesian() squishes
+# infinite values onto the panel edge rather than dropping them, which
+# paints a line along the top; the large finite values just below the
+# asymptote already show the divergence, so blank the infinities.
+df$bmin[!is.finite(df$bmin)] <- NA
+df$bmax[!is.finite(df$bmax)] <- NA
+
+ticks <- data.frame(x = calibrate_rho(form, bfg2020, compare = w1)$rho / 100)
+
+ggplot(df, aes(x = rxbar, linetype = spec)) +
+    geom_hline(yintercept = 0, colour = "grey40", linewidth = 0.3,
+                linetype = "dotted") +
+    geom_line(aes(y = bmin), linewidth = 0.55, na.rm = TRUE) +
+    geom_line(aes(y = bmax), linewidth = 0.55, na.rm = TRUE) +
+    geom_rug(data = ticks, aes(x = x), inherit.aes = FALSE, sides = "b",
+              length = grid::unit(0.03, "npc"), linewidth = 0.4) +
+    scale_linetype_manual(values = c("rybar = Inf"   = "solid",
+                                     "rybar = rxbar" = "dashed")) +
+    coord_cartesian(xlim = c(0, 1.4), ylim = c(-2, 6)) +
+    labs(x = expression(bar(r)[x]), y = expression(beta[long]),
+         linetype = NULL) +
+    theme_regsen(base_size = 10)
 ```
 
 ![](dmp2022-replication_files/figure-html/fig1-left-1.png)
 
-### Right panel: breakdown frontier $`\bar r_X^{bp}(\bar c)`$
+The two zero crossings are the two breakdown points of Table 1, Panel C:
 
 ``` r
 
-fig1R <- regsen_breakdown(form, bfg2020, compare = w1,
-                           cbar = seq(0, 1, 0.02))
-plot(fig1R,
-     title = "Figure 1 (right): rxbar breakdown frontier")
+c(rybar_inf   = abs(solid$breakdown),     # paper: 0.804
+  rybar_rxbar = abs(dashed$breakdown))    # paper: 0.96
+#>   rybar_inf rybar_rxbar 
+#>   0.8035643   0.9583522
+```
+
+### Right panel: the breakdown frontier in $`(\bar r_X, \bar r_Y)`$ space
+
+The paper’s right panel is a different object from the left: it plots
+the breakdown frontier $`\bar r_Y^{bf}(\bar r_X)`$, one curve per
+$`\bar c`$, in the $`(\bar r_X, \bar r_Y)`$ plane.
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+solves for the $`\bar r_X`$ breakdown at a *fixed* $`\bar r_Y`$, so
+sweeping $`\bar r_Y`$ traces the same curve from the other side:
+
+``` r
+
+frontier <- function(cbar, rys) {
+    rx <- vapply(rys, function(ry) {
+        r <- try(regsen_breakdown(form, bfg2020, compare = w1,
+                                   cbar = cbar, rybar = ry), silent = TRUE)
+        if (inherits(r, "try-error")) NA_real_ else abs(r$results$breakdown[1])
+    }, numeric(1))
+    data.frame(rxbar = rx, rybar = rys, cbar = factor(cbar))
+}
+
+rys <- c(seq(0.6, 2, by = 0.2), 2.5, 3, 4)
+fr  <- do.call(rbind, lapply(c(1, 0.75, 0.5), frontier, rys = rys))
+
+ggplot(fr, aes(x = rxbar, y = rybar, group = cbar, colour = cbar)) +
+    geom_line(linewidth = 0.6, na.rm = TRUE) +
+    scale_colour_regsen() +
+    labs(x = expression(bar(r)[x]), y = expression(bar(r)[y]),
+         colour = expression(bar(c))) +
+    theme_regsen(base_size = 10)
 ```
 
 ![](dmp2022-replication_files/figure-html/fig1-right-1.png)
 
+Each curve is the boundary between $`(\bar r_X, \bar r_Y)`$ pairs under
+which the sign conclusion survives and those under which it fails. For
+$`\bar c = 1`$ the frontier flattens onto $`\bar r_X = 0.804`$, the
+breakdown point from Table 1; smaller $`\bar c`$ pushes the frontier
+out, because restricting how endogenous the controls may be makes the
+conclusion harder to overturn.
+
+**One difference from the published figure.** The paper’s right panel
+runs to $`\bar r_X = 4`$. This reconstruction stops near
+$`\bar r_X = 1/\bar c`$, because Lemma S9 of the paper gives
+$`\bar z_X = +\infty`$ once $`\bar r_X \bar c \geq 1`$, and the
+package’s breakdown search is bounded by that same quantity. Reaching
+further along the horizontal arm would mean solving for
+$`\bar r_Y^{bf}`$ directly at a given $`\bar r_X`$ instead of inverting,
+which the package does not currently expose.
+
 ### Overlaying the calibration values
 
 ``` r
+
+# The breakdown point as a function of cbar alone, with each covariate's
+# calibrated rho_k drawn as a reference line. This is the reading the
+# paper's calibration discussion turns on: a covariate whose line sits
+# above the curve is one whose importance, if matched by an unobservable,
+# would be enough to overturn the sign.
+bd_cbar <- regsen_breakdown(form, bfg2020, compare = w1,
+                             cbar = seq(0, 1, 0.02))
 
 df_rho <- calibrate_rho(form, bfg2020, compare = w1)
 df_rho$variable <- labels[df_rho$variable]
@@ -178,7 +269,7 @@ df_rho$rho_dec  <- df_rho$rho / 100  # express as fraction
 df_rho <- df_rho[order(-df_rho$rho_dec), ]
 df_rho$xpos <- rep(c(0.02, 0.36, 0.70), length.out = nrow(df_rho))
 
-plot(fig1R) +
+plot(bd_cbar) +
     geom_hline(yintercept = df_rho$rho_dec, linetype = "dotted",
                 colour = "grey55", linewidth = 0.3) +
     geom_text(data = df_rho,
