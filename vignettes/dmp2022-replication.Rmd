@@ -70,7 +70,12 @@ as printed in the paper, so the comparison is checked on every build
 rather than asserted in prose:
 
 ```{r bp-comparison}
-compare_published <- function(quantity, published, computed) {
+# `digits` is the precision the paper actually prints each value to, given
+# explicitly rather than inferred. Deriving it from format() is wrong:
+# format() pads a vector to a common width, so format(c(0.804, 0.96)) is
+# c("0.804", "0.960") and 0.96 would be held to a precision it was never
+# printed at.
+compare_published <- function(quantity, published, computed, digits) {
     out <- data.frame(
         quantity  = quantity,
         published = published,
@@ -78,10 +83,7 @@ compare_published <- function(quantity, published, computed) {
         stringsAsFactors = FALSE
     )
     out$difference <- round(out$computed - out$published, 4)
-    # The paper rounds to the printed precision, so agreement is judged
-    # against that rather than against machine precision.
-    tol <- 10^(-nchar(sub("^[^.]*\\.", "", format(published)))) / 2
-    out$agrees <- abs(out$difference) <= tol
+    out$agrees <- abs(out$difference) <= 0.5 * 10^(-digits)
     out
 }
 
@@ -89,6 +91,7 @@ cmp <- compare_published(
     quantity  = c("rxbar^bp at cbar = 1",
                   "r^bp at cbar = 1, rybar = rxbar"),
     published = c(0.804, 0.96),
+    digits    = c(3, 2),          # as printed in the paper
     computed  = c(bp_conservative$breakdown, bp_relaxed$breakdown)
 )
 knitr::kable(cmp, caption = "Breakdown points: this package vs DMP (2026).")
