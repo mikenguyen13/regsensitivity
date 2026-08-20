@@ -4,7 +4,8 @@ Title: Regression Sensitivity Analysis for Omitted Variable Bias
 Version: 0.1.1
 Authors@R:
     person("Mike", "Nguyen", , "nguyennghia1301@gmail.com",
-           role = c("aut", "cre", "cph"))
+           role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0000-0002-3432-8595"))
 Description: Sensitivity analysis for linear regression coefficients in the
     presence of omitted variables. Implements the identified-set and
     breakdown-point analyses of 'Diegert', 'Masten' and 'Poirier' (2026)

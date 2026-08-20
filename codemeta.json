@@ -19,21 +19,24 @@
     {
       "@type": "Person",
       "givenName": "Mike",
-      "familyName": "Nguyen"
+      "familyName": "Nguyen",
+      "@id": "https://orcid.org/0000-0002-3432-8595"
     }
   ],
   "copyrightHolder": [
     {
       "@type": "Person",
       "givenName": "Mike",
-      "familyName": "Nguyen"
+      "familyName": "Nguyen",
+      "@id": "https://orcid.org/0000-0002-3432-8595"
     }
   ],
   "maintainer": [
     {
       "@type": "Person",
       "givenName": "Mike",
-      "familyName": "Nguyen"
+      "familyName": "Nguyen",
+      "@id": "https://orcid.org/0000-0002-3432-8595"
     }
   ],
   "softwareSuggestions": [
@@ -188,7 +191,8 @@
         {
           "@type": "Person",
           "givenName": "Mike",
-          "familyName": "Nguyen"
+          "familyName": "Nguyen",
+          "@id": "https://orcid.org/0000-0002-3432-8595"
         }
       ],
       "name": "{regsensitivity}: Regression Sensitivity Analysis for Omitted Variable Bias",

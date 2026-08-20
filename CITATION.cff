@@ -10,6 +10,7 @@ url: "https://mikenguyen13.github.io/regsensitivity/"
 authors:
   - family-names: Nguyen
     given-names: Mike
+    orcid: "https://orcid.org/0000-0002-3432-8595"
 keywords:
   - sensitivity-analysis
   - omitted-variable-bias
@@ -22,6 +23,7 @@ preferred-citation:
   authors:
     - family-names: Nguyen
       given-names: Mike
+      orcid: "https://orcid.org/0000-0002-3432-8595"
   year: 2026
   version: 0.1.1
   url: "https://github.com/mikenguyen13/regsensitivity"
