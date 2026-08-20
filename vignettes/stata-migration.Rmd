@@ -1,0 +1,231 @@
+---
+title: "Coming from the Stata package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Coming from the Stata package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 4,
+  dpi = 150
+)
+library(regsensitivity)
+library(ggplot2)
+```
+
+The reference implementation of these methods is Masten and Poirier's Stata
+package, also called `regsensitivity`. This vignette maps its syntax onto
+this package, command by command, using the same BFG (2020) data that the
+Stata vignette uses.
+
+It doubles as a coverage check. Every command in the Stata package's own
+vignette (shipped here as `inst/stata-reference/vignette.do`) appears
+below with its R equivalent, so a gap would be visible rather than
+implicit.
+
+```{r data}
+data(bfg2020)
+bfg2020$statea <- factor(bfg2020$statea)
+
+w1 <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
+        "elev_mean", "d_coa", "d_riv", "d_lak", "ave_gyi")
+
+form <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+    log_area_2010 + lat + lon + temp_mean + rain_mean + elev_mean +
+    d_coa + d_riv + d_lak + ave_gyi + statea
+```
+
+In Stata the outcome, treatment and controls are positional and the
+comparison set is named separately:
+
+```stata
+local y avgrep2000to2016
+local x tye_tfe890_500kNI_100_l6
+local w1 log_area_2010 lat lon temp_mean rain_mean elev_mean d_coa d_riv d_lak ave_gyi
+local w0 i.statea
+regsensitivity `y' `x' `w1' `w0', compare(`w1')
+```
+
+In R the same information is a formula plus `compare`. The first term on
+the right-hand side is the treatment; everything else is a control.
+
+## Command map
+
+| Stata | R |
+|---|---|
+| `regsensitivity y x w, compare(w1)` | `regsen_summary(form, data, compare = w1)` |
+| `regsensitivity bounds ...` | `regsen_bounds(form, data, ...)` |
+| `regsensitivity breakdown ...` | `regsen_breakdown(form, data, ...)` |
+| `regsensitivity plot` | `plot(result)` |
+| `compare(w1)` | `compare = w1` |
+| `nocompare` | `nocompare = TRUE` |
+| `cbar(0(.2)1)` | `cbar = seq(0, 1, 0.2)` |
+| `rxbar(0 2)` | `rxbar = c(0, 2)` |
+| `rybar(2)` | `rybar = 2` |
+| `rybar(=rxbar)` | `rybar_expr = function(rx) rx` |
+| `beta(0 eq)` | `beta = bnd_eq(0)` |
+| `beta(4 ub)` | `beta = bnd_ub(4)` |
+| `beta(-1(.2)1 lb)` | `beta = bnd_lb(seq(-1, 1, 0.2))` |
+| `beta(sign)` | `beta = "sign"` (the default) |
+| `oster` | `analysis = "oster"` |
+| `delta(-3 3 eq)` | `delta = c(-3, 3)`, `delta_type = "eq"` |
+| `delta(0(.001).999 bound)` | `delta = seq(0, .999, .001)`, `delta_type = "bound"` |
+| `rmax(0(.1)1)` | `r2long = seq(0, 1, 0.1)` |
+| `plot, nolegend` | `plot(res, show_legend = FALSE)` |
+| `plot, yrange(0 6)` | `plot(res, ylim = c(0, 6))` |
+| `plot, ywidth(4)` | `plot(res, ywidth = 4)` |
+| `plot, xline(1)` | `plot(res, xline = 1)` |
+| `e(idset_table)` | `as.data.frame(res)` |
+| `cluster(v)` on the regression | `regsen_boot(..., cluster = "v")` |
+
+Two differences are worth flagging rather than burying in the table.
+
+Stata's `numlist` syntax `0(.2)1` means "from 0 to 1 in steps of .2",
+which is `seq(0, 1, 0.2)`. And Stata stores results in `e()` matrices
+retrieved with matrix subscripts; here the results are already a data
+frame, so `as.data.frame(res)` gives you the same content directly.
+
+## The Stata vignette, translated
+
+### Default summary
+
+```stata
+regsensitivity `y' `x' `w', compare(`w1')
+```
+
+```{r summary}
+summ <- regsen_summary(form, bfg2020, compare = w1)
+summ
+```
+
+### Bounds at a single `cbar`
+
+```stata
+regsensitivity bounds `y' `x' `w', compare(`w1') cbar(.1)
+regsensitivity plot
+```
+
+```{r bounds-one}
+b1 <- regsen_bounds(form, bfg2020, compare = w1, cbar = 0.1)
+plot(b1)
+```
+
+### Bounds over a grid of `cbar`
+
+```stata
+regsensitivity bounds `y' `x' `w', compare(`w1') cbar(0(.2)1)
+```
+
+```{r bounds-grid}
+b2 <- regsen_bounds(form, bfg2020, compare = w1,
+                     cbar = seq(0, 1, 0.2))
+plot(b2)
+```
+
+### Restricting `rxbar` as well
+
+```stata
+regsensitivity bounds `y' `x' `w', compare(`w1') cbar(0(.2)1) rxbar(0 2) plot
+```
+
+```{r bounds-rxbar}
+b3 <- regsen_bounds(form, bfg2020, compare = w1,
+                     cbar = seq(0, 1, 0.2), rxbar = c(0, 2))
+plot(b3)
+```
+
+### Breakdown frontier
+
+```stata
+regsensitivity breakdown `y' `x' `w', compare(`w1') cbar(0(.1)1)
+regsensitivity plot
+```
+
+```{r breakdown}
+bd <- regsen_breakdown(form, bfg2020, compare = w1,
+                        cbar = seq(0, 1, 0.1))
+plot(bd)
+```
+
+### Breakdown for a one-sided hypothesis
+
+```stata
+regsensitivity breakdown `y' `x' `w', compare(`w1') cbar(0(.1)1) beta(4 ub)
+```
+
+```{r breakdown-ub}
+bd_ub <- regsen_breakdown(form, bfg2020, compare = w1,
+                           cbar = seq(0, 1, 0.1), beta = bnd_ub(4))
+bd_ub
+```
+
+### Bounding the unobservable's effect on the outcome
+
+```stata
+regsensitivity bounds `y' `x' `w', compare(`w1') rybar(2)
+regsensitivity bounds `y' `x' `w', compare(`w1') rybar(=rxbar)
+```
+
+```{r rybar}
+b_ry  <- regsen_bounds(form, bfg2020, compare = w1, rybar = 2)
+b_eq  <- regsen_bounds(form, bfg2020, compare = w1,
+                        rybar_expr = function(rx) rx)
+b_eq$breakdown
+```
+
+### Oster (2019)
+
+```stata
+regsensitivity bounds `y' `x' `w', compare(`w1') oster
+regsensitivity bounds `y' `x' `w', compare(`w1') oster delta(-3 3 eq) plot
+regsensitivity plot, xline(1)
+```
+
+`xline()` marks a reference value on the x-axis; here it is
+$R^2_{max} = 1$, the point past which the assumed long-regression fit
+would exceed a perfect one.
+
+```{r oster}
+os <- regsen_bounds(form, bfg2020, compare = w1,
+                     analysis = "oster",
+                     delta = c(-3, 3), delta_type = "eq")
+plot(os, ylim = c(-5, 8), xline = 1)
+```
+
+### Oster breakdown over `rmax`
+
+```stata
+regsensitivity breakdown `y' `x' `w', compare(`w1') oster rmax(0(.1)1) beta(0 eq)
+regsensitivity breakdown `y' `x' `w', compare(`w1') oster rmax(0(.1)1) beta(sign)
+```
+
+```{r oster-breakdown}
+os_bd <- regsen_breakdown(form, bfg2020, compare = w1,
+                           analysis = "oster",
+                           r2long = seq(0, 1, 0.1),
+                           beta = bnd_eq(0))
+os_sign <- regsen_breakdown(form, bfg2020, compare = w1,
+                             analysis = "oster",
+                             r2long = seq(0, 1, 0.1),
+                             beta = "sign")
+plot(os_sign)
+```
+
+## Coverage
+
+Every option exercised by the Stata vignette has an equivalent above. The
+one behaviour that is *not* carried over is Stata's habit of leaving
+results in `e()` for the next command to pick up: `regsensitivity plot`
+with no arguments replots whatever ran last. Here each function returns
+its result and `plot()` takes it explicitly, which is what lets you keep
+several analyses side by side in one session.
+
+```{r session, echo = FALSE}
+sessionInfo()
+```

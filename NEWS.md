@@ -17,6 +17,16 @@
   annotation. The auto-generated subtitle is no longer applied by default,
   since a journal figure carries its description in the caption.
 
+## Documentation
+
+* New vignette "Publication-ready plots and tables", covering figure
+  sizing for journals, greyscale and colour-vision safety, and the LaTeX
+  / HTML / Markdown table output.
+* New vignette "Coming from the Stata package", mapping every command and
+  option in the Stata package's own vignette onto its R equivalent. It
+  doubles as a coverage check: a gap would show as a missing row rather
+  than going unnoticed.
+
 ## Interoperability
 
 * New `regsen_tidy()` and `regsen_glance()`, broom-style tidiers. They are
