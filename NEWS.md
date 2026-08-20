@@ -17,6 +17,21 @@
   annotation. The auto-generated subtitle is no longer applied by default,
   since a journal figure carries its description in the caption.
 
+## Replication fidelity
+
+* The DMP (2026) Figure 1 reproduction now matches the published figure.
+  The left panel gains the dashed bounds under the common-maximal-impact
+  restriction `rybar = rxbar` and the Table 4 calibration tick marks; both
+  zero crossings are reported and agree with the published 0.804 and 0.96.
+  The right panel previously plotted the breakdown point against `cbar`,
+  a different object from the paper's, which is the breakdown frontier in
+  (rxbar, rybar) space; it is now that frontier, one curve per `cbar`.
+* `plot()` no longer paints a line along the panel edge when a stretch of
+  the sweep is unbounded. Only the first point of each unbounded run is
+  routed off-panel and the rest are blank, so the curve leaves the plot
+  once instead of running along its boundary. Runs are detected per series,
+  so one beginning at a group boundary still gets its own exit.
+
 ## Bug fixes
 
 * `regsen_bounds(analysis = "oster", delta_type = "bound")` reported a
