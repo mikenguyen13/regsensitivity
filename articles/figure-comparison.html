@@ -218,6 +218,159 @@ not a disagreement with the paper.</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="figure-3-calibrating-with-state-fixed-effects">Figure 3: calibrating with state fixed effects<a class="anchor" aria-label="anchor" href="#figure-3-calibrating-with-state-fixed-effects"></a>
+</h2>
+<p>Figure 3 repeats Figure 1 with the state fixed effects moved
+<em>into</em> the calibration set. The paper’s point is that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>X</mi></msub><annotation encoding="application/x-tex">\bar r_X</annotation></semantics></math>
+is only meaningful relative to the covariates it calibrates against:
+adding controls with a lot of explanatory power raises selection on
+observables, so the same data yields a much smaller breakdown point –
+the paper says it drops from about 80% to <strong>about
+30%</strong>.</p>
+<div class="section level3">
+<h3 id="dmp-2026-as-published-2">DMP (2026), as published<a class="anchor" aria-label="anchor" href="#dmp-2026-as-published-2"></a>
+</h3>
+<p><img src="figures/dmp-fig3-paper.png" alt="DMP (2026) Figure 3" width="100%"></p>
+</div>
+<div class="section level3">
+<h3 id="regsensitivity-2">regsensitivity<a class="anchor" aria-label="anchor" href="#regsensitivity-2"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">w1_fe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">w1</span>, <span class="st">"statea"</span><span class="op">)</span>          <span class="co"># state fixed effects now calibrate too</span></span>
+<span><span class="va">s3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1_fe</span>, cbar <span class="op">=</span> <span class="fl">1</span>, rxbar <span class="op">=</span> <span class="va">rx</span><span class="op">)</span></span>
+<span><span class="va">d3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1_fe</span>, cbar <span class="op">=</span> <span class="fl">1</span>, rxbar <span class="op">=</span> <span class="va">rx</span>,</span>
+<span>                     rybar_expr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="va">r</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">a3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">s3</span><span class="op">)</span>; <span class="va">a3</span><span class="op">$</span><span class="va">spec</span> <span class="op">&lt;-</span> <span class="st">"rybar = Inf"</span></span>
+<span><span class="va">b3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">d3</span><span class="op">)</span>; <span class="va">b3</span><span class="op">$</span><span class="va">spec</span> <span class="op">&lt;-</span> <span class="st">"rybar = rxbar"</span></span>
+<span><span class="va">df3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">a3</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rxbar"</span>, <span class="st">"bmin"</span>, <span class="st">"bmax"</span>, <span class="st">"spec"</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>             <span class="va">b3</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rxbar"</span>, <span class="st">"bmin"</span>, <span class="st">"bmax"</span>, <span class="st">"spec"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">df3</span><span class="op">$</span><span class="va">bmin</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite</a></span><span class="op">(</span><span class="va">df3</span><span class="op">$</span><span class="va">bmin</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
+<span><span class="va">df3</span><span class="op">$</span><span class="va">bmax</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite</a></span><span class="op">(</span><span class="va">df3</span><span class="op">$</span><span class="va">bmax</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df3</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">rxbar</span>, linetype <span class="op">=</span> <span class="va">spec</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, colour <span class="op">=</span> <span class="st">"grey30"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>                linetype <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">bmin</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">0.5</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">bmax</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">0.5</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rybar = Inf"</span>   <span class="op">=</span> <span class="st">"solid"</span>,</span>
+<span>                                     <span class="st">"rybar = rxbar"</span> <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.5</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3.2</span>, <span class="fl">7.2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">bar</span><span class="op">(</span><span class="va">r</span><span class="op">)</span><span class="op">[</span><span class="va">X</span><span class="op">]</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">beta</span><span class="op">[</span><span class="va">long</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>         linetype <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="../reference/theme_regsen.html">theme_regsen</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figure-comparison_files/figure-html/fig3-1.png" class="r-plt" alt="" width="930"></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`w1 only`            <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">solid</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span>,   <span class="co"># paper: ~0.80</span></span>
+<span>  `w1 + state effects` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">s3</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span><span class="op">)</span>      <span class="co"># paper: ~0.30</span></span>
+<span><span class="co">#&gt;            w1 only w1 + state effects </span></span>
+<span><span class="co">#&gt;          0.8035643          0.2909420</span></span></code></pre></div>
+<p>0.2909 against the paper’s “about 30%”.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="masten-and-poirier-2026-figures-1-and-2">Masten and Poirier (2026), Figures 1 and 2<a class="anchor" aria-label="anchor" href="#masten-and-poirier-2026-figures-1-and-2"></a>
+</h2>
+<p>These two are built on the authors’ application to Satyanath et al.
+(2017), which is not bundled with this package, and the paper does not
+report the full set of moments needed to rebuild that data. They are
+shown here for structure, next to the stylized reproduction from the <a href="../articles/mp2022-stylized.html">MP replication vignette</a>.</p>
+<p><strong>This is not a numerical reproduction, and it should not be
+read as one.</strong> In the published figure the sign-change breakdown
+is 0.586 while the explain-away breakdown is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mn>32</mn><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|-32|</annotation></semantics></math>
+– a separation of a factor of 55, which is precisely the asymmetry the
+figure exists to demonstrate. In constructed data the two quantities
+come out close together; reproducing the gap needs the actual Satyanath
+moments, not a plausible-looking substitute.</p>
+<div class="section level3">
+<h3 id="mp-2026-figure-1-as-published">MP (2026) Figure 1, as published<a class="anchor" aria-label="anchor" href="#mp-2026-figure-1-as-published"></a>
+</h3>
+<p><img src="figures/mp-fig1-paper.png" alt="MP (2026) Figure 1" width="100%"></p>
+</div>
+<div class="section level3">
+<h3 id="mp-2026-figure-2-as-published">MP (2026) Figure 2, as published<a class="anchor" aria-label="anchor" href="#mp-2026-figure-2-as-published"></a>
+</h3>
+<p><img src="figures/mp-fig2-paper.png" alt="MP (2026) Figure 2" width="100%"></p>
+<p>The structural features do carry over to constructed data: the
+identified set has at most three branches, and they diverge at the
+vertical asymptote
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta = 1</annotation></semantics></math>.
+Both are visible in the stylized figures in that vignette.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="coverage-every-figure-in-the-three-papers">Coverage: every figure in the three papers<a class="anchor" aria-label="anchor" href="#coverage-every-figure-in-the-three-papers"></a>
+</h2>
+<table class="table">
+<caption>What replicates, what does not, and why.</caption>
+<colgroup>
+<col width="12%">
+<col width="12%">
+<col width="74%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Figure</th>
+<th align="left">Status</th>
+<th align="left">Reason</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">DMP Fig 1 (left)</td>
+<td align="left">reproduced</td>
+<td align="left">matches on both specifications; crossings 0.8036 /
+0.9584</td>
+</tr>
+<tr class="even">
+<td align="left">DMP Fig 1 (right)</td>
+<td align="left">partly reproduced</td>
+<td align="left">vertical arm matches; horizontal arm needs a region the
+package does not implement</td>
+</tr>
+<tr class="odd">
+<td align="left">DMP Fig 2</td>
+<td align="left">not reproducible</td>
+<td align="left">outcome ‘Cut Spending on Poor’ is not in the bundled
+bfg2020 data</td>
+</tr>
+<tr class="even">
+<td align="left">DMP Fig 3</td>
+<td align="left">reproduced</td>
+<td align="left">matches; breakdown falls to 0.2909 against the paper’s
+‘about 30%’</td>
+</tr>
+<tr class="odd">
+<td align="left">MP Fig 1</td>
+<td align="left">structure only</td>
+<td align="left">built on Satyanath et al. (2017); moments not reported
+in full</td>
+</tr>
+<tr class="even">
+<td align="left">MP Fig 2</td>
+<td align="left">structure only</td>
+<td align="left">as Figure 1</td>
+</tr>
+<tr class="odd">
+<td align="left">MP Fig S1</td>
+<td align="left">not reproducible</td>
+<td align="left">Satyanath et al. (2017) data, not bundled</td>
+</tr>
+<tr class="even">
+<td align="left">Oster Figs 1-6</td>
+<td align="left">out of scope</td>
+<td align="left">meta-analysis across the published literature and NLSY
+simulations; not analyses this package performs</td>
+</tr>
+</tbody>
+</table>
+<p>Four of the eight are figures this package’s methods actually produce
+from the bundled data, and three of those four match. The rest need data
+that is not distributed with the package, or – in Oster’s case – are
+about a literature rather than about a sensitivity analysis.</p>
+</div>
+<div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
 <table class="table">
@@ -245,19 +398,11 @@ at
 <td>0.9584</td>
 </tr>
 <tr class="odd">
-<td>Fig 1 left, both specifications</td>
-<td>yes</td>
-<td>yes</td>
-</tr>
-<tr class="even">
-<td>Fig 1 right, vertical arm</td>
-<td>yes</td>
-<td>yes</td>
-</tr>
-<tr class="odd">
-<td>Fig 1 right, horizontal arm</td>
-<td>yes</td>
-<td>not implemented</td>
+<td>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>X</mi><mrow><mi>b</mi><mi>p</mi></mrow></msubsup><annotation encoding="application/x-tex">\bar r_X^{bp}</annotation></semantics></math>,
+calibrating on state effects</td>
+<td>~0.30</td>
+<td>0.2909</td>
 </tr>
 </tbody>
 </table>

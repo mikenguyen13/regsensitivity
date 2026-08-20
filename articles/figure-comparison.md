@@ -130,12 +130,115 @@ Rather than return a number it cannot stand behind, it raises that
 error. So the missing arm is a stated limitation of the implementation,
 not a disagreement with the paper.
 
+## Figure 3: calibrating with state fixed effects
+
+Figure 3 repeats Figure 1 with the state fixed effects moved *into* the
+calibration set. The paper’s point is that $`\bar r_X`$ is only
+meaningful relative to the covariates it calibrates against: adding
+controls with a lot of explanatory power raises selection on
+observables, so the same data yields a much smaller breakdown point –
+the paper says it drops from about 80% to **about 30%**.
+
+### DMP (2026), as published
+
+![DMP (2026) Figure 3](figures/dmp-fig3-paper.png)
+
+### regsensitivity
+
+``` r
+
+w1_fe <- c(w1, "statea")          # state fixed effects now calibrate too
+s3 <- regsen_bounds(form, bfg2020, compare = w1_fe, cbar = 1, rxbar = rx)
+d3 <- regsen_bounds(form, bfg2020, compare = w1_fe, cbar = 1, rxbar = rx,
+                     rybar_expr = function(r) r)
+
+a3 <- as.data.frame(s3); a3$spec <- "rybar = Inf"
+b3 <- as.data.frame(d3); b3$spec <- "rybar = rxbar"
+df3 <- rbind(a3[, c("rxbar", "bmin", "bmax", "spec")],
+             b3[, c("rxbar", "bmin", "bmax", "spec")])
+df3$bmin[!is.finite(df3$bmin)] <- NA
+df3$bmax[!is.finite(df3$bmax)] <- NA
+
+ggplot(df3, aes(x = rxbar, linetype = spec)) +
+    geom_hline(yintercept = 0, colour = "grey30", linewidth = 0.3,
+                linetype = "dotted") +
+    geom_line(aes(y = bmin), linewidth = 0.5, na.rm = TRUE) +
+    geom_line(aes(y = bmax), linewidth = 0.5, na.rm = TRUE) +
+    scale_linetype_manual(values = c("rybar = Inf"   = "solid",
+                                     "rybar = rxbar" = "dashed")) +
+    coord_cartesian(xlim = c(0, 1.5), ylim = c(-3.2, 7.2)) +
+    labs(x = expression(bar(r)[X]), y = expression(beta[long]),
+         linetype = NULL) +
+    theme_regsen(base_size = 10) +
+    theme(legend.position = "none")
+```
+
+![](figure-comparison_files/figure-html/fig3-1.png)
+
+``` r
+
+c(`w1 only`            = abs(solid$breakdown),   # paper: ~0.80
+  `w1 + state effects` = abs(s3$breakdown))      # paper: ~0.30
+#>            w1 only w1 + state effects 
+#>          0.8035643          0.2909420
+```
+
+0.2909 against the paper’s “about 30%”.
+
+## Masten and Poirier (2026), Figures 1 and 2
+
+These two are built on the authors’ application to Satyanath et al.
+(2017), which is not bundled with this package, and the paper does not
+report the full set of moments needed to rebuild that data. They are
+shown here for structure, next to the stylized reproduction from the [MP
+replication
+vignette](https://mikenguyen13.github.io/regsensitivity/articles/mp2022-stylized.md).
+
+**This is not a numerical reproduction, and it should not be read as
+one.** In the published figure the sign-change breakdown is 0.586 while
+the explain-away breakdown is $`|-32|`$ – a separation of a factor of
+55, which is precisely the asymmetry the figure exists to demonstrate.
+In constructed data the two quantities come out close together;
+reproducing the gap needs the actual Satyanath moments, not a
+plausible-looking substitute.
+
+### MP (2026) Figure 1, as published
+
+![MP (2026) Figure 1](figures/mp-fig1-paper.png)
+
+### MP (2026) Figure 2, as published
+
+![MP (2026) Figure 2](figures/mp-fig2-paper.png)
+
+The structural features do carry over to constructed data: the
+identified set has at most three branches, and they diverge at the
+vertical asymptote $`\delta = 1`$. Both are visible in the stylized
+figures in that vignette.
+
+## Coverage: every figure in the three papers
+
+| Figure | Status | Reason |
+|:---|:---|:---|
+| DMP Fig 1 (left) | reproduced | matches on both specifications; crossings 0.8036 / 0.9584 |
+| DMP Fig 1 (right) | partly reproduced | vertical arm matches; horizontal arm needs a region the package does not implement |
+| DMP Fig 2 | not reproducible | outcome ‘Cut Spending on Poor’ is not in the bundled bfg2020 data |
+| DMP Fig 3 | reproduced | matches; breakdown falls to 0.2909 against the paper’s ‘about 30%’ |
+| MP Fig 1 | structure only | built on Satyanath et al. (2017); moments not reported in full |
+| MP Fig 2 | structure only | as Figure 1 |
+| MP Fig S1 | not reproducible | Satyanath et al. (2017) data, not bundled |
+| Oster Figs 1-6 | out of scope | meta-analysis across the published literature and NLSY simulations; not analyses this package performs |
+
+What replicates, what does not, and why. {.table}
+
+Four of the eight are figures this package’s methods actually produce
+from the bundled data, and three of those four match. The rest need data
+that is not distributed with the package, or – in Oster’s case – are
+about a literature rather than about a sensitivity analysis.
+
 ## Summary
 
-|                                          | Published | This package    |
-|------------------------------------------|-----------|-----------------|
-| $`\bar r_X^{bp}`$ at $`\bar c = 1`$      | 0.804     | 0.8036          |
-| $`\bar r^{bp}`$, $`\bar r_Y = \bar r_X`$ | 0.96      | 0.9584          |
-| Fig 1 left, both specifications          | yes       | yes             |
-| Fig 1 right, vertical arm                | yes       | yes             |
-| Fig 1 right, horizontal arm              | yes       | not implemented |
+|                                                 | Published | This package |
+|-------------------------------------------------|-----------|--------------|
+| $`\bar r_X^{bp}`$ at $`\bar c = 1`$             | 0.804     | 0.8036       |
+| $`\bar r^{bp}`$, $`\bar r_Y = \bar r_X`$        | 0.96      | 0.9584       |
+| $`\bar r_X^{bp}`$, calibrating on state effects | ~0.30     | 0.2909       |
