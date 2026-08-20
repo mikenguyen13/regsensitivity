@@ -126,8 +126,8 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
             df$group <- factor(df[[secondary]])
             p <- ggplot(df, aes(x = .data$x_var, group = .data$group,
                                   colour = .data$group, linetype = .data$group)) +
-                geom_line(aes(y = .data$bmin_p), linewidth = 0.6) +
-                geom_line(aes(y = .data$bmax_p), linewidth = 0.6)
+                geom_line(aes(y = .data$bmin_p), linewidth = 0.6, na.rm = TRUE) +
+                geom_line(aes(y = .data$bmax_p), linewidth = 0.6, na.rm = TRUE)
             if (show_legend) {
                 sec_lab <- sparam_label(secondary)
                 p <- p + labs(colour = sec_lab, linetype = sec_lab)
@@ -136,8 +136,8 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
             }
         } else {
             p <- ggplot(df, aes(x = .data$x_var)) +
-                geom_line(aes(y = .data$bmin_p), linewidth = 0.6) +
-                geom_line(aes(y = .data$bmax_p), linewidth = 0.6)
+                geom_line(aes(y = .data$bmin_p), linewidth = 0.6, na.rm = TRUE) +
+                geom_line(aes(y = .data$bmax_p), linewidth = 0.6, na.rm = TRUE)
         }
     } else {
         # Oster.
@@ -155,7 +155,7 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
             long$y_p <- long$y
             p <- ggplot(long, aes(x = .data$x, y = .data$y_p,
                                     group = factor(.data$branch))) +
-                geom_line(linewidth = 0.6)
+                geom_line(linewidth = 0.6, na.rm = TRUE)
             primary <- "delta"
         } else {
             ogrp <- if (length(unique(df$r2long)) > 1) df$r2long else NULL
@@ -165,8 +165,8 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
                 df$group <- factor(df$r2long)
                 p <- ggplot(df, aes(x = .data$x_var, group = .data$group,
                                       colour = .data$group, linetype = .data$group)) +
-                    geom_line(aes(y = .data$bmin_p), linewidth = 0.6) +
-                    geom_line(aes(y = .data$bmax_p), linewidth = 0.6)
+                    geom_line(aes(y = .data$bmin_p), linewidth = 0.6, na.rm = TRUE) +
+                    geom_line(aes(y = .data$bmax_p), linewidth = 0.6, na.rm = TRUE)
                 if (show_legend) {
                     r2_lab <- sparam_label("r2long")
                     p <- p + labs(colour = r2_lab, linetype = r2_lab)
@@ -175,8 +175,8 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
                 }
             } else {
                 p <- ggplot(df, aes(x = .data$x_var)) +
-                    geom_line(aes(y = .data$bmin_p), linewidth = 0.6) +
-                    geom_line(aes(y = .data$bmax_p), linewidth = 0.6)
+                    geom_line(aes(y = .data$bmin_p), linewidth = 0.6, na.rm = TRUE) +
+                    geom_line(aes(y = .data$bmax_p), linewidth = 0.6, na.rm = TRUE)
             }
             primary <- "delta"
         }
@@ -215,7 +215,7 @@ plot_breakdown <- function(x, title = NULL, subtitle = NULL,
     ydef <- if (dmp) breakdown_label("rxbar") else breakdown_label("delta")
 
     p <- ggplot(df, aes(x = .data$x, y = .data$y)) +
-        geom_line(linewidth = 0.6) +
+        geom_line(linewidth = 0.6, na.rm = TRUE) +
         labs(
             title    = drop_na_label(title),
             subtitle = drop_na_label(subtitle),
@@ -241,6 +241,11 @@ offscreen <- function(v, ylim, side) {
     bad <- !is.finite(v)
     if (!any(bad)) return(out)
 
+    # Consumers pass na.rm = TRUE to the geoms: the NAs below are a
+    # deliberate break in the line, not missing data, and the default
+    # "Removed N rows" warning would otherwise fail a vignette build under
+    # r-lib's error_on = "warning".
+    #
     # Only the *first* point of each unbounded run is placed off-panel; the
     # rest become NA. Giving every point the same off-panel value drew a
     # straight segment between them, which coord_cartesian then clipped into

@@ -159,8 +159,8 @@ ticks <- data.frame(x = calibrate_rho(form, bfg2020, compare = w1)$rho / 100)
 ggplot(df, aes(x = rxbar, linetype = spec)) +
     geom_hline(yintercept = 0, colour = "grey40", linewidth = 0.3,
                 linetype = "dotted") +
-    geom_line(aes(y = bmin), linewidth = 0.55) +
-    geom_line(aes(y = bmax), linewidth = 0.55) +
+    geom_line(aes(y = bmin), linewidth = 0.55, na.rm = TRUE) +
+    geom_line(aes(y = bmax), linewidth = 0.55, na.rm = TRUE) +
     geom_rug(data = ticks, aes(x = x), inherit.aes = FALSE, sides = "b",
               length = grid::unit(0.03, "npc"), linewidth = 0.4) +
     scale_linetype_manual(values = c("rybar = Inf"   = "solid",
@@ -200,7 +200,7 @@ rys <- c(seq(0.6, 2, by = 0.2), 2.5, 3, 4)
 fr  <- do.call(rbind, lapply(c(1, 0.75, 0.5), frontier, rys = rys))
 
 ggplot(fr, aes(x = rxbar, y = rybar, group = cbar, colour = cbar)) +
-    geom_line(linewidth = 0.6) +
+    geom_line(linewidth = 0.6, na.rm = TRUE) +
     scale_colour_regsen() +
     labs(x = expression(bar(r)[x]), y = expression(bar(r)[y]),
          colour = expression(bar(c))) +
