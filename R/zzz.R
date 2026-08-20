@@ -20,4 +20,19 @@
 #' @keywords internal
 #' @importFrom stats as.formula coef lm model.frame model.matrix model.response resid terms var
 #' @importFrom rlang .data
+#' @importFrom grid unit
 "_PACKAGE"
+
+# Register tidy()/glance() on the `generics` package's verbs, but only when
+# it is installed. Doing it here rather than with @export keeps `generics`
+# in Suggests: a user who never touches broom or modelsummary should not be
+# made to install it, and CRAN counts hard dependencies against you.
+.onLoad <- function(libname, pkgname) {
+    if (requireNamespace("generics", quietly = TRUE)) {
+        registerS3method("tidy",   "regsensitivity", tidy.regsensitivity,
+                         envir = asNamespace("generics"))
+        registerS3method("glance", "regsensitivity", glance.regsensitivity,
+                         envir = asNamespace("generics"))
+    }
+    invisible()
+}
