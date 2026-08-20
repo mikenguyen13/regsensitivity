@@ -1,5 +1,46 @@
 # Changelog
 
+## regsensitivity (development version)
+
+### Plots
+
+- [`plot()`](https://rdrr.io/r/graphics/plot.default.html) gains
+  `xline`, drawing vertical reference lines. This closes a gap against
+  the Stata package, whose vignette uses `xline()` to mark values such
+  as `rmax` or a breakdown point; those figures could not be reproduced
+  in R before.
+- New
+  [`theme_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/theme_regsen.md)
+  and
+  [`scale_colour_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md),
+  exported so a plot can be rebuilt with the same look. Defaults are
+  aimed at print: a faint y-grid, a thin panel border, legend on top,
+  and the colourblind-safe Okabe-Ito palette, which also survives
+  greyscale printing.
+- Axis and legend titles now use plotmath, so they read as the symbols
+  in the papers rather than as parameter names.
+- [`plot()`](https://rdrr.io/r/graphics/plot.default.html) gains
+  `base_size`; use `9` for a two-column journal figure.
+- Passing `NA` to `title`, `subtitle`, `xtitle` or `ytitle` drops the
+  annotation. The auto-generated subtitle is no longer applied by
+  default, since a journal figure carries its description in the
+  caption.
+
+### Tables
+
+- New [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html)
+  method returning the results as a plain data frame, so they can be
+  passed to any table package (kableExtra, gt, modelsummary, huxtable,
+  tinytable, xtable).
+- New
+  [`regsen_table()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_table.md)
+  rendering results as LaTeX, HTML or Markdown, so the same call works
+  in an Rmd/Qmd knitting to PDF, HTML or Markdown. LaTeX output uses
+  `booktabs` and puts notes in a `threeparttable`, with `notes = TRUE`
+  generating a note recording the analysis, hypothesis and sample size.
+  Infinite bounds render as the correct symbol per format rather than
+  being blanked out.
+
 ## regsensitivity 0.1.1
 
 - Fix a Windows-only crash when the DIRECT optimizer (DMP analysis with

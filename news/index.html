@@ -41,6 +41,24 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="regsensitivity-development-version">regsensitivity (development version)<a class="anchor" aria-label="anchor" href="#regsensitivity-development-version"></a></h2>
+<div class="section level3">
+<h3 id="plots-development-version">Plots<a class="anchor" aria-label="anchor" href="#plots-development-version"></a></h3>
+<ul><li>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> gains <code>xline</code>, drawing vertical reference lines. This closes a gap against the Stata package, whose vignette uses <code>xline()</code> to mark values such as <code>rmax</code> or a breakdown point; those figures could not be reproduced in R before.</li>
+<li>New <code><a href="../reference/theme_regsen.html">theme_regsen()</a></code> and <code><a href="../reference/scale_colour_regsen.html">scale_colour_regsen()</a></code>, exported so a plot can be rebuilt with the same look. Defaults are aimed at print: a faint y-grid, a thin panel border, legend on top, and the colourblind-safe Okabe-Ito palette, which also survives greyscale printing.</li>
+<li>Axis and legend titles now use plotmath, so they read as the symbols in the papers rather than as parameter names.</li>
+<li>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> gains <code>base_size</code>; use <code>9</code> for a two-column journal figure.</li>
+<li>Passing <code>NA</code> to <code>title</code>, <code>subtitle</code>, <code>xtitle</code> or <code>ytitle</code> drops the annotation. The auto-generated subtitle is no longer applied by default, since a journal figure carries its description in the caption.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="tables-development-version">Tables<a class="anchor" aria-label="anchor" href="#tables-development-version"></a></h3>
+<ul><li>New <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> method returning the results as a plain data frame, so they can be passed to any table package (kableExtra, gt, modelsummary, huxtable, tinytable, xtable).</li>
+<li>New <code><a href="../reference/regsen_table.html">regsen_table()</a></code> rendering results as LaTeX, HTML or Markdown, so the same call works in an Rmd/Qmd knitting to PDF, HTML or Markdown. LaTeX output uses <code>booktabs</code> and puts notes in a <code>threeparttable</code>, with <code>notes = TRUE</code> generating a note recording the analysis, hypothesis and sample size. Infinite bounds render as the correct symbol per format rather than being blanked out.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1" id="regsensitivity-011">regsensitivity 0.1.1<a class="anchor" aria-label="anchor" href="#regsensitivity-011"></a></h2>
 <ul><li>Fix a Windows-only crash when the DIRECT optimizer (DMP analysis with <code>rybar &lt; Inf</code> and <code>cbar &gt; 0</code>) explored parameter points where <code>varx_bounds()</code> returned NA endpoints. The downstream <code>quad_ineq_bounds()</code> did unguarded <code>if (b1 &lt;= r1 &amp;&amp; b2 &lt;= r1)</code> comparisons which evaluated to <code>NA</code> and triggered “missing value where TRUE/FALSE needed”. Symptoms: BFG2020 vignette failed to build on Windows (Status: 1 ERROR on win-builder), but built clean on macOS due to floating-point determinism differences in nloptr’s DIRECT-L.</li>
 <li>Audit all bare <code>if (...)</code> numeric comparisons in <code>dmp.R</code> and guard against NA propagation. Every comparison now uses <code><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE()</a></code> / <code><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isFALSE()</a></code> so a single NA cannot poison the dispatch logic.</li>

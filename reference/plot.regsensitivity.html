@@ -57,10 +57,15 @@ regsen_bounds()) or a breakdown frontier (from regsen_breakdown())."></head><bod
 <span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_breakdown <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  show_legend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xline <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  xline_colour <span class="op">=</span> <span class="st">"grey40"</span>,</span>
+<span>  xline_linetype <span class="op">=</span> <span class="st">"dashed"</span>,</span>
+<span>  xline_linewidth <span class="op">=</span> <span class="fl">0.35</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  subtitle <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  xtitle <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ytitle <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  base_size <span class="op">=</span> <span class="fl">11</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -92,8 +97,27 @@ value. Defaults to <code>TRUE</code>.</p></dd>
 bounds with multiple values of a second sensitivity parameter).</p></dd>
 
 
+<dt id="arg-xline">xline<a class="anchor" aria-label="anchor" href="#arg-xline"></a></dt>
+<dd><p>Optional numeric vector of x-axis positions at which to draw
+reference lines, the equivalent of Stata's <code>xline()</code>. Useful for marking
+a value of <code>rmax</code>, a breakdown point, or any other threshold being
+discussed in the text.</p></dd>
+
+
+<dt id="arg-xline-colour-xline-linetype-xline-linewidth">xline_colour, xline_linetype, xline_linewidth<a class="anchor" aria-label="anchor" href="#arg-xline-colour-xline-linetype-xline-linewidth"></a></dt>
+<dd><p>Appearance of the
+<code>xline</code> reference lines.</p></dd>
+
+
 <dt id="arg-title-subtitle-xtitle-ytitle">title, subtitle, xtitle, ytitle<a class="anchor" aria-label="anchor" href="#arg-title-subtitle-xtitle-ytitle"></a></dt>
-<dd><p>Plot annotations. <code>NULL</code> uses defaults.</p></dd>
+<dd><p>Plot annotations. <code>NULL</code> uses defaults;
+<code>NA</code> drops the annotation entirely, which is usually what you want for a
+figure whose caption already carries the description.</p></dd>
+
+
+<dt id="arg-base-size">base_size<a class="anchor" aria-label="anchor" href="#arg-base-size"></a></dt>
+<dd><p>Base font size passed to <code><a href="theme_regsen.html">theme_regsen()</a></code>. Use <code>9</code> for a
+two-column journal figure rendered about 3.3 inches wide.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -102,9 +126,24 @@ bounds with multiple values of a second sensitivity parameter).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>ggplot</code> object.</p>
+    <p>A <code>ggplot</code> object. Because it is an ordinary ggplot, every default
+here can be overridden by adding scales, themes or annotations to it.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">bfg2020</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">avgrep2000to2016</span> <span class="op">~</span> <span class="va">tye_tfe890_500kNI_100_l6</span> <span class="op">+</span> <span class="va">log_area_2010</span> <span class="op">+</span> <span class="va">lat</span> <span class="op">+</span> <span class="va">lon</span>,</span></span>
+<span class="r-in"><span>    data <span class="op">=</span> <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_area_2010"</span>, <span class="st">"lat"</span>, <span class="st">"lon"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    cbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res</span>, xline <span class="op">=</span> <span class="fl">1</span>, base_size <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot.regsensitivity-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

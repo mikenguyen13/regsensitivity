@@ -213,6 +213,19 @@ Culture*, *Econometrica*.
 
 - [`plot(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/plot.regsensitivity.md)
   : Plot a regression sensitivity analysis
+- [`theme_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/theme_regsen.md)
+  : Publication-ready theme for sensitivity plots
+- [`scale_colour_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md)
+  [`scale_color_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md)
+  [`scale_fill_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md)
+  : Colourblind-safe scales for sensitivity plots
+
+## Tables and export
+
+- [`regsen_table()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_table.md)
+  : Render a sensitivity analysis as a publication-ready table
+- [`as.data.frame(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/as.data.frame.regsensitivity.md)
+  : Extract sensitivity results as a tidy data frame
 
 ## Data
 

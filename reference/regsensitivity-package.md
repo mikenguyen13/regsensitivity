@@ -37,5 +37,5 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Mike Nguyen <nguyennghia1301@gmail.com> \[copyright
-holder\]
+**Maintainer**: Mike Nguyen <nguyennghia1301@gmail.com>
+([ORCID](https://orcid.org/0000-0002-3432-8595)) \[copyright holder\]
