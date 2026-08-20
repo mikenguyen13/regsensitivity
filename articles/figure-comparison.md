@@ -1,0 +1,141 @@
+# Side by side with the published figures
+
+A replication that only reports numbers asks you to trust that the
+figures line up too. This page puts them next to each other.
+
+The panels on the left are reproduced from **Diegert, Masten and Poirier
+(2026),** [*Assessing Omitted Variable Bias when the Controls are
+Endogenous*](https://arxiv.org/abs/2206.02303) (arXiv:2206.02303v6,
+Figure 1), for the purpose of comparison. Copyright rests with the
+authors. The panels on the right are produced by this package from the
+bundled `bfg2020` data, by the code shown beneath each one.
+
+This page is part of the website only. It is excluded from the package
+tarball, so the reproduced figures are not redistributed on CRAN.
+
+## Figure 1, left panel
+
+Bounds on $`\beta_{long}`$ against $`\bar r_X`$ at $`\bar c = 1`$. Solid
+lines leave $`\bar r_Y`$ unrestricted; dashed lines impose
+$`\bar r_Y = \bar r_X`$. The marks on the zero line are the Table 4
+calibration values.
+
+### DMP (2026), as published
+
+![DMP (2026) Figure 1, left panel](figures/dmp-fig1-left-paper.png)
+
+### regsensitivity
+
+``` r
+
+rx <- seq(0, 1.4, length.out = 300)
+solid  <- regsen_bounds(form, bfg2020, compare = w1, cbar = 1, rxbar = rx)
+dashed <- regsen_bounds(form, bfg2020, compare = w1, cbar = 1, rxbar = rx,
+                         rybar_expr = function(r) r)
+
+a <- as.data.frame(solid);  a$spec <- "rybar = Inf"
+b <- as.data.frame(dashed); b$spec <- "rybar = rxbar"
+df <- rbind(a[, c("rxbar", "bmin", "bmax", "spec")],
+            b[, c("rxbar", "bmin", "bmax", "spec")])
+df$bmin[!is.finite(df$bmin)] <- NA
+df$bmax[!is.finite(df$bmax)] <- NA
+ticks <- calibrate_rho(form, bfg2020, compare = w1)$rho / 100
+
+ggplot(df, aes(x = rxbar, linetype = spec)) +
+    geom_hline(yintercept = 0, colour = "grey30", linewidth = 0.3,
+                linetype = "dotted") +
+    geom_line(aes(y = bmin), linewidth = 0.5, na.rm = TRUE) +
+    geom_line(aes(y = bmax), linewidth = 0.5, na.rm = TRUE) +
+    annotate("segment", x = ticks, xend = ticks, y = -0.25, yend = 0.25,
+              linewidth = 0.35, colour = "black") +
+    scale_linetype_manual(values = c("rybar = Inf"   = "solid",
+                                     "rybar = rxbar" = "dashed")) +
+    scale_x_continuous(breaks = seq(0, 1.4, 0.2)) +
+    scale_y_continuous(breaks = seq(-2, 6, 2)) +
+    coord_cartesian(xlim = c(0, 1.5), ylim = c(-3.2, 7.2)) +
+    labs(x = expression(bar(r)[X]), y = expression(beta[long]),
+         linetype = NULL) +
+    theme_regsen(base_size = 10) +
+    theme(legend.position = "none")
+```
+
+![](figure-comparison_files/figure-html/fig1-left-1.png)
+
+The two curves cross zero at the paper’s two breakdown points:
+
+``` r
+
+c(`rybar = Inf`   = abs(solid$breakdown),    # paper: 0.804
+  `rybar = rxbar` = abs(dashed$breakdown))   # paper: 0.96
+#>   rybar = Inf rybar = rxbar 
+#>     0.8035643     0.9583522
+```
+
+Both bounds go infinite at $`\bar r_X = 1`$ under the dashed
+specification, and just below 1 under the solid one, which is where both
+curves leave the panel in the published figure too.
+
+## Figure 1, right panel
+
+The breakdown frontier in $`(\bar r_X, \bar r_Y)`$ space, one curve per
+$`\bar c`$.
+
+### DMP (2026), as published
+
+![DMP (2026) Figure 1, right panel](figures/dmp-fig1-right-paper.png)
+
+### regsensitivity
+
+``` r
+
+frontier <- function(cbar, rys) {
+    rx <- vapply(rys, function(ry) {
+        r <- try(regsen_breakdown(form, bfg2020, compare = w1,
+                                   cbar = cbar, rybar = ry), silent = TRUE)
+        if (inherits(r, "try-error")) NA_real_ else abs(r$results$breakdown[1])
+    }, numeric(1))
+    data.frame(rxbar = rx, rybar = rys, cbar = factor(cbar))
+}
+rys <- c(seq(0.6, 2, by = 0.2), 2.5, 3, 4)
+fr  <- do.call(rbind, lapply(c(1, 0.9, 0.75, 0.5), frontier, rys = rys))
+
+ggplot(fr, aes(x = rxbar, y = rybar, group = cbar, colour = cbar)) +
+    geom_line(linewidth = 0.6, na.rm = TRUE) +
+    scale_colour_regsen() +
+    scale_x_continuous(breaks = seq(0, 4, 0.5)) +
+    scale_y_continuous(breaks = seq(0, 4, 0.5)) +
+    coord_cartesian(xlim = c(0, 4), ylim = c(0, 4)) +
+    labs(x = expression(bar(r)[X]), y = expression(bar(r)[Y]),
+         colour = expression(bar(c))) +
+    theme_regsen(base_size = 10)
+```
+
+![](figure-comparison_files/figure-html/fig1-right-1.png)
+
+**Where this one stops short, and why.** The published panel runs to
+$`\bar r_X = 4`$, each curve having flattened onto a horizontal arm.
+This reproduction covers the vertical arm only. That arm carries the
+quantity the paper reports – each curve approaches $`\bar r_X = 0.804`$
+as $`\bar r_Y`$ grows, which is the breakdown point of Table 1, Panel C.
+The horizontal arm lives in a region the package declines to compute:
+
+``` r
+
+regsen_bounds(form, bfg2020, compare = w1, cbar = 1, rxbar = 2, rybar = 0.6)
+#> Error:
+#> ! Bounds calculation not implemented in the region where rxbar > rmax(c) > rybar (see DMP 2026)
+```
+
+Rather than return a number it cannot stand behind, it raises that
+error. So the missing arm is a stated limitation of the implementation,
+not a disagreement with the paper.
+
+## Summary
+
+|                                          | Published | This package    |
+|------------------------------------------|-----------|-----------------|
+| $`\bar r_X^{bp}`$ at $`\bar c = 1`$      | 0.804     | 0.8036          |
+| $`\bar r^{bp}`$, $`\bar r_Y = \bar r_X`$ | 0.96      | 0.9584          |
+| Fig 1 left, both specifications          | yes       | yes             |
+| Fig 1 right, vertical arm                | yes       | yes             |
+| Fig 1 right, horizontal arm              | yes       | not implemented |

@@ -12,6 +12,11 @@
 - [Coming from the Stata
   package](https://mikenguyen13.github.io/regsensitivity/articles/stata-migration.md):
 
+### Verification
+
+- [Side by side with the published
+  figures](https://mikenguyen13.github.io/regsensitivity/articles/figure-comparison.md):
+
 ### Replication studies
 
 - [Replication: Diegert, Masten and Poirier
