@@ -1,10 +1,10 @@
 # Publication-ready theme for sensitivity plots
 
-A ggplot2 theme tuned for figures that will be dropped into a paper: no
-panel background, a thin panel border, a faint horizontal grid to help
-read values off the y-axis, and a legend along the top so the plot
-region keeps its aspect ratio when the figure is scaled down to one
-column.
+A ggplot2 theme tuned for figures that will be dropped into a paper. It
+follows the conventions of the economics journals: an L of axis lines
+rather than a box, no grid, ticks outside the panel, no figure title
+(the caption carries it), and a legend along the top so the plot region
+keeps its aspect ratio when the figure is scaled down to one column.
 
 ## Usage
 
@@ -12,7 +12,7 @@ column.
 theme_regsen(
   base_size = 11,
   base_family = "",
-  grid = c("y", "x", "both", "none"),
+  grid = c("none", "y", "x", "both"),
   legend_position = "top"
 )
 ```
@@ -30,8 +30,10 @@ theme_regsen(
 
 - grid:
 
-  One of `"y"` (default), `"x"`, `"both"` or `"none"`, choosing which
-  faint grid lines to draw.
+  One of `"none"` (default), `"y"`, `"x"` or `"both"`, choosing which
+  faint grid lines to draw. The default is none, following the economics
+  journals: a figure should carry ink only where it carries data. Use
+  `"y"` when readers need to take values off the axis.
 
 - legend_position:
 
@@ -44,6 +46,11 @@ theme_regsen(
 A ggplot2 theme object, which can be added to any plot.
 
 ## Details
+
+To match a LaTeX manuscript's body type, pass a serif family, e.g.
+`theme_regsen(base_family = "Times New Roman")`. Fonts are left to the
+caller because what is installed varies by machine, and a missing family
+would make figures unreproducible.
 
 The default `base_size` of 11 assumes a figure rendered at roughly 6
 inches wide. For a two-column journal figure, render at 3.3 inches and
