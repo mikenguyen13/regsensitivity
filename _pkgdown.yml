@@ -40,15 +40,16 @@ reference:
       - regsensitivity-package
 
 articles:
-  # vignettes/regsensitivity.Rmd is auto-promoted to the "Get started"
-  # navbar link, so it must not also head a navbar dropdown section --
-  # that is what rendered an empty row in the Articles menu.
+  # No `navbar:` key here on purpose. vignettes/regsensitivity.Rmd is
+  # auto-promoted to the top-level "Get started" link, so pkgdown drops it
+  # from the dropdown; with `navbar: ~` the section still claimed a slot and
+  # rendered as an empty row above "Replications". The section stays listed
+  # so the vignette still appears on the articles index page.
   - title: "Get started"
-    navbar: ~
     contents:
       - regsensitivity
-  # Without an explicit `navbar:` a section is kept off the dropdown and
-  # reachable only via "More articles...", which hid both replications.
+  # A section only reaches the dropdown if `navbar:` names it. Omitting it
+  # is what previously hid both replications behind "More articles...".
   - title: "Replication studies"
     navbar: "Replications"
     contents:
