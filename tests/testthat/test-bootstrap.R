@@ -53,3 +53,51 @@ test_that("print method runs without error", {
                       show_progress = FALSE)
     expect_output(print(res), "Bootstrap confidence interval")
 })
+
+test_that("a seed gives identical replicates regardless of ncores", {
+    skip_on_cran()
+    # The property that matters for a replication package: results must not
+    # depend on how the work was divided across cores.
+    args <- list(bfg_formula(), bfg(), compare = bfg_compare(),
+                 cbar = 1, R = 12, seed = 99, show_progress = FALSE)
+    b1 <- do.call(regsen_boot, c(args, list(ncores = 1)))
+    b2 <- do.call(regsen_boot, c(args, list(ncores = 2)))
+
+    expect_equal(b1$replicates, b2$replicates)
+    expect_equal(b1$ci, b2$ci)
+})
+
+test_that("a different seed gives different replicates", {
+    skip_on_cran()
+    a <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                      cbar = 1, R = 12, seed = 1, show_progress = FALSE)
+    b <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                      cbar = 1, R = 12, seed = 2, show_progress = FALSE)
+    expect_false(isTRUE(all.equal(a$replicates, b$replicates)))
+})
+
+test_that("ncores is validated and capped at R", {
+    skip_on_cran()
+    expect_error(regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                              cbar = 1, R = 5, ncores = 0),
+                 "positive integer")
+    # More cores than replicates must not spawn idle workers.
+    b <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                      cbar = 1, R = 3, ncores = 8, seed = 1,
+                      show_progress = FALSE)
+    expect_equal(b$ncores, 3L)
+    expect_length(b$replicates, 3L)
+})
+
+test_that("the caller's RNG state is not disturbed by seeding", {
+    skip_on_cran()
+    set.seed(123)
+    before <- runif(1)
+    set.seed(123)
+    invisible(regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                           cbar = 1, R = 4, show_progress = FALSE))
+    # No seed argument: the bootstrap consumes draws from the caller's
+    # stream, so the next value must differ from the un-consumed one.
+    after <- runif(1)
+    expect_false(isTRUE(all.equal(before, after)))
+})

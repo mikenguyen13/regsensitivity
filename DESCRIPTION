@@ -27,6 +27,7 @@ Depends: R (>= 4.1)
 Imports:
     stats,
     grid,
+    parallel,
     nloptr (>= 2.0.0),
     ggplot2 (>= 3.4.0),
     rlang (>= 1.0.0)
