@@ -17,6 +17,15 @@
   annotation. The auto-generated subtitle is no longer applied by default,
   since a journal figure carries its description in the caption.
 
+## Several treatments
+
+* New `regsen_multi()`, running the analysis once per candidate treatment
+  and collecting the breakdown points into one table, with a `plot()`
+  method ordering treatments by fragility. Every treatment is analysed in
+  the same specification -- the others stay as controls -- so the rows are
+  comparable. A treatment whose analysis fails yields an `NA` row with the
+  reason rather than aborting the sweep.
+
 ## Inference
 
 * `regsen_boot()` gains `ncores`, running replications in parallel: forking

@@ -16,6 +16,9 @@ reference:
   - title: "Inference"
     contents:
       - regsen_boot
+  - title: "Several treatments"
+    contents:
+      - regsen_multi
   - title: "Calibration"
     contents:
       - calibrate_rho
