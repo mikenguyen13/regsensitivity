@@ -10,10 +10,15 @@
   ylim = NULL,
   show_breakdown = TRUE,
   show_legend = TRUE,
+  xline = NULL,
+  xline_colour = "grey40",
+  xline_linetype = "dashed",
+  xline_linewidth = 0.35,
   title = NULL,
   subtitle = NULL,
   xtitle = NULL,
   ytitle = NULL,
+  base_size = 11,
   ...
 )
 }
@@ -31,14 +36,41 @@ value. Defaults to \code{TRUE}.}
 \item{show_legend}{Logical; show the legend (only relevant when plotting
 bounds with multiple values of a second sensitivity parameter).}
 
-\item{title, subtitle, xtitle, ytitle}{Plot annotations. \code{NULL} uses defaults.}
+\item{xline}{Optional numeric vector of x-axis positions at which to draw
+reference lines, the equivalent of Stata's \code{xline()}. Useful for marking
+a value of \code{rmax}, a breakdown point, or any other threshold being
+discussed in the text.}
+
+\item{xline_colour, xline_linetype, xline_linewidth}{Appearance of the
+\code{xline} reference lines.}
+
+\item{title, subtitle, xtitle, ytitle}{Plot annotations. \code{NULL} uses defaults;
+\code{NA} drops the annotation entirely, which is usually what you want for a
+figure whose caption already carries the description.}
+
+\item{base_size}{Base font size passed to \code{\link[=theme_regsen]{theme_regsen()}}. Use \code{9} for a
+two-column journal figure rendered about 3.3 inches wide.}
 
 \item{...}{Ignored.}
 }
 \value{
-A \code{ggplot} object.
+A \code{ggplot} object. Because it is an ordinary ggplot, every default
+here can be overridden by adding scales, themes or annotations to it.
 }
 \description{
 Produces a ggplot object visualizing either an identified-set sweep (from
 \code{\link[=regsen_bounds]{regsen_bounds()}}) or a breakdown frontier (from \code{\link[=regsen_breakdown]{regsen_breakdown()}}).
+}
+\examples{
+\dontshow{if (requireNamespace("ggplot2", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+\donttest{
+data(bfg2020)
+res <- regsen_bounds(
+    avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
+    data = bfg2020, compare = c("log_area_2010", "lat", "lon"),
+    cbar = c(0.1, 0.5, 1)
+)
+plot(res, xline = 1, base_size = 9)
+}
+\dontshow{\}) # examplesIf}
 }

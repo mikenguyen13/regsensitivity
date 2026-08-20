@@ -38,7 +38,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Mike Nguyen \email{nguyennghia1301@gmail.com} [copyright holder]
+\strong{Maintainer}: Mike Nguyen \email{nguyennghia1301@gmail.com} (\href{https://orcid.org/0000-0002-3432-8595}{ORCID}) [copyright holder]
 
 }
 \keyword{internal}
