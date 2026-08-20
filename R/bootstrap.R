@@ -31,7 +31,14 @@
 #'   used.
 #' @param level Two-sided confidence level for the percentile CI. Default
 #'   0.95.
-#' @param seed Optional integer seed for reproducibility.
+#' @param seed Optional integer seed for reproducibility. Results are
+#'   identical for a given `seed` regardless of `ncores`: each replicate
+#'   draws its own seed from a vector generated once up front, so nothing
+#'   depends on how the work was divided.
+#' @param ncores Number of cores for the replications. `1` (default) runs
+#'   serially. Above 1 the package forks on macOS and Linux and falls back
+#'   to a PSOCK cluster on Windows, which has no fork. A progress bar is
+#'   not shown when running in parallel.
 #' @param show_progress Logical; print progress bar.
 #'
 #' @return An object of class `regsensitivity_boot` containing:
@@ -63,8 +70,15 @@ regsen_boot <- function(formula, data,
                         cluster = NULL,
                         level = 0.95,
                         seed = NULL,
+                        ncores = 1L,
                         show_progress = interactive()) {
     stopifnot(is.data.frame(data), R >= 1, level > 0, level < 1)
+    ncores <- as.integer(ncores)
+    if (is.na(ncores) || ncores < 1L) {
+        stop("`ncores` must be a positive integer.", call. = FALSE)
+    }
+    ncores <- min(ncores, R)
+
     if (!is.null(seed)) set.seed(seed)
 
     point_res <- regsen_breakdown(formula, data, ...)
@@ -80,7 +94,16 @@ regsen_boot <- function(formula, data,
         cluster_levels <- unique(cluster_id)
     }
 
-    boot_one <- function() {
+    # One seed per replicate, drawn once here. Each replicate then sets its
+    # own seed before resampling, so a given `seed` yields the same
+    # replicates whether the run is serial or spread over any number of
+    # cores. Relying on parallel RNG substreams instead would make results
+    # depend on the core count, which is exactly what a replication package
+    # must not do.
+    rep_seeds <- sample.int(.Machine$integer.max, R)
+
+    boot_one <- function(b) {
+        set.seed(rep_seeds[b])
         if (is.null(cluster)) {
             idx <- sample.int(n, replace = TRUE)
         } else {
@@ -99,16 +122,22 @@ regsen_boot <- function(formula, data,
         res$results$breakdown[1]
     }
 
-    reps <- numeric(R)
-    if (show_progress) {
-        message("Bootstrap (R=", R, ")...")
-        pb <- utils::txtProgressBar(min = 0, max = R, style = 3)
+    if (ncores > 1L) {
+        # A progress bar cannot report meaningfully from several workers,
+        # so it is suppressed rather than printed wrongly.
+        reps <- boot_parallel(boot_one, R, ncores)
+    } else {
+        reps <- numeric(R)
+        if (show_progress) {
+            message("Bootstrap (R=", R, ")...")
+            pb <- utils::txtProgressBar(min = 0, max = R, style = 3)
+        }
+        for (b in seq_len(R)) {
+            reps[b] <- boot_one(b)
+            if (show_progress) utils::setTxtProgressBar(pb, b)
+        }
+        if (show_progress) close(pb)
     }
-    for (b in seq_len(R)) {
-        reps[b] <- boot_one()
-        if (show_progress) utils::setTxtProgressBar(pb, b)
-    }
-    if (show_progress) close(pb)
 
     na_count <- sum(is.na(reps))
     finite_reps <- reps[is.finite(reps)]
@@ -126,6 +155,7 @@ regsen_boot <- function(formula, data,
             level = level,
             R = R,
             cluster = cluster,
+            ncores = ncores,
             na = na_count,
             point_res = point_res
         ),
@@ -140,6 +170,9 @@ print.regsensitivity_boot <- function(x, ...) {
     cat(sprintf("  R                  : %d\n", x$R))
     cat(sprintf("  Cluster bootstrap  : %s\n",
                 if (is.null(x$cluster)) "no" else x$cluster))
+    if (!is.null(x$ncores) && x$ncores > 1L) {
+        cat(sprintf("  Cores              : %d\n", x$ncores))
+    }
     cat(sprintf("  Confidence level   : %.0f%%\n", 100 * x$level))
     cat(sprintf("  Point estimate     : %.4f\n", abs(x$point)))
     cat(sprintf("  %s%% CI            : [%.4f, %.4f]\n",
@@ -148,4 +181,42 @@ print.regsensitivity_boot <- function(x, ...) {
         cat(sprintf("  (Failed replicates : %d/%d)\n", x$na, x$R))
     }
     invisible(x)
+}
+
+# Run `fn` R times across `ncores` workers.
+#
+# Forking (mclapply) is used where the OS provides it: workers inherit the
+# whole session, so the data and the closure need no explicit export and
+# nothing is copied until written to. Windows has no fork, so it gets a
+# PSOCK cluster instead, which does need the closure's environment shipped
+# to each worker -- slower to start, and the reason forking is preferred
+# where available.
+boot_parallel <- function(fn, R, ncores) {
+    if (.Platform$OS.type != "windows") {
+        # mc.set.seed = FALSE: each replicate seeds itself from the
+        # pre-drawn vector, so letting the fork reseed would only add
+        # core-count dependence back in.
+        out <- parallel::mclapply(seq_len(R), fn,
+                                  mc.cores = ncores,
+                                  mc.set.seed = FALSE)
+    } else {
+        cl <- parallel::makeCluster(ncores)
+        on.exit(parallel::stopCluster(cl), add = TRUE)
+        parallel::clusterEvalQ(cl, {
+            suppressMessages(requireNamespace("regsensitivity", quietly = TRUE))
+        })
+        parallel::clusterExport(cl, varlist = "fn", envir = environment())
+        out <- parallel::parLapply(cl, seq_len(R), fn)
+    }
+
+    # mclapply signals a worker failure by returning a try-error in that
+    # slot rather than throwing, so a crashed replicate must be mapped to NA
+    # here or it would propagate as a list element into a numeric vector.
+    vapply(out, function(z) {
+        if (inherits(z, "try-error") || is.null(z) || length(z) != 1) {
+            NA_real_
+        } else {
+            as.numeric(z)
+        }
+    }, numeric(1))
 }
