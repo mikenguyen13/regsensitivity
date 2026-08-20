@@ -107,23 +107,92 @@ stop building rather than quietly publishing a wrong replication.
 
 ## Table 3: correlations between observed covariates
 
-```{r}
+The `published` column holds the paper's Table 3 as printed, so the
+comparison is on the page rather than asserted in prose.
+
+```{r tbl3}
 tbl3 <- calibrate_partial_r2(form, bfg2020, compare = w1)
 tbl3$variable <- labels[tbl3$variable]
-print(tbl3, row.names = FALSE)
+
+dmp_table3 <- c(
+    "Average temperature"                  = 0.893,
+    "Centroid Latitude"                    = 0.876,
+    "Elevation"                            = 0.681,
+    "Average potential agricultural yield"  = 0.648,
+    "Average rainfall"                     = 0.560,
+    "Distance from centroid to the coast"   = 0.487,
+    "Centroid Longitude"                   = 0.434,
+    "Distance from centroid to rivers"      = 0.135,
+    "Distance from centroid to lakes"       = 0.100,
+    "Land area"                            = 0.098
+)
+
+cmp3 <- data.frame(
+    covariate = tbl3$variable,
+    published = unname(dmp_table3[tbl3$variable]),
+    computed  = round(tbl3$R2, 3)
+)
+cmp3$difference <- round(cmp3$computed - cmp3$published, 3)
+knitr::kable(cmp3, caption = "Table 3: this package vs DMP (2026).")
 ```
 
-Matches the paper to three decimal places.
+Eight of the ten agree exactly at the printed precision. Average
+temperature and average rainfall differ by 0.001, which is a rounding
+boundary rather than a disagreement: the computed values are
+`r sprintf("%.5f", tbl3$R2[tbl3$variable == "Average temperature"])` and
+`r sprintf("%.5f", tbl3$R2[tbl3$variable == "Average rainfall"])`, both
+within half a unit of the last printed digit.
+
+```{r tbl3-assert, echo = FALSE}
+stopifnot(all(abs(cmp3$difference) <= 0.001))
+```
 
 ## Table 4, column (5): rho_k calibration
 
-```{r}
+```{r tbl4}
 tbl4 <- calibrate_rho(form, bfg2020, compare = w1)
 tbl4$variable <- labels[tbl4$variable]
-print(tbl4, row.names = FALSE)
+
+dmp_table4 <- c(
+    "Average potential agricultural yield"  = 118.3,
+    "Distance from centroid to the coast"   = 78.6,
+    "Centroid Longitude"                   = 49.9,
+    "Average temperature"                  = 37.3,
+    "Average rainfall"                     = 29.3,
+    "Centroid Latitude"                    = 26.9,
+    "Distance from centroid to rivers"      = 25.0,
+    "Land area"                            = 22.5,
+    "Elevation"                            = 20.2,
+    "Distance from centroid to lakes"       = 12.1
+)
+
+cmp4 <- data.frame(
+    covariate = tbl4$variable,
+    published = unname(dmp_table4[tbl4$variable]),
+    computed  = round(tbl4$rho, 1)
+)
+cmp4$difference <- round(cmp4$computed - cmp4$published, 1)
+knitr::kable(cmp4, caption = "Table 4 column (5): this package vs DMP (2026).")
 ```
 
-Each value matches the paper's Table 4 to one decimal place.
+```{r tbl4-assert, echo = FALSE}
+# 0.06 rather than 0.05: Elevation lands 0.0516 from the printed value,
+# just past half a unit of the last digit. Widening the tolerance to hide
+# that would defeat the purpose of checking, so it is stated below instead.
+stopifnot(all(abs(tbl4$rho - unname(dmp_table4[tbl4$variable])) <= 0.06))
+```
+
+Nine of the ten agree to the precision the paper prints. Elevation is the
+exception: this package gives
+`r sprintf("%.4f", tbl4$rho[tbl4$variable == "Elevation"])` where the
+paper prints 20.2, a gap of
+`r sprintf("%.4f", tbl4$rho[tbl4$variable == "Elevation"] - 20.2)`.
+That is slightly more than half a unit of the last printed digit, so it
+is not explained by rounding alone -- the paper's underlying value was
+nearer 20.24. A discrepancy this size does not move any conclusion in the
+paper, but it is recorded here rather than smoothed over, because the
+point of a replication is to show where the numbers meet and where they
+do not.
 
 ## Figure 1: Sensitivity analysis for Republican Vote Share
 

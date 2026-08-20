@@ -39,5 +39,12 @@ paper-rj/
 # Reference copy of the REndo package (JSS exemplar), kept locally only
 REndo/
 
+# Local copies of the source papers, used to verify the replications
+# against their published tables and figures. Kept out of git: they are
+# other authors' work, and redistributing them from this repo -- or
+# shipping them in a CRAN tarball -- is a separate decision from reading
+# them. Fetch them from arXiv/NBER if you need them.
+reference-papers/
+
 # R CMD check output
 *.Rcheck/
