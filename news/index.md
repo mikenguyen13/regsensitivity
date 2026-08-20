@@ -26,6 +26,18 @@
   default, since a journal figure carries its description in the
   caption.
 
+### Several treatments
+
+- New
+  [`regsen_multi()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md),
+  running the analysis once per candidate treatment and collecting the
+  breakdown points into one table, with a
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method
+  ordering treatments by fragility. Every treatment is analysed in the
+  same specification – the others stay as controls – so the rows are
+  comparable. A treatment whose analysis fails yields an `NA` row with
+  the reason rather than aborting the sweep.
+
 ### Inference
 
 - [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md)

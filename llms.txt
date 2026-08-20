@@ -195,6 +195,12 @@ Culture*, *Econometrica*.
 - [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md)
   : Bootstrap confidence interval for the breakdown point
 
+## Several treatments
+
+- [`regsen_multi()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
+  [`plot(`*`<regsensitivity_multi>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
+  : Sensitivity analysis for several treatments at once
+
 ## Calibration
 
 - [`calibrate_rho()`](https://mikenguyen13.github.io/regsensitivity/reference/calibrate_rho.md)

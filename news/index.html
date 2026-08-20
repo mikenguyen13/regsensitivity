@@ -58,6 +58,10 @@
 <li>Passing <code>NA</code> to <code>title</code>, <code>subtitle</code>, <code>xtitle</code> or <code>ytitle</code> drops the annotation. The auto-generated subtitle is no longer applied by default, since a journal figure carries its description in the caption.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="several-treatments-development-version">Several treatments<a class="anchor" aria-label="anchor" href="#several-treatments-development-version"></a></h3>
+<ul><li>New <code><a href="../reference/regsen_multi.html">regsen_multi()</a></code>, running the analysis once per candidate treatment and collecting the breakdown points into one table, with a <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method ordering treatments by fragility. Every treatment is analysed in the same specification – the others stay as controls – so the rows are comparable. A treatment whose analysis fails yields an <code>NA</code> row with the reason rather than aborting the sweep.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="inference-development-version">Inference<a class="anchor" aria-label="anchor" href="#inference-development-version"></a></h3>
 <ul><li>
 <code><a href="../reference/regsen_boot.html">regsen_boot()</a></code> gains <code>ncores</code>, running replications in parallel: forking on macOS and Linux, a PSOCK cluster on Windows. A progress bar is not shown in parallel, since it cannot report meaningfully from several workers.</li>
