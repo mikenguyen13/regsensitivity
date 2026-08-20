@@ -26,12 +26,14 @@ reference:
   - title: "Visualization"
     contents:
       - plot.regsensitivity
+      - autoplot.regsensitivity
       - theme_regsen
       - scale_colour_regsen
   - title: "Tables and export"
     contents:
       - regsen_table
       - as.data.frame.regsensitivity
+      - regsen_tidy
   - title: "Data"
     contents:
       - bfg2020

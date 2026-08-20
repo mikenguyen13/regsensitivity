@@ -17,6 +17,22 @@
   annotation. The auto-generated subtitle is no longer applied by default,
   since a journal figure carries its description in the caption.
 
+## Interoperability
+
+* New `regsen_tidy()` and `regsen_glance()`, broom-style tidiers. They are
+  registered on `generics::tidy()`/`glance()` when \pkg{generics} is
+  installed, so results flow into \pkg{modelsummary} and anything else
+  speaking that vocabulary; `generics` stays a Suggests.
+* New `autoplot()` method, forwarding to `plot()`.
+
+## Replication
+
+* The DMP (2026) vignette now checks its numbers against the published
+  values in a table, and `stopifnot()`s the comparison, so a regression
+  stops the build instead of quietly shipping a wrong replication.
+* Calibration labels in the Figure 1 overlay are staggered across three x
+  positions; at a single x they collided into an unreadable stack.
+
 ## Tables
 
 * New `as.data.frame()` method returning the results as a plain data frame,

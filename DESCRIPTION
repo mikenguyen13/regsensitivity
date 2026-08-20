@@ -26,10 +26,12 @@ LazyData: true
 Depends: R (>= 4.1)
 Imports:
     stats,
+    grid,
     nloptr (>= 2.0.0),
     ggplot2 (>= 3.4.0),
     rlang (>= 1.0.0)
 Suggests:
+    generics,
     haven (>= 2.5.0),
     testthat (>= 3.0.0),
     knitr (>= 1.40),

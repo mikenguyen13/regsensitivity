@@ -258,3 +258,27 @@ axis_label <- function(user, default) {
     if (length(user) == 1 && is.na(user)) return(NULL)
     user
 }
+
+#' Autoplot method
+#'
+#' `ggplot2::autoplot()` support, so a `regsensitivity` object can be drawn
+#' by code that dispatches on `autoplot()` rather than `plot()`. It forwards
+#' every argument to [plot.regsensitivity()].
+#'
+#' @param object A `regsensitivity` object.
+#' @param ... Passed to [plot.regsensitivity()].
+#' @return A `ggplot` object.
+#' @examples
+#' \donttest{
+#' data(bfg2020)
+#' res <- regsen_bounds(
+#'     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
+#'     data = bfg2020, compare = c("log_area_2010", "lat", "lon"), cbar = 0.1
+#' )
+#' ggplot2::autoplot(res)
+#' }
+#' @importFrom ggplot2 autoplot
+#' @exportS3Method ggplot2::autoplot
+autoplot.regsensitivity <- function(object, ...) {
+    plot.regsensitivity(object, ...)
+}
