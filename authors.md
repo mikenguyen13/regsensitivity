@@ -12,14 +12,14 @@ Source:
 [`inst/CITATION`](https://github.com/mikenguyen13/regsensitivity/blob/main/inst/CITATION)
 
 Nguyen M (2026). *regsensitivity: Regression Sensitivity Analysis for
-Omitted Variable Bias*. R package version 0.1.1,
+Omitted Variable Bias*. R package version 0.1.2,
 <https://github.com/mikenguyen13/regsensitivity>.
 
     @Manual{,
       title = {{regsensitivity}: Regression Sensitivity Analysis for Omitted Variable Bias},
       author = {Mike Nguyen},
       year = {2026},
-      note = {R package version 0.1.1},
+      note = {R package version 0.1.2},
       url = {https://github.com/mikenguyen13/regsensitivity},
     }
 

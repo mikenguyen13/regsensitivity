@@ -37,8 +37,9 @@ form <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
 For the Republican vote share outcome the paper reports:
 
 - $`\bar r_X^{bp} = 0.804`$ – the breakdown rxbar at $`\bar c = 1`$.
-- $`\bar r^{bp} = 0.96`$ – the breakdown rxbar under
-  $`\bar r_Y = \bar r_X`$ (common maximal impact).
+- $`\bar r^{bp} = 0.959`$ – the breakdown rxbar under
+  $`\bar r_Y = \bar r_X`$ (common maximal impact). The paper’s prose
+  rounds this to 96%; the table prints 95.9.
 
 ``` r
 
@@ -75,8 +76,8 @@ compare_published <- function(quantity, published, computed, digits) {
 cmp <- compare_published(
     quantity  = c("rxbar^bp at cbar = 1",
                   "r^bp at cbar = 1, rybar = rxbar"),
-    published = c(0.804, 0.96),
-    digits    = c(3, 2),          # as printed in the paper
+    published = c(0.804, 0.959),
+    digits    = c(3, 3),          # as printed in the paper's Table 1
     computed  = c(bp_conservative$breakdown, bp_relaxed$breakdown)
 )
 knitr::kable(cmp, caption = "Breakdown points: this package vs DMP (2026).")
@@ -84,12 +85,15 @@ knitr::kable(cmp, caption = "Breakdown points: this package vs DMP (2026).")
 
 | quantity                        | published | computed | difference | agrees |
 |:--------------------------------|----------:|---------:|-----------:|:-------|
-| rxbar^bp at cbar = 1            |     0.804 |   0.8036 |    -0.0004 | TRUE   |
-| r^bp at cbar = 1, rybar = rxbar |     0.960 |   0.9584 |    -0.0016 | TRUE   |
+| rxbar^bp at cbar = 1            |     0.804 |   0.8036 |     -4e-04 | TRUE   |
+| r^bp at cbar = 1, rybar = rxbar |     0.959 |   0.9584 |     -6e-04 | FALSE  |
 
 Breakdown points: this package vs DMP (2026). {.table}
 
-Both agree to the precision the paper prints. The
+The first agrees to the precision the paper prints. The second computes
+to 0.9584 against the printed 0.959 – a gap of 0.0006, slightly past
+half a unit of the last printed digit, of the same size and kind as the
+Elevation entry of Table 4 discussed below. The
 [`stopifnot()`](https://rdrr.io/r/base/stopifnot.html) above is
 deliberate: if a future change moved either number, this vignette would
 stop building rather than quietly publishing a wrong replication.
@@ -142,9 +146,10 @@ knitr::kable(cmp3, caption = "Table 3: this package vs DMP (2026).")
 Table 3: this package vs DMP (2026). {.table}
 
 Eight of the ten agree exactly at the printed precision. Average
-temperature and average rainfall differ by 0.001, which is a rounding
-boundary rather than a disagreement: the computed values are 0.89382 and
-0.55878, both within half a unit of the last printed digit.
+temperature and average rainfall differ by about 0.001: the computed
+values are 0.89382 and 0.55878, each just past half a unit of the last
+printed digit – last-digit differences of the same kind as the Elevation
+entry of Table 4 below, recorded here rather than smoothed over.
 
 ## Table 4, column (5): rho_k calibration
 
@@ -288,11 +293,19 @@ frontier <- function(cbar, rys) {
 rys <- c(seq(0.6, 2, by = 0.2), 2.5, 3, 4)
 fr  <- do.call(rbind, lapply(c(1, 0.75, 0.5), frontier, rys = rys))
 
-ggplot(fr, aes(x = rxbar, y = rybar, group = cbar, colour = cbar)) +
-    geom_line(linewidth = 0.6, na.rm = TRUE) +
-    scale_colour_regsen() +
-    labs(x = expression(bar(r)[x]), y = expression(bar(r)[y]),
-         colour = expression(bar(c))) +
+# Styled as in the paper: thick black for cbar = 1, grey for the
+# relaxations (the further out, the smaller the cbar: outer grey is
+# 0.5, inner grey is 0.75). The grid is deliberately coarse to keep the
+# CRAN build fast; the website's figure-comparison article runs a fine
+# grid.
+ggplot(fr, aes(x = rxbar, y = rybar, group = cbar)) +
+    geom_line(aes(linewidth = cbar == "1", colour = cbar == "1"),
+               na.rm = TRUE) +
+    scale_linewidth_manual(values = c(`TRUE` = 0.9, `FALSE` = 0.4),
+                            guide = "none") +
+    scale_colour_manual(values = c(`TRUE` = "black", `FALSE` = "grey55"),
+                         guide = "none") +
+    labs(x = expression(bar(r)[X]), y = expression(bar(r)[Y])) +
     theme_regsen(base_size = 10)
 ```
 
@@ -364,14 +377,12 @@ frontier against them is the point of the figure – a covariate sitting
 *above* the frontier would, if an unobservable were comparably
 important, be enough to overturn the sign.
 
-## Figures 2 and 3
+## Figure 2: not reproducible from the bundled data
 
 Figure 2 of DMP (2026) reports the same analysis for the *Cut Spending
-on Poor* outcome, and Figure 3 reports a sensitivity analysis on the
-choice of calibration covariates. Both require additional outcome
-variables that are **not** part of the bundled `bfg2020` slice. Once the
-full Bazzi-Fiszbein-Gebresilasse replication data is loaded, the calls
-look like:
+on Poor* outcome, which is **not** part of the bundled 14-variable
+`bfg2020` slice. Once the full Bazzi-Fiszbein-Gebresilasse replication
+data is loaded, the calls look like:
 
 ``` r
 # Hypothetical, given a column `cut_spending_poor`:
@@ -381,23 +392,32 @@ regsen_breakdown(cut_spending_poor ~ ...,
                   data, compare = w1, cbar = seq(0, 1, 0.02))
 ```
 
-For Figure 3, vary the `compare` argument to include / exclude
-calibration covariates:
+## Figure 3: moving the state fixed effects into the calibration set
+
+Figure 3 repeats Figure 1 with the state fixed effects calibrated
+*against* rather than merely controlled for. It needs no additional
+data, only a different `compare` set. The paper reports that the
+breakdown point drops from about 80% to about 30%, its illustration that
+$`\bar r_X`$ is only interpretable relative to the calibration
+covariates:
 
 ``` r
 
-for (drop in w1) {
-    res <- regsen_bounds(form, bfg2020, compare = setdiff(w1, drop),
-                          cbar = 1)
-    # collect & plot
-}
+fig3 <- regsen_bounds(form, bfg2020, compare = c(w1, "statea"), cbar = 1)
+c(`w1 only`            = abs(bp_conservative$breakdown),  # paper: ~0.80
+  `w1 + state effects` = abs(fig3$breakdown))             # paper: ~0.30
+#>            w1 only w1 + state effects 
+#>          0.8035643          0.2909420
 ```
+
+The full figure, with both panels next to the published ones, is on the
+website: see the article *Side by side with the published figures*.
 
 ## Bonus: identified set under $`\bar r_Y < \infty`$
 
 The paper notes that restricting the unobservable’s effect on the
-outcome shrinks the identified set considerably. Reproducing Figure 4 of
-the appendix style:
+outcome shrinks the identified set considerably. An illustration in that
+spirit (this is not a figure from the paper):
 
 ``` r
 

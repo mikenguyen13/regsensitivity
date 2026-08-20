@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,13 +84,15 @@
     
 <p>A replication that only reports numbers asks you to trust that the
 figures line up too. This page puts them next to each other.</p>
-<p>The panels on the left are reproduced from <strong>Diegert, Masten
-and Poirier (2026),</strong> <a href="https://arxiv.org/abs/2206.02303" class="external-link"><em>Assessing Omitted Variable
-Bias when the Controls are Endogenous</em></a> (arXiv:2206.02303v6,
-Figure 1), for the purpose of comparison. Copyright rests with the
-authors. The panels on the right are produced by this package from the
-bundled <code>bfg2020</code> data, by the code shown beneath each
-one.</p>
+<p>The published panels are reproduced from <strong>Diegert, Masten and
+Poirier (2026),</strong> <a href="https://arxiv.org/abs/2206.02303" class="external-link"><em>Assessing Omitted Variable
+Bias when the Controls are Endogenous</em></a> (arXiv:2206.02303v6) and
+<strong>Masten and Poirier (2026),</strong> <a href="https://arxiv.org/abs/2208.00552" class="external-link"><em>The Effect of Omitted
+Variables on the Sign of Regression Coefficients</em></a>
+(arXiv:2208.00552v5), for the purpose of comparison. Copyright rests
+with the authors. The panels beneath each one are produced by this
+package from the bundled <code>bfg2020</code> data, by the code shown
+with them.</p>
 <p>This page is part of the website only. It is excluded from the
 package tarball, so the reproduced figures are not redistributed on
 CRAN.</p>
@@ -150,7 +152,7 @@ The marks on the zero line are the Table 4 calibration values.</p>
 <p>The two curves cross zero at the paper’s two breakdown points:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`rybar = Inf`   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">solid</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span>,    <span class="co"># paper: 0.804</span></span>
-<span>  `rybar = rxbar` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">dashed</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span><span class="op">)</span>   <span class="co"># paper: 0.96</span></span>
+<span>  `rybar = rxbar` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">dashed</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span><span class="op">)</span>   <span class="co"># paper: 0.959 (96% in prose)</span></span>
 <span><span class="co">#&gt;   rybar = Inf rybar = rxbar </span></span>
 <span><span class="co">#&gt;     0.8035643     0.9583522</span></span></code></pre></div>
 <p>Both bounds go infinite at
@@ -176,26 +178,54 @@ space, one curve per
 <h3 id="regsensitivity-1">regsensitivity<a class="anchor" aria-label="anchor" href="#regsensitivity-1"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">frontier</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">cbar</span>, <span class="va">rys</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">rx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">rys</span>, <span class="kw">function</span><span class="op">(</span><span class="va">ry</span><span class="op">)</span> <span class="op">{</span></span>
-<span>        <span class="va">r</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
+<code class="sourceCode R"><span><span class="co"># Each grid point is one numerical breakdown solve (seconds each), so</span></span>
+<span><span class="co"># the sweep is parallelised over the rybar grid. mclapply forks, which</span></span>
+<span><span class="co"># Windows does not support, so it falls back to one core there.</span></span>
+<span><span class="va">frontier</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">cbar</span>, <span class="va">rys</span>, <span class="va">w</span> <span class="op">=</span> <span class="va">w1</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">cores</span> <span class="op">&lt;-</span> <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">cores</span><span class="op">)</span> <span class="op">||</span> <span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span> <span class="op">==</span> <span class="st">"windows"</span><span class="op">)</span> <span class="va">cores</span> <span class="op">&lt;-</span> <span class="fl">1L</span></span>
+<span>    <span class="va">cores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">4L</span>, <span class="va">cores</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">mclapply</a></span><span class="op">(</span><span class="va">rys</span>, <span class="kw">function</span><span class="op">(</span><span class="va">ry</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="va">r</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w</span>,</span>
 <span>                                   cbar <span class="op">=</span> <span class="va">cbar</span>, rybar <span class="op">=</span> <span class="va">ry</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>        <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"try-error"</span><span class="op">)</span><span class="op">)</span> <span class="cn">NA_real_</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span>    <span class="op">}</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span>, mc.cores <span class="op">=</span> <span class="va">cores</span><span class="op">)</span></span>
+<span>    <span class="co"># A killed worker leaves a NULL; vapply keeps rxbar aligned with rys</span></span>
+<span>    <span class="co"># instead of silently recycling a shortened vector.</span></span>
+<span>    <span class="va">rx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">res</span>, <span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span></span>
+<span>        <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="va">z</span> <span class="kw">else</span> <span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>rxbar <span class="op">=</span> <span class="va">rx</span>, rybar <span class="op">=</span> <span class="va">rys</span>, cbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">cbar</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="va">rys</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">2</span>, by <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>, <span class="fl">2.5</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co"># Dense grid where the curve bends (rybar &lt; 1.7). Above that the arm is</span></span>
+<span><span class="co"># numerically the closed-form rybar = Inf constant, so a few anchor</span></span>
+<span><span class="co"># points suffice -- solving finely there recomputes a constant.</span></span>
+<span><span class="va">rys</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">1.7</span>, by <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="va">fr</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.9</span>, <span class="fl">0.75</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="va">frontier</span>, rys <span class="op">=</span> <span class="va">rys</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">fr</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">rxbar</span>, y <span class="op">=</span> <span class="va">rybar</span>, group <span class="op">=</span> <span class="va">cbar</span>, colour <span class="op">=</span> <span class="va">cbar</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.6</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="../reference/scale_colour_regsen.html">scale_colour_regsen</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">bar</span><span class="op">(</span><span class="va">r</span><span class="op">)</span><span class="op">[</span><span class="va">X</span><span class="op">]</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">bar</span><span class="op">(</span><span class="va">r</span><span class="op">)</span><span class="op">[</span><span class="va">Y</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>         colour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">bar</span><span class="op">(</span><span class="va">c</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="../reference/theme_regsen.html">theme_regsen</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Styled as in the paper: the thick black curve is cbar = 1 (arbitrarily</span></span>
+<span><span class="co"># endogenous controls); the grey curves relax cbar below 1, shifting the</span></span>
+<span><span class="co"># frontier outward -- outermost to innermost they are cbar = 0.5, 0.75,</span></span>
+<span><span class="co"># 0.9. The dotted guides mark rxbar = rybar = 1.</span></span>
+<span><span class="va">frontier_plot</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fr</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">fr</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">rxbar</span>, y <span class="op">=</span> <span class="va">rybar</span>, group <span class="op">=</span> <span class="va">cbar</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">1</span>, colour <span class="op">=</span> <span class="st">"grey60"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>                    linetype <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">1</span>, colour <span class="op">=</span> <span class="st">"grey60"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>                    linetype <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="va">cbar</span> <span class="op">==</span> <span class="st">"1"</span>, colour <span class="op">=</span> <span class="va">cbar</span> <span class="op">==</span> <span class="st">"1"</span><span class="op">)</span>,</span>
+<span>                   na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linewidth_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`TRUE` <span class="op">=</span> <span class="fl">0.9</span>, `FALSE` <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>,</span>
+<span>                                guide <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`TRUE` <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>                                        `FALSE` <span class="op">=</span> <span class="st">"grey55"</span><span class="op">)</span>,</span>
+<span>                             guide <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">bar</span><span class="op">(</span><span class="va">r</span><span class="op">)</span><span class="op">[</span><span class="va">X</span><span class="op">]</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">bar</span><span class="op">(</span><span class="va">r</span><span class="op">)</span><span class="op">[</span><span class="va">Y</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="../reference/theme_regsen.html">theme_regsen</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">frontier_plot</span><span class="op">(</span><span class="va">fr</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure-comparison_files/figure-html/fig1-right-1.png" class="r-plt" alt="" width="930"></p>
 <p><strong>Where this one stops short, and why.</strong> The published
 panel runs to
@@ -256,13 +286,27 @@ the paper says it drops from about 80% to <strong>about
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">bmax</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">0.5</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rybar = Inf"</span>   <span class="op">=</span> <span class="st">"solid"</span>,</span>
 <span>                                     <span class="st">"rybar = rxbar"</span> <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.5</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3.2</span>, <span class="fl">7.2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="co"># The published Figure 3 panel uses a wider y window than Figure 1,</span></span>
+<span>    <span class="co"># so the reproduction adopts the same one.</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.5</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">8.5</span>, <span class="fl">14</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">bar</span><span class="op">(</span><span class="va">r</span><span class="op">)</span><span class="op">[</span><span class="va">X</span><span class="op">]</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">beta</span><span class="op">[</span><span class="va">long</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>         linetype <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="../reference/theme_regsen.html">theme_regsen</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figure-comparison_files/figure-html/fig3-1.png" class="r-plt" alt="" width="930"></p>
+<p>The published Figure 3 also has a right panel: the breakdown
+frontiers recomputed with the state fixed effects in the calibration
+set. All of them have shifted inward, the point the paper makes in the
+surrounding text.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rys3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">1.3</span>, by <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span>, <span class="fl">1.7</span>, <span class="fl">2.5</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">fr3</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.75</span><span class="op">)</span>, <span class="va">frontier</span>, rys <span class="op">=</span> <span class="va">rys3</span>, w <span class="op">=</span> <span class="va">w1_fe</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">frontier_plot</span><span class="op">(</span><span class="va">fr3</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figure-comparison_files/figure-html/fig3-right-1.png" class="r-plt" alt="" width="930"></p>
+<p>As in Figure 1, the horizontal arm past the finiteness threshold is
+not computed; the vertical arm now sits near 0.29 instead of 0.80.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`w1 only`            <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">solid</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span>,   <span class="co"># paper: ~0.80</span></span>
 <span>  `w1 + state effects` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">s3</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span><span class="op">)</span>      <span class="co"># paper: ~0.30</span></span>
 <span><span class="co">#&gt;            w1 only w1 + state effects </span></span>
@@ -275,8 +319,13 @@ the paper says it drops from about 80% to <strong>about
 </h2>
 <p>These two are built on the authors’ application to Satyanath et al.
 (2017), which is not bundled with this package, and the paper does not
-report the full set of moments needed to rebuild that data. They are
-shown here for structure, next to the stylized reproduction from the <a href="../articles/mp2022-stylized.html">MP replication vignette</a>.</p>
+report the moments needed to rebuild the curves – it prints coefficients
+and breakdown points, but no R-squared values and no variances. A full
+numerical reproduction would require re-running the regressions on the
+Satyanath et al. microdata (Harvard Dataverse, <a href="doi:10.7910/DVN/EE6I7N" class="uri">doi:10.7910/DVN/EE6I7N</a>).
+The figures are shown here for structure, next to the stylized
+reproduction from the <a href="../articles/mp2022-stylized.html">MP
+replication vignette</a>.</p>
 <p><strong>This is not a numerical reproduction, and it should not be
 read as one.</strong> In the published figure the sign-change breakdown
 is 0.586 while the explain-away breakdown is
@@ -307,9 +356,9 @@ Both are visible in the stylized figures in that vignette.</p>
 <table class="table">
 <caption>What replicates, what does not, and why.</caption>
 <colgroup>
-<col width="12%">
-<col width="12%">
-<col width="74%">
+<col width="8%">
+<col width="8%">
+<col width="82%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Figure</th>
@@ -336,39 +385,63 @@ package does not implement</td>
 bfg2020 data</td>
 </tr>
 <tr class="even">
-<td align="left">DMP Fig 3</td>
+<td align="left">DMP Fig 3 (left)</td>
 <td align="left">reproduced</td>
 <td align="left">matches; breakdown falls to 0.2909 against the paper’s
 ‘about 30%’</td>
 </tr>
 <tr class="odd">
+<td align="left">DMP Fig 3 (right)</td>
+<td align="left">partly reproduced</td>
+<td align="left">vertical arm matches, shifted inward as in the paper;
+horizontal arm as in Fig 1 (right)</td>
+</tr>
+<tr class="even">
 <td align="left">MP Fig 1</td>
 <td align="left">structure only</td>
 <td align="left">built on Satyanath et al. (2017); moments not reported
 in full</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">MP Fig 2</td>
 <td align="left">structure only</td>
 <td align="left">as Figure 1</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">MP Fig S1</td>
 <td align="left">not reproducible</td>
 <td align="left">Satyanath et al. (2017) data, not bundled</td>
 </tr>
-<tr class="even">
-<td align="left">Oster Figs 1-6</td>
+<tr class="odd">
+<td align="left">Oster Figs 1, 4-6</td>
 <td align="left">out of scope</td>
-<td align="left">meta-analysis across the published literature and NLSY
-simulations; not analyses this package performs</td>
+<td align="left">meta-analysis over Oster’s hand-collected samples of
+published papers (Figs 1, 4, 5: the 27-paper coefficient-stability
+sample; Fig 6: her randomized-trials sample)</td>
+</tr>
+<tr class="even">
+<td align="left">Oster Fig 2</td>
+<td align="left">out of scope</td>
+<td align="left">a Monte Carlo of the bias-adjusted estimator’s sampling
+distribution, a simulation study rather than an analysis the package
+performs</td>
+</tr>
+<tr class="odd">
+<td align="left">Oster Fig 3</td>
+<td align="left">out of scope</td>
+<td align="left">NLSY-79 validation exercise with a bespoke data
+construction, not a package analysis</td>
 </tr>
 </tbody>
 </table>
-<p>Four of the eight are figures this package’s methods actually produce
-from the bundled data, and three of those four match. The rest need data
-that is not distributed with the package, or – in Oster’s case – are
-about a literature rather than about a sensitivity analysis.</p>
+<p>Every panel this package’s methods can produce from the bundled data
+is reproduced above. The two bounds panels match in full; the two
+frontier panels match on their vertical arms, while the horizontal arms
+lie in a region the package deliberately does not implement, as the
+table records. The rest need data that is not distributed with the
+package – the full BFG outcome set, or the Satyanath et al. microdata –
+or, in Oster’s case, are simulation and literature meta-analysis
+exercises rather than sensitivity analyses of a dataset.</p>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
@@ -394,7 +467,7 @@ at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mover><mi>r</mi><mo accent="true">‾</mo></mover><mrow><mi>b</mi><mi>p</mi></mrow></msup><annotation encoding="application/x-tex">\bar r^{bp}</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>Y</mi></msub><mo>=</mo><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>X</mi></msub></mrow><annotation encoding="application/x-tex">\bar r_Y = \bar r_X</annotation></semantics></math>
 </td>
-<td>0.96</td>
+<td>0.959</td>
 <td>0.9584</td>
 </tr>
 <tr class="odd">

@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,14 +82,21 @@
 
     
     
-<p>This vignette reproduces the <em>stylized</em> figures of
-<strong>Masten and Poirier (2026),</strong> <a href="https://arxiv.org/abs/2208.00552" class="external-link"><em>The Effect of Omitted
-Variables on the Sign of Regression Coefficients</em></a>. The remaining
-figures and tables in that paper are meta-analyses across many published
-studies; we illustrate the <strong>methodology</strong> using a
-constructed example so that the machinery in <code>regsensitivity</code>
-is exercised end-to-end without requiring copy-protected meta-analysis
-data.</p>
+<p>This vignette illustrates, on a <em>stylized</em> constructed
+example, the figures of <strong>Masten and Poirier (2026),</strong> <a href="https://arxiv.org/abs/2208.00552" class="external-link"><em>The Effect of Omitted
+Variables on the Sign of Regression Coefficients</em></a>. The paper’s
+Figures 1, 2, and S1 are built on its empirical application to
+Satyanath, Voigtländer and Voth (2017), whose microdata is distributed
+separately (Harvard Dataverse, <a href="doi:10.7910/DVN/EE6I7N" class="uri">doi:10.7910/DVN/EE6I7N</a>) and is not bundled here; the
+paper itself does not print the moments needed to regenerate those
+curves. Its survey tables aggregate across many published studies. So
+this vignette exercises the machinery in <code>regsensitivity</code>
+end-to-end on a data-generating process we control, and the structural
+features of the published figures – at most three branches, the vertical
+asymptote at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta = 1</annotation></semantics></math>
+– are what should carry over. The numerical values should not be
+compared.</p>
 <div class="section level2">
 <h2 id="a-stylized-data-generating-process">A stylized data-generating process<a class="anchor" aria-label="anchor" href="#a-stylized-data-generating-process"></a>
 </h2>
@@ -215,11 +222,12 @@ maxovb:</p>
 <p>A tighter cap on the OVB magnitude lifts the breakdown delta.</p>
 </div>
 <div class="section level2">
-<h2 id="meta-analysis-tables-paper-tables-2-4">Meta-analysis tables (paper Tables 2-4)<a class="anchor" aria-label="anchor" href="#meta-analysis-tables-paper-tables-2-4"></a>
+<h2 id="meta-analysis-tables-paper-tables-3-4">Meta-analysis tables (paper Tables 3-4)<a class="anchor" aria-label="anchor" href="#meta-analysis-tables-paper-tables-3-4"></a>
 </h2>
-<p>The paper’s Tables 2-4 aggregate breakdown-point statistics across
-many published studies. The package contains the primitives needed to
-reproduce those tables
+<p>The paper’s Tables 3 and 4 aggregate breakdown-point statistics
+across many published studies. (Table 2 belongs to the Satyanath et al.
+application, not the survey.) The package contains the primitives needed
+to reproduce those tables
 (<code>regsen_breakdown(... maxovb = ...)</code>); plug your own
 meta-analysis data in and call:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">

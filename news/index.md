@@ -4,11 +4,20 @@
 
 ### Plots
 
+- The Oster equality identified-set plot no longer draws a false
+  vertical connector where the numerically ordered solution branches
+  swap arms across an asymptote. Branches are now split exactly where a
+  step would cross a vertical asymptote of `delta(beta)`, computed from
+  the model rather than guessed from the drawing. With several `r2long`
+  values the curves are now drawn (and coloured) per `r2long` instead of
+  being interleaved into one line.
+
 - [`plot()`](https://rdrr.io/r/graphics/plot.default.html) gains
   `xline`, drawing vertical reference lines. This closes a gap against
   the Stata package, whose vignette uses `xline()` to mark values such
   as `rmax` or a breakdown point; those figures could not be reproduced
   in R before.
+
 - New
   [`theme_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/theme_regsen.md)
   and
@@ -17,10 +26,13 @@
   aimed at print: a faint y-grid, a thin panel border, legend on top,
   and the colourblind-safe Okabe-Ito palette, which also survives
   greyscale printing.
+
 - Axis and legend titles now use plotmath, so they read as the symbols
   in the papers rather than as parameter names.
+
 - [`plot()`](https://rdrr.io/r/graphics/plot.default.html) gains
   `base_size`; use `9` for a two-column journal figure.
+
 - Passing `NA` to `title`, `subtitle`, `xtitle` or `ytitle` drops the
   annotation. The auto-generated subtitle is no longer applied by
   default, since a journal figure carries its description in the

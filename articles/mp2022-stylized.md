@@ -1,12 +1,19 @@
 # Replication: Masten and Poirier (2026) stylized examples
 
-This vignette reproduces the *stylized* figures of **Masten and Poirier
-(2026),** [*The Effect of Omitted Variables on the Sign of Regression
-Coefficients*](https://arxiv.org/abs/2208.00552). The remaining figures
-and tables in that paper are meta-analyses across many published
-studies; we illustrate the **methodology** using a constructed example
-so that the machinery in `regsensitivity` is exercised end-to-end
-without requiring copy-protected meta-analysis data.
+This vignette illustrates, on a *stylized* constructed example, the
+figures of **Masten and Poirier (2026),** [*The Effect of Omitted
+Variables on the Sign of Regression
+Coefficients*](https://arxiv.org/abs/2208.00552). The paper’s Figures 1,
+2, and S1 are built on its empirical application to Satyanath,
+Voigtländer and Voth (2017), whose microdata is distributed separately
+(Harvard Dataverse, <doi:10.7910/DVN/EE6I7N>) and is not bundled here;
+the paper itself does not print the moments needed to regenerate those
+curves. Its survey tables aggregate across many published studies. So
+this vignette exercises the machinery in `regsensitivity` end-to-end on
+a data-generating process we control, and the structural features of the
+published figures – at most three branches, the vertical asymptote at
+$`\delta = 1`$ – are what should carry over. The numerical values should
+not be compared.
 
 ## A stylized data-generating process
 
@@ -106,12 +113,13 @@ ggplot(out, aes(maxovb, breakdown)) +
 
 A tighter cap on the OVB magnitude lifts the breakdown delta.
 
-## Meta-analysis tables (paper Tables 2-4)
+## Meta-analysis tables (paper Tables 3-4)
 
-The paper’s Tables 2-4 aggregate breakdown-point statistics across many
-published studies. The package contains the primitives needed to
-reproduce those tables (`regsen_breakdown(... maxovb = ...)`); plug your
-own meta-analysis data in and call:
+The paper’s Tables 3 and 4 aggregate breakdown-point statistics across
+many published studies. (Table 2 belongs to the Satyanath et al.
+application, not the survey.) The package contains the primitives needed
+to reproduce those tables (`regsen_breakdown(... maxovb = ...)`); plug
+your own meta-analysis data in and call:
 
 ``` r
 

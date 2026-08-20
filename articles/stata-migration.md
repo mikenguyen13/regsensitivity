@@ -292,6 +292,8 @@ os <- regsen_bounds(form, bfg2020, compare = w1,
                      analysis = "oster",
                      delta = c(-3, 3), delta_type = "eq")
 plot(os, ylim = c(-5, 8), xline = 1)
+#> `geom_line()`: Each group consists of only one observation.
+#> ℹ Do you need to adjust the group aesthetic?
 ```
 
 ![](stata-migration_files/figure-html/oster-1.png)
@@ -349,7 +351,7 @@ by side in one session.
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
     #> other attached packages:
-    #> [1] ggplot2_4.0.3        regsensitivity_0.1.1
+    #> [1] ggplot2_4.0.3        regsensitivity_0.1.2
     #> 
     #> loaded via a namespace (and not attached):
     #>  [1] vctrs_0.7.3        cli_3.6.6          knitr_1.51         rlang_1.3.0       

@@ -3,12 +3,14 @@
 A replication that only reports numbers asks you to trust that the
 figures line up too. This page puts them next to each other.
 
-The panels on the left are reproduced from **Diegert, Masten and Poirier
+The published panels are reproduced from **Diegert, Masten and Poirier
 (2026),** [*Assessing Omitted Variable Bias when the Controls are
-Endogenous*](https://arxiv.org/abs/2206.02303) (arXiv:2206.02303v6,
-Figure 1), for the purpose of comparison. Copyright rests with the
-authors. The panels on the right are produced by this package from the
-bundled `bfg2020` data, by the code shown beneath each one.
+Endogenous*](https://arxiv.org/abs/2206.02303) (arXiv:2206.02303v6) and
+**Masten and Poirier (2026),** [*The Effect of Omitted Variables on the
+Sign of Regression Coefficients*](https://arxiv.org/abs/2208.00552)
+(arXiv:2208.00552v5), for the purpose of comparison. Copyright rests
+with the authors. The panels beneath each one are produced by this
+package from the bundled `bfg2020` data, by the code shown with them.
 
 This page is part of the website only. It is excluded from the package
 tarball, so the reproduced figures are not redistributed on CRAN.
@@ -66,7 +68,7 @@ The two curves cross zero at the paper’s two breakdown points:
 ``` r
 
 c(`rybar = Inf`   = abs(solid$breakdown),    # paper: 0.804
-  `rybar = rxbar` = abs(dashed$breakdown))   # paper: 0.96
+  `rybar = rxbar` = abs(dashed$breakdown))   # paper: 0.959 (96% in prose)
 #>   rybar = Inf rybar = rxbar 
 #>     0.8035643     0.9583522
 ```
@@ -88,26 +90,54 @@ $`\bar c`$.
 
 ``` r
 
-frontier <- function(cbar, rys) {
-    rx <- vapply(rys, function(ry) {
-        r <- try(regsen_breakdown(form, bfg2020, compare = w1,
+# Each grid point is one numerical breakdown solve (seconds each), so
+# the sweep is parallelised over the rybar grid. mclapply forks, which
+# Windows does not support, so it falls back to one core there.
+frontier <- function(cbar, rys, w = w1) {
+    cores <- parallel::detectCores()
+    if (is.na(cores) || .Platform$OS.type == "windows") cores <- 1L
+    cores <- max(1L, min(4L, cores))
+    res <- parallel::mclapply(rys, function(ry) {
+        r <- try(regsen_breakdown(form, bfg2020, compare = w,
                                    cbar = cbar, rybar = ry), silent = TRUE)
         if (inherits(r, "try-error")) NA_real_ else abs(r$results$breakdown[1])
-    }, numeric(1))
+    }, mc.cores = cores)
+    # A killed worker leaves a NULL; vapply keeps rxbar aligned with rys
+    # instead of silently recycling a shortened vector.
+    rx <- vapply(res, function(z)
+        if (is.numeric(z) && length(z) == 1) z else NA_real_, numeric(1))
     data.frame(rxbar = rx, rybar = rys, cbar = factor(cbar))
 }
-rys <- c(seq(0.6, 2, by = 0.2), 2.5, 3, 4)
+# Dense grid where the curve bends (rybar < 1.7). Above that the arm is
+# numerically the closed-form rybar = Inf constant, so a few anchor
+# points suffice -- solving finely there recomputes a constant.
+rys <- c(seq(0.6, 1.7, by = 0.05), 2, 3, 4)
 fr  <- do.call(rbind, lapply(c(1, 0.9, 0.75, 0.5), frontier, rys = rys))
 
-ggplot(fr, aes(x = rxbar, y = rybar, group = cbar, colour = cbar)) +
-    geom_line(linewidth = 0.6, na.rm = TRUE) +
-    scale_colour_regsen() +
-    scale_x_continuous(breaks = seq(0, 4, 0.5)) +
-    scale_y_continuous(breaks = seq(0, 4, 0.5)) +
-    coord_cartesian(xlim = c(0, 4), ylim = c(0, 4)) +
-    labs(x = expression(bar(r)[X]), y = expression(bar(r)[Y]),
-         colour = expression(bar(c))) +
-    theme_regsen(base_size = 10)
+# Styled as in the paper: the thick black curve is cbar = 1 (arbitrarily
+# endogenous controls); the grey curves relax cbar below 1, shifting the
+# frontier outward -- outermost to innermost they are cbar = 0.5, 0.75,
+# 0.9. The dotted guides mark rxbar = rybar = 1.
+frontier_plot <- function(fr) {
+    ggplot(fr, aes(x = rxbar, y = rybar, group = cbar)) +
+        geom_hline(yintercept = 1, colour = "grey60", linewidth = 0.3,
+                    linetype = "dotted") +
+        geom_vline(xintercept = 1, colour = "grey60", linewidth = 0.3,
+                    linetype = "dotted") +
+        geom_line(aes(linewidth = cbar == "1", colour = cbar == "1"),
+                   na.rm = TRUE) +
+        scale_linewidth_manual(values = c(`TRUE` = 0.9, `FALSE` = 0.4),
+                                guide = "none") +
+        scale_colour_manual(values = c(`TRUE` = "black",
+                                        `FALSE` = "grey55"),
+                             guide = "none") +
+        scale_x_continuous(breaks = seq(0, 4, 0.5)) +
+        scale_y_continuous(breaks = seq(0, 4, 0.5)) +
+        coord_cartesian(xlim = c(0, 4), ylim = c(0, 4)) +
+        labs(x = expression(bar(r)[X]), y = expression(bar(r)[Y])) +
+        theme_regsen(base_size = 10)
+}
+frontier_plot(fr)
 ```
 
 ![](figure-comparison_files/figure-html/fig1-right-1.png)
@@ -166,7 +196,10 @@ ggplot(df3, aes(x = rxbar, linetype = spec)) +
     geom_line(aes(y = bmax), linewidth = 0.5, na.rm = TRUE) +
     scale_linetype_manual(values = c("rybar = Inf"   = "solid",
                                      "rybar = rxbar" = "dashed")) +
-    coord_cartesian(xlim = c(0, 1.5), ylim = c(-3.2, 7.2)) +
+    # The published Figure 3 panel uses a wider y window than Figure 1,
+    # so the reproduction adopts the same one.
+    scale_y_continuous(breaks = seq(-5, 10, 5)) +
+    coord_cartesian(xlim = c(0, 1.5), ylim = c(-8.5, 14)) +
     labs(x = expression(bar(r)[X]), y = expression(beta[long]),
          linetype = NULL) +
     theme_regsen(base_size = 10) +
@@ -174,6 +207,23 @@ ggplot(df3, aes(x = rxbar, linetype = spec)) +
 ```
 
 ![](figure-comparison_files/figure-html/fig3-1.png)
+
+The published Figure 3 also has a right panel: the breakdown frontiers
+recomputed with the state fixed effects in the calibration set. All of
+them have shifted inward, the point the paper makes in the surrounding
+text.
+
+``` r
+
+rys3 <- c(seq(0.3, 1.3, by = 0.05), 1.7, 2.5, 4)
+fr3  <- do.call(rbind, lapply(c(1, 0.75), frontier, rys = rys3, w = w1_fe))
+frontier_plot(fr3)
+```
+
+![](figure-comparison_files/figure-html/fig3-right-1.png)
+
+As in Figure 1, the horizontal arm past the finiteness threshold is not
+computed; the vertical arm now sits near 0.29 instead of 0.80.
 
 ``` r
 
@@ -189,9 +239,12 @@ c(`w1 only`            = abs(solid$breakdown),   # paper: ~0.80
 
 These two are built on the authors’ application to Satyanath et al.
 (2017), which is not bundled with this package, and the paper does not
-report the full set of moments needed to rebuild that data. They are
-shown here for structure, next to the stylized reproduction from the [MP
-replication
+report the moments needed to rebuild the curves – it prints coefficients
+and breakdown points, but no R-squared values and no variances. A full
+numerical reproduction would require re-running the regressions on the
+Satyanath et al. microdata (Harvard Dataverse,
+<doi:10.7910/DVN/EE6I7N>). The figures are shown here for structure,
+next to the stylized reproduction from the [MP replication
 vignette](https://mikenguyen13.github.io/regsensitivity/articles/mp2022-stylized.md).
 
 **This is not a numerical reproduction, and it should not be read as
@@ -222,23 +275,30 @@ figures in that vignette.
 | DMP Fig 1 (left) | reproduced | matches on both specifications; crossings 0.8036 / 0.9584 |
 | DMP Fig 1 (right) | partly reproduced | vertical arm matches; horizontal arm needs a region the package does not implement |
 | DMP Fig 2 | not reproducible | outcome ‘Cut Spending on Poor’ is not in the bundled bfg2020 data |
-| DMP Fig 3 | reproduced | matches; breakdown falls to 0.2909 against the paper’s ‘about 30%’ |
+| DMP Fig 3 (left) | reproduced | matches; breakdown falls to 0.2909 against the paper’s ‘about 30%’ |
+| DMP Fig 3 (right) | partly reproduced | vertical arm matches, shifted inward as in the paper; horizontal arm as in Fig 1 (right) |
 | MP Fig 1 | structure only | built on Satyanath et al. (2017); moments not reported in full |
 | MP Fig 2 | structure only | as Figure 1 |
 | MP Fig S1 | not reproducible | Satyanath et al. (2017) data, not bundled |
-| Oster Figs 1-6 | out of scope | meta-analysis across the published literature and NLSY simulations; not analyses this package performs |
+| Oster Figs 1, 4-6 | out of scope | meta-analysis over Oster’s hand-collected samples of published papers (Figs 1, 4, 5: the 27-paper coefficient-stability sample; Fig 6: her randomized-trials sample) |
+| Oster Fig 2 | out of scope | a Monte Carlo of the bias-adjusted estimator’s sampling distribution, a simulation study rather than an analysis the package performs |
+| Oster Fig 3 | out of scope | NLSY-79 validation exercise with a bespoke data construction, not a package analysis |
 
 What replicates, what does not, and why. {.table}
 
-Four of the eight are figures this package’s methods actually produce
-from the bundled data, and three of those four match. The rest need data
-that is not distributed with the package, or – in Oster’s case – are
-about a literature rather than about a sensitivity analysis.
+Every panel this package’s methods can produce from the bundled data is
+reproduced above. The two bounds panels match in full; the two frontier
+panels match on their vertical arms, while the horizontal arms lie in a
+region the package deliberately does not implement, as the table
+records. The rest need data that is not distributed with the package –
+the full BFG outcome set, or the Satyanath et al. microdata – or, in
+Oster’s case, are simulation and literature meta-analysis exercises
+rather than sensitivity analyses of a dataset.
 
 ## Summary
 
 |                                                 | Published | This package |
 |-------------------------------------------------|-----------|--------------|
 | $`\bar r_X^{bp}`$ at $`\bar c = 1`$             | 0.804     | 0.8036       |
-| $`\bar r^{bp}`$, $`\bar r_Y = \bar r_X`$        | 0.96      | 0.9584       |
+| $`\bar r^{bp}`$, $`\bar r_Y = \bar r_X`$        | 0.959     | 0.9584       |
 | $`\bar r_X^{bp}`$, calibrating on state effects | ~0.30     | 0.2909       |
