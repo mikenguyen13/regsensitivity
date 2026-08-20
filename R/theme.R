@@ -2,10 +2,16 @@
 
 #' Publication-ready theme for sensitivity plots
 #'
-#' A \pkg{ggplot2} theme tuned for figures that will be dropped into a paper:
-#' no panel background, a thin panel border, a faint horizontal grid to help
-#' read values off the y-axis, and a legend along the top so the plot region
-#' keeps its aspect ratio when the figure is scaled down to one column.
+#' A \pkg{ggplot2} theme tuned for figures that will be dropped into a paper.
+#' It follows the conventions of the economics journals: an L of axis lines
+#' rather than a box, no grid, ticks outside the panel, no figure title (the
+#' caption carries it), and a legend along the top so the plot region keeps
+#' its aspect ratio when the figure is scaled down to one column.
+#'
+#' To match a LaTeX manuscript's body type, pass a serif family, e.g.
+#' `theme_regsen(base_family = "Times New Roman")`. Fonts are left to the
+#' caller because what is installed varies by machine, and a missing family
+#' would make figures unreproducible.
 #'
 #' The default `base_size` of 11 assumes a figure rendered at roughly
 #' 6 inches wide. For a two-column journal figure, render at 3.3 inches and
@@ -14,8 +20,10 @@
 #' @param base_size Base font size in points.
 #' @param base_family Base font family. The empty string uses the device
 #'   default, which keeps figures reproducible across machines.
-#' @param grid One of `"y"` (default), `"x"`, `"both"` or `"none"`, choosing
-#'   which faint grid lines to draw.
+#' @param grid One of `"none"` (default), `"y"`, `"x"` or `"both"`, choosing
+#'   which faint grid lines to draw. The default is none, following the
+#'   economics journals: a figure should carry ink only where it carries
+#'   data. Use `"y"` when readers need to take values off the axis.
 #' @param legend_position Passed to [ggplot2::theme()]. Defaults to `"top"`.
 #'
 #' @return A \pkg{ggplot2} theme object, which can be added to any plot.
@@ -31,19 +39,25 @@
 #' }
 #' @export
 theme_regsen <- function(base_size = 11, base_family = "",
-                         grid = c("y", "x", "both", "none"),
+                         grid = c("none", "y", "x", "both"),
                          legend_position = "top") {
     grid <- match.arg(grid)
     gridline <- ggplot2::element_line(colour = "grey92", linewidth = 0.3)
 
     th <- ggplot2::theme_bw(base_size = base_size, base_family = base_family) +
         ggplot2::theme(
-            panel.border     = ggplot2::element_rect(colour = "grey20",
-                                                     fill = NA, linewidth = 0.4),
+            # An L of axis lines rather than a full box, and no grid: the
+            # house style of AER, QJE, Econometrica and the rest, where a
+            # figure is expected to carry ink only where it carries data.
+            panel.border     = ggplot2::element_blank(),
+            axis.line        = ggplot2::element_line(colour = "black",
+                                                     linewidth = 0.4),
             panel.grid.minor = ggplot2::element_blank(),
             panel.grid.major = ggplot2::element_blank(),
-            axis.ticks       = ggplot2::element_line(colour = "grey20",
-                                                     linewidth = 0.3),
+            axis.ticks       = ggplot2::element_line(colour = "black",
+                                                     linewidth = 0.4),
+            axis.ticks.length = grid::unit(3.5, "pt"),
+            axis.text        = ggplot2::element_text(colour = "black"),
             axis.title       = ggplot2::element_text(size = ggplot2::rel(1.0)),
             plot.title       = ggplot2::element_text(size = ggplot2::rel(1.05),
                                                      face = "bold",
@@ -61,7 +75,7 @@ theme_regsen <- function(base_size = 11, base_family = "",
             legend.key       = ggplot2::element_blank(),
             legend.background = ggplot2::element_blank(),
             strip.background = ggplot2::element_blank(),
-            plot.margin      = ggplot2::margin(6, 8, 6, 6)
+            plot.margin      = ggplot2::margin(6, 10, 6, 6)
         )
 
     if (grid %in% c("y", "both")) {
