@@ -38,7 +38,9 @@
 #' @param ncores Number of cores for the replications. `1` (default) runs
 #'   serially. Above 1 the package forks on macOS and Linux and falls back
 #'   to a PSOCK cluster on Windows, which has no fork. A progress bar is
-#'   not shown when running in parallel.
+#'   not shown when running in parallel. Capped at `R`, and at 2 while
+#'   `R CMD check --as-cran` is running, which forbids more; results do not
+#'   depend on the cap.
 #' @param show_progress Logical; print progress bar.
 #'
 #' @return An object of class `regsensitivity_boot` containing:
@@ -77,7 +79,7 @@ regsen_boot <- function(formula, data,
     if (is.na(ncores) || ncores < 1L) {
         stop("`ncores` must be a positive integer.", call. = FALSE)
     }
-    ncores <- min(ncores, R)
+    ncores <- min(ncores, R, max_allowed_cores())
 
     if (!is.null(seed)) set.seed(seed)
 
@@ -181,6 +183,17 @@ print.regsensitivity_boot <- function(x, ...) {
         cat(sprintf("  (Failed replicates : %d/%d)\n", x$na, x$R))
     }
     invisible(x)
+}
+
+# R CMD check --as-cran sets _R_CHECK_LIMIT_CORES_, and parallel then
+# refuses to spawn more than two processes. Without this cap a user
+# running check() on their own package -- with a vignette or example that
+# calls regsen_boot(ncores = 4) -- would get a hard error out of
+# parallel:::.check_ncores rather than a slower run. Silently honouring
+# the limit is the behaviour that keeps their check green.
+max_allowed_cores <- function() {
+    chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+    if (nzchar(chk) && !identical(tolower(chk), "false")) 2L else Inf
 }
 
 # Run `fn` R times across `ncores` workers.

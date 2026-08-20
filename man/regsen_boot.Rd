@@ -44,7 +44,9 @@ depends on how the work was divided.}
 \item{ncores}{Number of cores for the replications. \code{1} (default) runs
 serially. Above 1 the package forks on macOS and Linux and falls back
 to a PSOCK cluster on Windows, which has no fork. A progress bar is
-not shown when running in parallel.}
+not shown when running in parallel. Capped at \code{R}, and at 2 while
+\verb{R CMD check --as-cran} is running, which forbids more; results do not
+depend on the cap.}
 
 \item{show_progress}{Logical; print progress bar.}
 }

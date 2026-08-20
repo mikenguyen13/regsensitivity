@@ -81,12 +81,14 @@ test_that("ncores is validated and capped at R", {
     expect_error(regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
                               cbar = 1, R = 5, ncores = 0),
                  "positive integer")
-    # More cores than replicates must not spawn idle workers.
+    # More cores than replicates must not spawn idle workers. Kept at two
+    # replicates so the request stays inside the two-process ceiling that
+    # R CMD check --as-cran enforces.
     b <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
-                      cbar = 1, R = 3, ncores = 8, seed = 1,
+                      cbar = 1, R = 2, ncores = 8, seed = 1,
                       show_progress = FALSE)
-    expect_equal(b$ncores, 3L)
-    expect_length(b$replicates, 3L)
+    expect_equal(b$ncores, 2L)
+    expect_length(b$replicates, 2L)
 })
 
 test_that("the caller's RNG state is not disturbed by seeding", {
