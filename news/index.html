@@ -20,6 +20,10 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/plots-and-tables.html">Publication-ready plots and tables</a></li>
+    <li><a class="dropdown-item" href="../articles/stata-migration.html">Coming from the Stata package</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Replications</h6></li>
     <li><a class="dropdown-item" href="../articles/dmp2022-replication.html">Replication: Diegert, Masten and Poirier (2026)</a></li>
     <li><a class="dropdown-item" href="../articles/mp2022-stylized.html">Replication: Masten and Poirier (2026) stylized examples</a></li>
@@ -52,6 +56,11 @@
 <li>
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> gains <code>base_size</code>; use <code>9</code> for a two-column journal figure.</li>
 <li>Passing <code>NA</code> to <code>title</code>, <code>subtitle</code>, <code>xtitle</code> or <code>ytitle</code> drops the annotation. The auto-generated subtitle is no longer applied by default, since a journal figure carries its description in the caption.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
+<ul><li>New vignette “Publication-ready plots and tables”, covering figure sizing for journals, greyscale and colour-vision safety, and the LaTeX / HTML / Markdown table output.</li>
+<li>New vignette “Coming from the Stata package”, mapping every command and option in the Stata package’s own vignette onto its R equivalent. It doubles as a coverage check: a gap would show as a missing row rather than going unnoticed.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="interoperability-development-version">Interoperability<a class="anchor" aria-label="anchor" href="#interoperability-development-version"></a></h3>

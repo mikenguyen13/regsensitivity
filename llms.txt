@@ -250,6 +250,13 @@ Culture*, *Econometrica*.
 - [regsensitivity: a
   tour](https://mikenguyen13.github.io/regsensitivity/articles/regsensitivity.md):
 
+### Using the package
+
+- [Publication-ready plots and
+  tables](https://mikenguyen13.github.io/regsensitivity/articles/plots-and-tables.md):
+- [Coming from the Stata
+  package](https://mikenguyen13.github.io/regsensitivity/articles/stata-migration.md):
+
 ### Replication studies
 
 - [Replication: Diegert, Masten and Poirier
