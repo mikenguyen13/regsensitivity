@@ -8,9 +8,9 @@
   x,
   row.names = NULL,
   optional = FALSE,
+  ...,
   digits = NULL,
-  finite_only = FALSE,
-  ...
+  finite_only = FALSE
 )
 }
 \arguments{
@@ -20,6 +20,8 @@
 \item{row.names, optional}{Ignored, present for S3 compatibility with
 \code{\link[base:as.data.frame]{base::as.data.frame()}}.}
 
+\item{...}{Ignored.}
+
 \item{digits}{Optional number of significant digits to round numeric
 columns to. \code{NULL} (default) leaves the values at full precision, which
 is what you want when the result feeds further computation.}
@@ -27,8 +29,6 @@ is what you want when the result feeds further computation.}
 \item{finite_only}{Logical. If \code{TRUE}, drop rows where every bound is
 non-finite. Defaults to \code{FALSE} so that the unbounded region of the
 sweep stays visible.}
-
-\item{...}{Ignored.}
 }
 \value{
 A \code{data.frame}.
