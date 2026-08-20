@@ -956,7 +956,7 @@ R> plot(bnds)
 
 }
 
-\caption[Estimated identified set for the long-regression coefficient as a function of rxbar, holding cbar at 0.1]{Estimated identified set for the long-regression coefficient as a function of rxbar, holding cbar at 0.1. The shaded band is the identified set; it widens continuously from the point beta-med at rxbar = 0 and diverges at the finiteness threshold. The horizontal line marks the hypothesis value zero, and the breakdown point is where the lower bound crosses it.}\label{fig:api-bounds-plot}
+\caption[Estimated identified set for the long-regression coefficient as a function of rxbar, holding cbar at 0.1]{Estimated identified set for the long-regression coefficient as a function of rxbar, holding cbar at 0.1. The two curves are the lower and upper bounds of the identified set; the band between them widens continuously from the point beta-med at rxbar = 0 and diverges at the finiteness threshold. The horizontal line marks the hypothesis value zero, and the breakdown point is where the lower bound crosses it.}\label{fig:api-bounds-plot}
 \end{figure}
 \end{Schunk}
 
@@ -1159,10 +1159,10 @@ published precision in Section~\ref{sec:replication}. Their interpretation
 is the point of the exercise: the breakdown point at $\cbar = 1$ is
 $80.4$\%, which exceeds
 $9$ of the
-$10$ calibration values. Only \code{ave_gyi} and
-\code{d_coa} are more important for treatment selection than the
-unobservable would have to be. If one regards the $\rho_k$ as plausible
-magnitudes for $r_X$, the finding is fairly robust.
+$10$ calibration values. Only \code{ave_gyi} is more
+important for treatment selection than the unobservable would have to
+be. If one regards the $\rho_k$ as plausible magnitudes for $r_X$, the
+finding is fairly robust.
 
 \code{calibrate\_partial\_r2()} returns $c_k^2$ from \eqref{eq:ck}, the
 diagnostic for whether exogenous controls is tenable at all.
@@ -1215,13 +1215,13 @@ Bootstrap confidence interval for the breakdown point
   Cluster bootstrap  : km_grid_cel_code
   Confidence level   : 95%
   Point estimate     : 0.8036
-  95% CI            : [0.5220, 0.8878]
+  95% CI            : [0.5039, 0.8568]
 \end{Soutput}
 \end{Schunk}
 
 The point estimate is the value DMP report as $80.4$\%. The interval is
 informative for the substantive question: its lower endpoint,
-$0.522$, still exceeds all but two of the $\rho_k$
+$0.504$, still exceeds all but two of the $\rho_k$
 values above, so the qualitative conclusion does not rest on the point
 estimate alone. Omitting \code{cluster} gives the i.i.d.\ bootstrap, which
 is faster but understates uncertainty when the data are spatially
@@ -1303,7 +1303,7 @@ against a published $0.893$, for average rainfall $0.5588$ against
 $0.560$, and our $\hat\rho_k$ for elevation is $20.25$ against $20.2$. The
 fourth is in Table~\ref{tab:replication} itself, where our
 $\hat{\overline{r}}^{\mathrm{bp}}$ of $95.8$\% is printed
-as $95.9$\% by DMP. Every entry agrees to within $0.06$, and the pattern
+as $95.9$\% by DMP. Every entry agrees to within $0.07$, and the pattern
 is consistent with rounding in the published tables rather than with a
 difference in estimand. We flag them because a reader checking the
 implementation against the paper would otherwise wonder.
@@ -1395,12 +1395,13 @@ $2.878$.
 This is a case where calibration changes the reading. The two $\rho_k$
 values are $115.9$\% and
 $86.3$\%, so the breakdown point at $\cbar = 1$
-lies \emph{below} both. An unobservable no more important for class-size
-selection than the free-lunch share is already enough to overturn the sign.
-The bootstrap interval, $[0.437,
-0.994]$ over $R = 199$ i.i.d.\ replicates, does
+lies below the larger of them. An unobservable no more important for
+class-size selection than the free-lunch share is already enough to
+overturn the sign.
+The bootstrap interval, $[0.531,
+0.997]$ over $R = 199$ i.i.d.\ replicates, does
 not change that assessment. Compared with the frontier application of
-Section~\ref{sec:api}---where the breakdown point exceeded eight of ten
+Section~\ref{sec:api}---where the breakdown point exceeded nine of ten
 calibration values---this specification is considerably less robust, and
 the contrast illustrates why a breakdown point should never be read against
 a universal cutoff.
@@ -1438,12 +1439,12 @@ interval from $R$ bootstrap replicates, and record whether it covers.
   \toprule
 $n$ & Coverage (\%) & Bias & SD & Mean CI width \\ 
   \midrule
-500 & 90.4 & -0.0053 & 0.0294 & 0.1113 \\ 
-  1000 & 92.0 & -0.0030 & 0.0208 & 0.0796 \\ 
-  4000 & 95.2 & 0.0001 & 0.0097 & 0.0395 \\ 
+500 & 92.0 & -0.0053 & 0.0294 & 0.1122 \\ 
+  1000 & 92.0 & -0.0030 & 0.0208 & 0.0799 \\ 
+  4000 & 95.6 & 0.0001 & 0.0097 & 0.0395 \\ 
    \bottomrule
 \end{tabular}
-\caption{Finite-sample performance of the percentile bootstrap interval for the breakdown point, at nominal 95\% level. $M = 250$ Monte Carlo replications, $R = 199 bootstrap draws each, $\bar c = 1$. The pseudo-true breakdown point is 0.7170, computed on a single sample of $4 \times 10^5$ observations. Bias and SD refer to the point estimator of the breakdown point.} 
+\caption{Finite-sample performance of the percentile bootstrap interval for the breakdown point, at nominal 95\% level. $M = 250$ Monte Carlo replications, $R = 199$ bootstrap draws each, $\bar c = 1$. The pseudo-true breakdown point is 0.7170, computed on a single sample of $4 \times 10^5$ observations. Bias and SD refer to the point estimator of the breakdown point.} 
 \label{tab:coverage}
 \end{table}
 
@@ -1452,7 +1453,7 @@ Table~\ref{tab:coverage} supports a qualified endorsement. The point
 estimator is close to unbiased at every sample size and its dispersion
 falls at the expected rate. Coverage improves with $n$ and is close to
 nominal by $n = 4000$, but at $n = 500$ the interval under-covers, at
-$90.4$\% against a nominal $95$\%. The
+$92.0$\% against a nominal $95$\%. The
 direction is what one would expect: the breakdown point is a smooth but
 nonlinear functional of an estimated variance matrix, and the percentile
 interval inherits the resulting finite-sample skewness without correcting
@@ -1593,9 +1594,10 @@ bias-corrected and accelerated intervals is the highest-value extension we
 can identify, and the simulation harness in Section~\ref{sec:case-sim}
 provides the yardstick against which to judge it.
 
-The package, with its three vignettes---a tour, a paper-replication
-walk-through, and a stylized illustration of the Masten--Poirier
-extensions---is available at
+The package, with its five vignettes---a tour, a paper-replication
+walk-through, a stylized illustration of the Masten--Poirier
+extensions, a plotting-and-tables guide, and a Stata migration
+guide---is available at
 \url{https://github.com/mikenguyen13/regsensitivity}.
 
 %% ============================================================================
@@ -1605,7 +1607,7 @@ extensions---is available at
 The results in this paper were obtained using
 \proglang{R}~4.5.2
 on aarch64-apple-darwin20, with the packages
-\pkg{regsensitivity}~0.1.1,
+\pkg{regsensitivity}~0.1.2,
 \pkg{ggplot2}~4.0.0,
 \pkg{nloptr}~2.2.1,
 \pkg{AER}~1.2.15,

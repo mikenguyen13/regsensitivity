@@ -919,7 +919,7 @@ The \code{results} table is an ordinary data frame, so the identified set
 can be manipulated directly, and the \code{plot} method renders it with
 \pkg{ggplot2}.
 
-<<api-bounds-plot, fig.cap = "Estimated identified set for the long-regression coefficient as a function of rxbar, holding cbar at 0.1. The shaded band is the identified set; it widens continuously from the point beta-med at rxbar = 0 and diverges at the finiteness threshold. The horizontal line marks the hypothesis value zero, and the breakdown point is where the lower bound crosses it.">>=
+<<api-bounds-plot, fig.cap = "Estimated identified set for the long-regression coefficient as a function of rxbar, holding cbar at 0.1. The two curves are the lower and upper bounds of the identified set; the band between them widens continuously from the point beta-med at rxbar = 0 and diverges at the finiteness threshold. The horizontal line marks the hypothesis value zero, and the breakdown point is where the lower bound crosses it.">>=
 plot(bnds)
 @
 
@@ -1052,10 +1052,10 @@ published precision in Section~\ref{sec:replication}. Their interpretation
 is the point of the exercise: the breakdown point at $\cbar = 1$ is
 $\Sexpr{pct(bp_c10)}$\%, which exceeds
 $\Sexpr{sum(rho$rho < 100 * bp_c10)}$ of the
-$\Sexpr{nrow(rho)}$ calibration values. Only \code{ave_gyi} and
-\code{d_coa} are more important for treatment selection than the
-unobservable would have to be. If one regards the $\rho_k$ as plausible
-magnitudes for $r_X$, the finding is fairly robust.
+$\Sexpr{nrow(rho)}$ calibration values. Only \code{ave_gyi} is more
+important for treatment selection than the unobservable would have to
+be. If one regards the $\rho_k$ as plausible magnitudes for $r_X$, the
+finding is fairly robust.
 
 \code{calibrate\_partial\_r2()} returns $c_k^2$ from \eqref{eq:ck}, the
 diagnostic for whether exogenous controls is tenable at all.
@@ -1166,7 +1166,7 @@ against a published $0.893$, for average rainfall $0.5588$ against
 $0.560$, and our $\hat\rho_k$ for elevation is $20.25$ against $20.2$. The
 fourth is in Table~\ref{tab:replication} itself, where our
 $\hat{\overline{r}}^{\mathrm{bp}}$ of $\Sexpr{pct(rbar_bp)}$\% is printed
-as $95.9$\% by DMP. Every entry agrees to within $0.06$, and the pattern
+as $95.9$\% by DMP. Every entry agrees to within $0.07$, and the pattern
 is consistent with rounding in the published tables rather than with a
 difference in estimand. We flag them because a reader checking the
 implementation against the paper would otherwise wonder.
@@ -1258,12 +1258,13 @@ $\Sexpr{fmt(sch_bp0, 3)}$.
 This is a case where calibration changes the reading. The two $\rho_k$
 values are $\Sexpr{fmt(sch_rho$rho[1], 1)}$\% and
 $\Sexpr{fmt(sch_rho$rho[2], 1)}$\%, so the breakdown point at $\cbar = 1$
-lies \emph{below} both. An unobservable no more important for class-size
-selection than the free-lunch share is already enough to overturn the sign.
+lies below the larger of them. An unobservable no more important for
+class-size selection than the free-lunch share is already enough to
+overturn the sign.
 The bootstrap interval, $[\Sexpr{fmt(sch_boot$ci[1], 3)},
 \Sexpr{fmt(sch_boot$ci[2], 3)}]$ over $R = 199$ i.i.d.\ replicates, does
 not change that assessment. Compared with the frontier application of
-Section~\ref{sec:api}---where the breakdown point exceeded eight of ten
+Section~\ref{sec:api}---where the breakdown point exceeded nine of ten
 calibration values---this specification is considerably less robust, and
 the contrast illustrates why a breakdown point should never be read against
 a universal cutoff.
@@ -1329,7 +1330,7 @@ names(st) <- c("$n$", "Coverage (\\%)", "Bias", "SD", "Mean CI width")
 print(xtable::xtable(st,
     caption = paste0("Finite-sample performance of the percentile bootstrap ",
       "interval for the breakdown point, at nominal 95\\% level. ",
-      "$M = ", M, "$ Monte Carlo replications, $R = ", Rb,
+      "$M = ", M, "$ Monte Carlo replications, $R = ", Rb, "$",
       " bootstrap draws each, $\\bar c = 1$. The pseudo-true breakdown ",
       "point is ", fmt(truth, 4), ", computed on a single sample of ",
       "$4 \\times 10^5$ observations. Bias and SD refer to the point ",
@@ -1481,9 +1482,10 @@ bias-corrected and accelerated intervals is the highest-value extension we
 can identify, and the simulation harness in Section~\ref{sec:case-sim}
 provides the yardstick against which to judge it.
 
-The package, with its three vignettes---a tour, a paper-replication
-walk-through, and a stylized illustration of the Masten--Poirier
-extensions---is available at
+The package, with its five vignettes---a tour, a paper-replication
+walk-through, a stylized illustration of the Masten--Poirier
+extensions, a plotting-and-tables guide, and a Stata migration
+guide---is available at
 \url{https://github.com/mikenguyen13/regsensitivity}.
 
 %% ============================================================================
