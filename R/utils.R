@@ -69,12 +69,20 @@ polyderiv <- function(coef, m = 1) {
 
 # Cumulative minimum, treating NA as +Inf so a single NA does not poison
 # everything after it. Used for Oster bound idsets.
+# Running minimum down a nested sequence of lower bounds.
+#
+# NA means the solver failed at that grid point and is carried over: it is
+# absence of information. -Inf is the opposite -- the producer returns it to
+# say the identified set is unbounded below -- so it must propagate. Lumping
+# the two together made regsen_bounds() report the last finite bound for
+# every larger delta, so an unbounded set was published as a bounded one,
+# understating the sensitivity it exists to measure.
 cummin_inf <- function(x) {
     out <- rep(POS_INF, length(x))
     cur <- POS_INF
     for (i in seq_along(x)) {
         v <- x[i]
-        if (is.na(v) || is.infinite(v)) {
+        if (is.na(v)) {
             out[i] <- cur
         } else {
             cur <- min(cur, v)
@@ -84,12 +92,13 @@ cummin_inf <- function(x) {
     out
 }
 
+# Mirror of cummin_inf for upper bounds; +Inf propagates, NA carries over.
 cummax_neg_inf <- function(x) {
     out <- rep(NEG_INF, length(x))
     cur <- NEG_INF
     for (i in seq_along(x)) {
         v <- x[i]
-        if (is.na(v) || is.infinite(v)) {
+        if (is.na(v)) {
             out[i] <- cur
         } else {
             cur <- max(cur, v)

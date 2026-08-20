@@ -57,3 +57,30 @@ test_that("Oster breakdown_bound matches known sign", {
         hyposign = ">", s = dgp)
     expect_gt(bd$breakdown, 0)
 })
+
+test_that("an unbounded Oster bound set is reported as unbounded", {
+    # |delta| <= dbar with dbar >= 1 admits any beta_long. Reporting the
+    # finite set from a smaller dbar would make the estimate look far more
+    # robust than it is -- the one direction a sensitivity analysis must
+    # never err in.
+    res <- regsen_bounds(bfg_formula(), bfg(), compare = bfg_compare(),
+                          analysis = "oster",
+                          delta = c(0.5, 1, 2), delta_type = "bound")
+    r <- res$results
+    expect_true(all(is.finite(unlist(r[r$delta == 0.5, c("bmin", "bmax")]))))
+    expect_equal(r$bmin[r$delta == 1], -Inf)
+    expect_equal(r$bmax[r$delta == 1],  Inf)
+    expect_equal(r$bmin[r$delta == 2], -Inf)
+    expect_equal(r$bmax[r$delta == 2],  Inf)
+})
+
+test_that("the bound sweep stays nested as dbar grows", {
+    # The identified set for |delta| <= dbar can only grow with dbar.
+    res <- regsen_bounds(bfg_formula(), bfg(), compare = bfg_compare(),
+                          analysis = "oster",
+                          delta = seq(0.1, 0.9, by = 0.2),
+                          delta_type = "bound")
+    r <- res$results
+    expect_false(is.unsorted(rev(r$bmin)))   # bmin non-increasing in dbar
+    expect_false(is.unsorted(r$bmax))        # bmax non-decreasing in dbar
+})
