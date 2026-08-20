@@ -58,6 +58,12 @@
 <li>Passing <code>NA</code> to <code>title</code>, <code>subtitle</code>, <code>xtitle</code> or <code>ytitle</code> drops the annotation. The auto-generated subtitle is no longer applied by default, since a journal figure carries its description in the caption.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="verification-development-version">Verification<a class="anchor" aria-label="anchor" href="#verification-development-version"></a></h3>
+<ul><li>The Oster (2019) implementation is now checked against the paper rather than against its own past output. A test round-trips Proposition 3 into Proposition 2: the delta reported as the breakdown for a target beta, fed back through the identified set, must return that beta. It does, to machine precision, for several targets.</li>
+<li>
+<code>results$breakdown</code> is documented as <strong>signed</strong>. The sign carries the direction of selection; passing <code><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs()</a></code> of it back into <code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code> lands on a different branch of the Oster cubic. The scalar <code>$breakdown</code> reports the magnitude and exists on <code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code> output only – a <code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code> result carries the value in <code>results$breakdown</code> alone.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="replication-fidelity-development-version">Replication fidelity<a class="anchor" aria-label="anchor" href="#replication-fidelity-development-version"></a></h3>
 <ul><li>The DMP (2026) Figure 1 reproduction now matches the published figure. The left panel gains the dashed bounds under the common-maximal-impact restriction <code>rybar = rxbar</code> and the Table 4 calibration tick marks; both zero crossings are reported and agree with the published 0.804 and 0.96. The right panel previously plotted the breakdown point against <code>cbar</code>, a different object from the paper’s, which is the breakdown frontier in (rxbar, rybar) space; it is now that frontier, one curve per <code>cbar</code>.</li>
 <li>

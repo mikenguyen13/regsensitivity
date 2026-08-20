@@ -113,6 +113,18 @@ regsen_bounds(
 A `regsensitivity` object. The `results` field holds a data.frame with
 one row per sensitivity-parameter point.
 
+For a breakdown analysis, `results$breakdown` is **signed**: its sign
+carries the direction of selection, and for Oster it is the `delta` that
+solves Proposition 3 for the hypothesised value. Feeding that value back
+into `regsen_bounds()` recovers the hypothesised beta, but feeding
+[`abs()`](https://rdrr.io/r/base/MathFun.html) of it lands on a
+different branch of the cubic. The scalar `$breakdown` field and the
+print method report the magnitude, since that is what is quoted as "the
+breakdown point". Note that the scalar exists on `regsen_bounds()`
+output only; a
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+result carries the value in `results$breakdown` alone.
+
 ## Examples
 
 ``` r

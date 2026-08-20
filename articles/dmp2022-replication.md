@@ -237,12 +237,18 @@ ggplot(df, aes(x = rxbar, linetype = spec)) +
                 linetype = "dotted") +
     geom_line(aes(y = bmin), linewidth = 0.55, na.rm = TRUE) +
     geom_line(aes(y = bmax), linewidth = 0.55, na.rm = TRUE) +
-    geom_rug(data = ticks, aes(x = x), inherit.aes = FALSE, sides = "b",
-              length = grid::unit(0.03, "npc"), linewidth = 0.4) +
+    # The paper draws the calibration marks on the zero line itself, not
+    # along the panel foot, so they read against the crossing points.
+    annotate("segment", x = ticks$x, xend = ticks$x, y = -0.25, yend = 0.25,
+              linewidth = 0.35, colour = "black") +
     scale_linetype_manual(values = c("rybar = Inf"   = "solid",
                                      "rybar = rxbar" = "dashed")) +
-    coord_cartesian(xlim = c(0, 1.4), ylim = c(-2, 6)) +
-    labs(x = expression(bar(r)[x]), y = expression(beta[long]),
+    # Axis breaks chosen to match the published figure, so the two can be
+    # laid side by side without mentally rescaling.
+    scale_x_continuous(breaks = seq(0, 1.4, 0.2)) +
+    scale_y_continuous(breaks = seq(-2, 6, 2)) +
+    coord_cartesian(xlim = c(0, 1.5), ylim = c(-3.2, 7.2)) +
+    labs(x = expression(bar(r)[X]), y = expression(beta[long]),
          linetype = NULL) +
     theme_regsen(base_size = 10)
 ```
@@ -300,13 +306,24 @@ out, because restricting how endogenous the controls may be makes the
 conclusion harder to overturn.
 
 **One difference from the published figure.** The paper’s right panel
-runs to $`\bar r_X = 4`$. This reconstruction stops near
-$`\bar r_X = 1/\bar c`$, because Lemma S9 of the paper gives
-$`\bar z_X = +\infty`$ once $`\bar r_X \bar c \geq 1`$, and the
-package’s breakdown search is bounded by that same quantity. Reaching
-further along the horizontal arm would mean solving for
-$`\bar r_Y^{bf}`$ directly at a given $`\bar r_X`$ instead of inverting,
-which the package does not currently expose.
+runs to $`\bar r_X = 4`$, where each curve has flattened onto its
+horizontal arm. This reconstruction stops near $`\bar r_X = 1/\bar c`$,
+and the reason is explicit rather than incidental:
+
+``` r
+
+regsen_bounds(form, bfg2020, compare = w1,
+              cbar = 1, rxbar = 2, rybar = 0.6)
+#> Error:
+#> ! Bounds calculation not implemented in the region where rxbar > rmax(c) > rybar (see DMP 2026)
+```
+
+The horizontal arm lives in the region
+$`\bar r_X > r_{max}(\bar c) > \bar r_Y`$, which this package does not
+implement – it raises the error above rather than returning a number it
+cannot stand behind. The vertical arm, which carries the breakdown point
+the paper actually reports, is reproduced exactly: each curve approaches
+$`\bar r_X = 0.804`$ as $`\bar r_Y`$ grows.
 
 ### Overlaying the calibration values
 

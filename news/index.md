@@ -26,6 +26,24 @@
   default, since a journal figure carries its description in the
   caption.
 
+### Verification
+
+- The Oster (2019) implementation is now checked against the paper
+  rather than against its own past output. A test round-trips
+  Proposition 3 into Proposition 2: the delta reported as the breakdown
+  for a target beta, fed back through the identified set, must return
+  that beta. It does, to machine precision, for several targets.
+- `results$breakdown` is documented as **signed**. The sign carries the
+  direction of selection; passing
+  [`abs()`](https://rdrr.io/r/base/MathFun.html) of it back into
+  [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+  lands on a different branch of the Oster cubic. The scalar
+  `$breakdown` reports the magnitude and exists on
+  [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+  output only – a
+  [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+  result carries the value in `results$breakdown` alone.
+
 ### Replication fidelity
 
 - The DMP (2026) Figure 1 reproduction now matches the published figure.

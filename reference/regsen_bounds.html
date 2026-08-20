@@ -167,6 +167,15 @@ of <code>data</code> to include in the estimation.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>regsensitivity</code> object. The <code>results</code> field holds a data.frame
 with one row per sensitivity-parameter point.</p>
+<p>For a breakdown analysis, <code>results$breakdown</code> is <strong>signed</strong>: its sign
+carries the direction of selection, and for Oster it is the <code>delta</code>
+that solves Proposition 3 for the hypothesised value. Feeding that
+value back into <code>regsen_bounds()</code> recovers the hypothesised beta, but
+feeding <code><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs()</a></code> of it lands on a different branch of the cubic. The
+scalar <code>$breakdown</code> field and the print method report the magnitude,
+since that is what is quoted as "the breakdown point". Note that the
+scalar exists on <code>regsen_bounds()</code> output only; a <code><a href="regsen_breakdown.html">regsen_breakdown()</a></code>
+result carries the value in <code>results$breakdown</code> alone.</p>
     </div>
 
     <div class="section level2">
