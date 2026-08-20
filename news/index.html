@@ -58,6 +58,13 @@
 <li>Passing <code>NA</code> to <code>title</code>, <code>subtitle</code>, <code>xtitle</code> or <code>ytitle</code> drops the annotation. The auto-generated subtitle is no longer applied by default, since a journal figure carries its description in the caption.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>
+<p><code>regsen_bounds(analysis = "oster", delta_type = "bound")</code> reported a bounded identified set where the set is in fact unbounded. The solver correctly returns <code>-Inf</code>/<code>Inf</code> for <code>|delta| &lt;= dbar</code> with <code>dbar &gt;= 1</code>, but the routine accumulating bounds across the grid discarded infinite values alongside <code>NA</code> and carried the last finite bound forward. On the bundled data, <code>delta = c(0.5, 1, 2)</code> reported <code>[1.31, 2.98]</code> at every point instead of <code>(-Inf, Inf)</code> from <code>dbar = 1</code> on.</p>
+<p><code>NA</code> still carries over, since it means the solver failed and carries no information; an infinity is a bound and now propagates. This is the one direction a sensitivity analysis must not err in, since it made results look more robust than they are. Previously validated numbers are unchanged – the snapshot tests pass untouched.</p>
+</li>
+</ul></div>
+<div class="section level3">
 <h3 id="interactive-development-version">Interactive<a class="anchor" aria-label="anchor" href="#interactive-development-version"></a></h3>
 <ul><li>New <code><a href="../reference/regsen_explore.html">regsen_explore()</a></code>, a shiny application for moving the sensitivity parameters by hand and watching the identified set respond.  is a Suggests, so the rest of the package works without it. Inputs are validated and the model is fitted once before the app opens, so a bad call reports at the console rather than as a banner in a browser tab.</li>
 </ul></div>
