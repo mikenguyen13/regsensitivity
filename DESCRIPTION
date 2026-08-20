@@ -1,7 +1,7 @@
 Package: regsensitivity
 Type: Package
 Title: Regression Sensitivity Analysis for Omitted Variable Bias
-Version: 0.1.1
+Version: 0.1.2
 Authors@R:
     person("Mike", "Nguyen", , "nguyennghia1301@gmail.com",
            role = c("aut", "cre", "cph"),

@@ -145,17 +145,64 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
         sp <- if ("delta" %in% names(df)) "delta" else colnames(df)[1]
         df$x_var <- df[[sp]]
         if (x$sparams$delta_type == "eq") {
-            # Up to three solutions: beta1, beta2, beta3.
-            long <- rbind(
-                data.frame(x = df$x_var, y = df$beta1, branch = 1),
-                data.frame(x = df$x_var, y = df$beta2, branch = 2),
-                data.frame(x = df$x_var, y = df$beta3, branch = 3)
-            )
-            long <- long[is.finite(long$y), , drop = FALSE]
+            # Up to three solutions per delta: beta1, beta2, beta3. They are
+            # ordered numerically, so a nominal branch can swap arms where a
+            # root diverges; drawn as one line, that swap paints a false
+            # vertical connector through the panel. Two exact facts locate
+            # every swap: a true branch never crosses a vertical asymptote
+            # of beta -> delta(beta), and the cubic's leading coefficient is
+            # proportional to (delta - 1), so one root escapes to infinity
+            # exactly at delta = 1, shifting the numeric ordering there.
+            # Break a branch wherever a step straddles either. Each r2long
+            # value is its own curve with its own asymptotes.
+            r2s <- if ("r2long" %in% names(df)) df$r2long
+                   else rep(x$sparams$r2long[1], nrow(df))
+            long_list <- list()
+            for (r2 in unique(r2s)) {
+                sub <- df[r2s == r2, , drop = FALSE]
+                sub <- sub[order(sub$x_var), , drop = FALSE]
+                asym <- tryCatch(oster_delta_asymptotes(r2, x$dgp),
+                                  error = function(e) numeric(0))
+                for (k in 1:3) {
+                    y <- sub[[paste0("beta", k)]]
+                    keep <- is.finite(y)
+                    yk <- y[keep]
+                    if (length(yk) == 0) next
+                    xk <- sub$x_var[keep]
+                    cross <- rep(FALSE, max(0, length(yk) - 1))
+                    for (a in asym) {
+                        cross <- cross |
+                            ((yk[-length(yk)] - a) * (yk[-1] - a) < 0)
+                    }
+                    if (length(yk) > 1) {
+                        cross <- cross |
+                            (xk[-length(xk)] <= 1 & xk[-1] > 1) |
+                            (xk[-length(xk)] < 1 & xk[-1] >= 1)
+                    }
+                    long_list[[length(long_list) + 1]] <- data.frame(
+                        x = xk, y = yk, r2long = r2,
+                        branch = k, segment = cumsum(c(0, cross)))
+                }
+            }
+            long <- do.call(rbind, long_list)
             long$y_p <- long$y
-            p <- ggplot(long, aes(x = .data$x, y = .data$y_p,
-                                    group = factor(.data$branch))) +
-                geom_line(linewidth = 0.6, na.rm = TRUE)
+            grp <- interaction(long$r2long, long$branch, long$segment)
+            if (length(unique(long$r2long)) > 1) {
+                long$group_r2 <- factor(long$r2long)
+                p <- ggplot(long, aes(x = .data$x, y = .data$y_p,
+                                        group = grp,
+                                        colour = .data$group_r2)) +
+                    geom_line(linewidth = 0.6, na.rm = TRUE)
+                if (show_legend) {
+                    p <- p + labs(colour = sparam_label("r2long"))
+                } else {
+                    p <- p + guides(colour = "none")
+                }
+            } else {
+                p <- ggplot(long, aes(x = .data$x, y = .data$y_p,
+                                        group = grp)) +
+                    geom_line(linewidth = 0.6, na.rm = TRUE)
+            }
             primary <- "delta"
         } else {
             ogrp <- if (length(unique(df$r2long)) > 1) df$r2long else NULL
