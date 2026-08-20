@@ -176,7 +176,7 @@ regsensitivity bounds `y' `x' `w', compare(`w1') rybar(=rxbar)
 b_ry  <- regsen_bounds(form, bfg2020, compare = w1, rybar = 2)
 b_eq  <- regsen_bounds(form, bfg2020, compare = w1,
                         rybar_expr = function(rx) rx)
-b_eq$breakdown
+c(rybar_2 = b_ry$breakdown, rybar_eq = b_eq$breakdown)
 ```
 
 ### Oster (2019)
@@ -214,6 +214,8 @@ os_sign <- regsen_breakdown(form, bfg2020, compare = w1,
                              analysis = "oster",
                              r2long = seq(0, 1, 0.1),
                              beta = "sign")
+c(explain_away = os_bd$results$breakdown[1],
+  sign_change  = os_sign$results$breakdown[1])
 plot(os_sign)
 ```
 
@@ -226,6 +228,3 @@ with no arguments replots whatever ran last. Here each function returns
 its result and `plot()` takes it explicitly, which is what lets you keep
 several analyses side by side in one session.
 
-```{r session, echo = FALSE}
-sessionInfo()
-```

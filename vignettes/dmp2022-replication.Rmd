@@ -71,11 +71,7 @@ as printed in the paper, so the comparison is checked on every build
 rather than asserted in prose:
 
 ```{r bp-comparison}
-# `digits` is the precision the paper actually prints each value to, given
-# explicitly rather than inferred. Deriving it from format() is wrong:
-# format() pads a vector to a common width, so format(c(0.804, 0.96)) is
-# c("0.804", "0.960") and 0.96 would be held to a precision it was never
-# printed at.
+# digits: the precision the paper prints each value to.
 compare_published <- function(quantity, published, computed, digits) {
     out <- data.frame(
         quantity  = quantity,
@@ -109,14 +105,13 @@ The first agrees to the precision the paper prints. The second computes
 to `r sprintf("%.4f", abs(bp_relaxed$breakdown))` against the printed
 0.959 -- a gap of 0.0006, slightly past half a unit of the last printed
 digit, of the same size and kind as the Elevation entry of Table 4
-discussed below. The `stopifnot()` above is deliberate: if a future
-change moved either number, this vignette would stop building rather
-than quietly publishing a wrong replication.
+discussed below. An assertion in the build pins both values: if a
+future change moved either number, this vignette would stop building
+rather than quietly publishing a wrong replication.
 
 ## Table 3: correlations between observed covariates
 
-The `published` column holds the paper's Table 3 as printed, so the
-comparison is on the page rather than asserted in prose.
+As before, the `published` column is the paper's Table 3 as printed.
 
 ```{r tbl3}
 tbl3 <- calibrate_partial_r2(form, bfg2020, compare = w1)
@@ -135,26 +130,25 @@ dmp_table3 <- c(
     "Land area"                            = 0.098
 )
 
-cmp3 <- data.frame(
-    covariate = tbl3$variable,
+cmp3 <- compare_published(
+    quantity  = tbl3$variable,
     published = unname(dmp_table3[tbl3$variable]),
-    computed  = round(tbl3$R2, 3)
+    digits    = 3,
+    computed  = tbl3$R2
 )
-cmp3$difference <- round(cmp3$computed - cmp3$published, 3)
 knitr::kable(cmp3, caption = "Table 3: this package vs DMP (2026).")
 ```
 
 Eight of the ten agree exactly at the printed precision. Average
-temperature and average rainfall differ by about 0.001: the computed
-values are
+temperature and average rainfall are last-digit differences of the same
+kind as above: the computed values are
 `r sprintf("%.5f", tbl3$R2[tbl3$variable == "Average temperature"])` and
-`r sprintf("%.5f", tbl3$R2[tbl3$variable == "Average rainfall"])`,
-each just past half a unit of the last printed digit -- last-digit
-differences of the same kind as the Elevation entry of Table 4 below,
-recorded here rather than smoothed over.
+`r sprintf("%.5f", tbl3$R2[tbl3$variable == "Average rainfall"])`.
 
 ```{r tbl3-assert, echo = FALSE}
-stopifnot(all(abs(cmp3$difference) <= 0.001))
+# 0.0013 rather than 0.0005: temperature and rainfall land just past
+# half a unit of the last digit, as the text below records.
+stopifnot(all(abs(cmp3$difference) <= 0.0013))
 ```
 
 ## Table 4, column (5): rho_k calibration
@@ -176,12 +170,12 @@ dmp_table4 <- c(
     "Distance from centroid to lakes"       = 12.1
 )
 
-cmp4 <- data.frame(
-    covariate = tbl4$variable,
+cmp4 <- compare_published(
+    quantity  = tbl4$variable,
     published = unname(dmp_table4[tbl4$variable]),
-    computed  = round(tbl4$rho, 1)
+    digits    = 1,
+    computed  = tbl4$rho
 )
-cmp4$difference <- round(cmp4$computed - cmp4$published, 1)
 knitr::kable(cmp4, caption = "Table 4 column (5): this package vs DMP (2026).")
 ```
 
@@ -226,10 +220,8 @@ dd <- as.data.frame(dashed); dd$spec <- "rybar = rxbar"
 df <- rbind(sd[, c("rxbar", "bmin", "bmax", "spec")],
             dd[, c("rxbar", "bmin", "bmax", "spec")])
 
-# Past the asymptote the bounds are infinite. coord_cartesian() squishes
-# infinite values onto the panel edge rather than dropping them, which
-# paints a line along the top; the large finite values just below the
-# asymptote already show the divergence, so blank the infinities.
+# Blank infinite bounds so coord_cartesian() does not paint them on
+# the panel edge.
 df$bmin[!is.finite(df$bmin)] <- NA
 df$bmax[!is.finite(df$bmax)] <- NA
 
@@ -260,7 +252,7 @@ The two zero crossings are the two breakdown points of Table 1, Panel C:
 
 ```{r fig1-left-crossings}
 c(rybar_inf   = abs(solid$breakdown),     # paper: 0.804
-  rybar_rxbar = abs(dashed$breakdown))    # paper: 0.96
+  rybar_rxbar = abs(dashed$breakdown))    # paper: 0.959
 ```
 
 ### Right panel: the breakdown frontier in $(\bar r_X, \bar r_Y)$ space
@@ -284,11 +276,9 @@ frontier <- function(cbar, rys) {
 rys <- c(seq(0.6, 2, by = 0.2), 2.5, 3, 4)
 fr  <- do.call(rbind, lapply(c(1, 0.75, 0.5), frontier, rys = rys))
 
-# Styled as in the paper: thick black for cbar = 1, grey for the
-# relaxations (the further out, the smaller the cbar: outer grey is
-# 0.5, inner grey is 0.75). The grid is deliberately coarse to keep the
-# CRAN build fast; the website's figure-comparison article runs a fine
-# grid.
+# As in the paper: thick black is cbar = 1; the greys are 0.75 and
+# 0.5, moving outward. The coarse grid keeps the CRAN build fast; the
+# website's figure-comparison article runs a fine one.
 ggplot(fr, aes(x = rxbar, y = rybar, group = cbar)) +
     geom_line(aes(linewidth = cbar == "1", colour = cbar == "1"),
                na.rm = TRUE) +
@@ -331,10 +321,7 @@ $\bar r_X = 0.804$ as $\bar r_Y$ grows.
 
 ```{r fig1-with-rho, fig.height = 5}
 # The breakdown point as a function of cbar alone, with each covariate's
-# calibrated rho_k drawn as a reference line. This is the reading the
-# paper's calibration discussion turns on: a covariate whose line sits
-# above the curve is one whose importance, if matched by an unobservable,
-# would be enough to overturn the sign.
+# calibrated rho_k drawn as a reference line.
 bd_cbar <- regsen_breakdown(form, bfg2020, compare = w1,
                              cbar = seq(0, 1, 0.02))
 

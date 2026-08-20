@@ -168,6 +168,22 @@ regsen_table <- function(x,
 
     notes <- resolve_notes(notes, x, thinned = thinned, max_rows = max_rows)
 
+    # For LaTeX the table's own markup -- the $\bar{r}_x$ column heads and
+    # the $\pm\infty$ cells -- must reach the output unescaped, while
+    # user-visible text (cells, caption, notes) may carry characters like
+    # the underscores in variable names that LaTeX cannot take raw. So with
+    # escape = TRUE we escape that text here and hand kable escape = FALSE;
+    # with escape = FALSE everything passes through as the caller wrote it.
+    if (format == "latex" && isTRUE(escape)) {
+        for (j in seq_along(df)) {
+            gen <- grepl("^\\$[+-]\\\\infty\\$$", df[[j]])
+            df[[j]][!gen] <- latex_escape(df[[j]][!gen])
+        }
+        if (!is.null(caption)) caption <- latex_escape(caption)
+        notes  <- latex_escape(notes)
+        escape <- FALSE
+    }
+
     kable_args <- list(
         x         = df,
         format    = format,
@@ -230,6 +246,22 @@ format_table_cells <- function(df, digits, format) {
         df[[j]] <- chr
     }
     df
+}
+
+# Escape the LaTeX special characters that plain text can carry. Original
+# backslashes are parked in a placeholder until after the brace pass, so
+# the braces of the inserted commands are never themselves escaped; fixed
+# matching throughout, since several of the characters are regex
+# metacharacters.
+latex_escape <- function(x) {
+    x <- gsub("\\", "\001", x, fixed = TRUE)
+    for (ch in c("&", "%", "$", "#", "_", "{", "}")) {
+        x <- gsub(ch, paste0("\\", ch), x, fixed = TRUE)
+    }
+    x <- gsub("\001", "\\textbackslash{}", x, fixed = TRUE)
+    x <- gsub("~", "\\textasciitilde{}", x, fixed = TRUE)
+    x <- gsub("^", "\\textasciicircum{}", x, fixed = TRUE)
+    x
 }
 
 # Map internal column names onto something a reader recognises.

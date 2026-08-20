@@ -177,7 +177,7 @@ regsen_table(res, format = "markdown", digits = 3, max_rows = 8)
 
 `regsen_tidy()` and `regsen_glance()` speak broom's vocabulary, so
 results flow into `modelsummary` and anything else built on it. When
-\pkg{generics} is installed these are also reachable as `tidy()` and
+`generics` is installed these are also reachable as `tidy()` and
 `glance()`.
 
 ```{r tidy}
@@ -191,6 +191,3 @@ about that coefficient, so a midpoint would agree here and then diverge
 for Oster or finite `rybar` -- and it is undefined wherever the set is
 unbounded.
 
-```{r session, echo = FALSE}
-sessionInfo()
-```

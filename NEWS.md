@@ -1,4 +1,4 @@
-# regsensitivity (development version)
+# regsensitivity 0.1.2
 
 ## Plots
 
@@ -14,7 +14,8 @@
   gap against the Stata package, whose vignette uses `xline()` to mark
   values such as `rmax` or a breakdown point; those figures could not be
   reproduced in R before.
-* New `theme_regsen()` and `scale_colour_regsen()`, exported so a plot can
+* New `theme_regsen()` and `scale_colour_regsen()` (with `scale_color_regsen()`
+  and `scale_fill_regsen()` aliases), exported so a plot can
   be rebuilt with the same look. Defaults are aimed at print: a faint
   y-grid, a thin panel border, legend on top, and the colourblind-safe
   Okabe-Ito palette, which also survives greyscale printing.
@@ -24,6 +25,13 @@
 * Passing `NA` to `title`, `subtitle`, `xtitle` or `ytitle` drops the
   annotation. The auto-generated subtitle is no longer applied by default,
   since a journal figure carries its description in the caption.
+
+## Calibration
+
+* New `calibrate_rho()` and `calibrate_partial_r2()`, computing the
+  point-identified reference values of DMP (2026) Section 3.4 (Table 4)
+  and Table 3, so the sensitivity parameters can be read against the
+  observed covariates they are calibrated to.
 
 ## Verification
 
@@ -44,7 +52,7 @@
 * The DMP (2026) Figure 1 reproduction now matches the published figure.
   The left panel gains the dashed bounds under the common-maximal-impact
   restriction `rybar = rxbar` and the Table 4 calibration tick marks; both
-  zero crossings are reported and agree with the published 0.804 and 0.96.
+  zero crossings are reported and agree with the published 0.804 and 0.959.
   The right panel previously plotted the breakdown point against `cbar`,
   a different object from the paper's, which is the breakdown frontier in
   (rxbar, rybar) space; it is now that frontier, one curve per `cbar`.

@@ -20,7 +20,7 @@ ui <- shiny::fluidPage(
                 condition = "input.analysis == 'dmp'",
                 shiny::sliderInput("cbar", shiny::HTML("c&#772; (control endogeneity)"),
                                    min = 0, max = 1, value = c(0.1, 1), step = 0.05),
-                shiny::numericInput("ncbar", "Number of c̄ values",
+                shiny::numericInput("ncbar", "Number of c&#772; values",
                                     value = 3, min = 1, max = 10, step = 1),
                 shiny::numericInput("rybar", shiny::HTML("r&#772;<sub>y</sub> (Inf = unrestricted)"),
                                     value = Inf)

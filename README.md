@@ -15,7 +15,7 @@
 [![R >= 4.1](https://img.shields.io/badge/R-%E2%89%A5%204.1-blue.svg)](https://cran.r-project.org/)
 
 *Project*
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Docs](https://img.shields.io/badge/docs-pkgdown-blue.svg)](https://mikenguyen13.github.io/regsensitivity/)
 [![Last commit](https://img.shields.io/github/last-commit/mikenguyen13/regsensitivity)](https://github.com/mikenguyen13/regsensitivity/commits/main)
@@ -115,7 +115,7 @@ Copy-pasteable forms below.
     title  = {regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias},
     author = {Mike Nguyen},
     year   = {2026},
-    note   = {R package version 0.1.1},
+    note   = {R package version 0.1.2},
     url    = {https://github.com/mikenguyen13/regsensitivity}
 }
 ```
@@ -128,21 +128,22 @@ TI  - regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias
 AU  - Nguyen, Mike
 PY  - 2026
 PB  - GitHub
+ET  - 0.1.2
 UR  - https://github.com/mikenguyen13/regsensitivity
 ER  -
 ```
 
 ### APA 7
 
-> Nguyen, M. (2026). *regsensitivity: Regression sensitivity analysis for omitted variable bias* (Version 0.1.1) \[R package\]. <https://github.com/mikenguyen13/regsensitivity>
+> Nguyen, M. (2026). *regsensitivity: Regression sensitivity analysis for omitted variable bias* (Version 0.1.2) \[R package\]. <https://github.com/mikenguyen13/regsensitivity>
 
 ### MLA 9
 
-> Nguyen, Mike. *regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias*. Version 0.1.1, 2026. <https://github.com/mikenguyen13/regsensitivity>.
+> Nguyen, Mike. *regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias*. Version 0.1.2, 2026. <https://github.com/mikenguyen13/regsensitivity>.
 
 ### Chicago (author-date)
 
-> Nguyen, Mike. 2026. “regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias.” R package version 0.1.1. <https://github.com/mikenguyen13/regsensitivity>.
+> Nguyen, Mike. 2026. “regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias.” R package version 0.1.2. <https://github.com/mikenguyen13/regsensitivity>.
 
 ### Machine-readable
 

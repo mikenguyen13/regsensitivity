@@ -106,34 +106,26 @@ $\bar c$.
 ### regsensitivity
 
 ```{r fig1-right, echo = TRUE}
-# Each grid point is one numerical breakdown solve (seconds each), so
-# the sweep is parallelised over the rybar grid. mclapply forks, which
-# Windows does not support, so it falls back to one core there.
+# One breakdown solve per grid point, parallelised over the rybar grid
+# (forking is unavailable on Windows, hence the core fallback).
 frontier <- function(cbar, rys, w = w1) {
-    cores <- parallel::detectCores()
-    if (is.na(cores) || .Platform$OS.type == "windows") cores <- 1L
-    cores <- max(1L, min(4L, cores))
+    cores <- if (.Platform$OS.type == "windows") 1L else
+        min(4L, max(1L, parallel::detectCores(), na.rm = TRUE))
     res <- parallel::mclapply(rys, function(ry) {
         r <- try(regsen_breakdown(form, bfg2020, compare = w,
                                    cbar = cbar, rybar = ry), silent = TRUE)
         if (inherits(r, "try-error")) NA_real_ else abs(r$results$breakdown[1])
     }, mc.cores = cores)
-    # A killed worker leaves a NULL; vapply keeps rxbar aligned with rys
-    # instead of silently recycling a shortened vector.
-    rx <- vapply(res, function(z)
-        if (is.numeric(z) && length(z) == 1) z else NA_real_, numeric(1))
+    rx <- vapply(res, function(z) if (is.numeric(z)) z else NA_real_,
+                 numeric(1))
     data.frame(rxbar = rx, rybar = rys, cbar = factor(cbar))
 }
-# Dense grid where the curve bends (rybar < 1.7). Above that the arm is
-# numerically the closed-form rybar = Inf constant, so a few anchor
-# points suffice -- solving finely there recomputes a constant.
+# Dense where the curve bends; the flat arm above needs only anchors.
 rys <- c(seq(0.6, 1.7, by = 0.05), 2, 3, 4)
 fr  <- do.call(rbind, lapply(c(1, 0.9, 0.75, 0.5), frontier, rys = rys))
 
-# Styled as in the paper: the thick black curve is cbar = 1 (arbitrarily
-# endogenous controls); the grey curves relax cbar below 1, shifting the
-# frontier outward -- outermost to innermost they are cbar = 0.5, 0.75,
-# 0.9. The dotted guides mark rxbar = rybar = 1.
+# As in the paper: thick black is cbar = 1; the greys are 0.9, 0.75,
+# and 0.5, moving outward. Dotted guides mark rxbar = rybar = 1.
 frontier_plot <- function(fr) {
     ggplot(fr, aes(x = rxbar, y = rybar, group = cbar)) +
         geom_hline(yintercept = 1, colour = "grey60", linewidth = 0.3,
@@ -241,8 +233,6 @@ c(`w1 only`            = abs(solid$breakdown),   # paper: ~0.80
   `w1 + state effects` = abs(s3$breakdown))      # paper: ~0.30
 ```
 
-`r sprintf("%.4f", abs(s3$breakdown))` against the paper's "about 30%".
-
 ## Masten and Poirier (2026), Figures 1 and 2
 
 These two are built on the authors' application to Satyanath et al.
@@ -252,8 +242,8 @@ coefficients and breakdown points, but no R-squared values and no
 variances. A full numerical reproduction would require re-running the
 regressions on the Satyanath et al. microdata (Harvard Dataverse,
 doi:10.7910/DVN/EE6I7N). The figures are shown here for structure, next
-to the stylized reproduction from the
-[MP replication vignette](../articles/mp2022-stylized.html).
+to the stylized illustration in the
+[MP examples vignette](../articles/mp2022-stylized.html).
 
 **This is not a numerical reproduction, and it should not be read as
 one.** In the published figure the sign-change breakdown is 0.586 while
