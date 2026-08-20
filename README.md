@@ -2,7 +2,28 @@
 
 <!-- badges: start -->
 
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+*Build*
+[![R-CMD-check](https://github.com/mikenguyen13/regsensitivity/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mikenguyen13/regsensitivity/actions/workflows/R-CMD-check.yaml)
+[![test-coverage](https://github.com/mikenguyen13/regsensitivity/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/mikenguyen13/regsensitivity/actions/workflows/test-coverage.yaml)
+[![lint](https://github.com/mikenguyen13/regsensitivity/actions/workflows/lint.yaml/badge.svg)](https://github.com/mikenguyen13/regsensitivity/actions/workflows/lint.yaml)
+[![pkgdown](https://github.com/mikenguyen13/regsensitivity/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/mikenguyen13/regsensitivity/actions/workflows/pkgdown.yaml)
+[![Codecov test coverage](https://codecov.io/gh/mikenguyen13/regsensitivity/graph/badge.svg)](https://app.codecov.io/gh/mikenguyen13/regsensitivity)
+
+*Install*
+[![CRAN status](https://www.r-pkg.org/badges/version/regsensitivity)](https://CRAN.R-project.org/package=regsensitivity)
+[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/regsensitivity)](https://CRAN.R-project.org/package=regsensitivity)
+[![r-universe](https://mikenguyen13.r-universe.dev/badges/regsensitivity)](https://mikenguyen13.r-universe.dev/regsensitivity)
+[![GitHub release](https://img.shields.io/github/v/release/mikenguyen13/regsensitivity?label=github)](https://github.com/mikenguyen13/regsensitivity/releases)
+[![R >= 4.1](https://img.shields.io/badge/R-%E2%89%A5%204.1-blue.svg)](https://cran.r-project.org/)
+[![Dependencies](https://tinyverse.netlify.app/badge/regsensitivity)](https://tinyverse.netlify.app/)
+
+*Project*
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docs](https://img.shields.io/badge/docs-pkgdown-blue.svg)](https://mikenguyen13.github.io/regsensitivity/)
+[![Last commit](https://img.shields.io/github/last-commit/mikenguyen13/regsensitivity)](https://github.com/mikenguyen13/regsensitivity/commits/main)
+[![Issues](https://img.shields.io/github/issues/mikenguyen13/regsensitivity)](https://github.com/mikenguyen13/regsensitivity/issues)
+[![Code of Conduct](https://img.shields.io/badge/contributor%20covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 <!-- badges: end -->
 
