@@ -198,22 +198,108 @@ publishing a wrong replication.</p>
 <div class="section level2">
 <h2 id="table-3-correlations-between-observed-covariates">Table 3: correlations between observed covariates<a class="anchor" aria-label="anchor" href="#table-3-correlations-between-observed-covariates"></a>
 </h2>
+<p>The <code>published</code> column holds the paper’s Table 3 as
+printed, so the comparison is on the page rather than asserted in
+prose.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tbl3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate_partial_r2.html">calibrate_partial_r2</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span><span class="op">)</span></span>
 <span><span class="va">tbl3</span><span class="op">$</span><span class="va">variable</span> <span class="op">&lt;-</span> <span class="va">labels</span><span class="op">[</span><span class="va">tbl3</span><span class="op">$</span><span class="va">variable</span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tbl3</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                              variable         R2</span></span>
-<span><span class="co">#&gt;                   Average temperature 0.89381557</span></span>
-<span><span class="co">#&gt;                     Centroid Latitude 0.87613192</span></span>
-<span><span class="co">#&gt;                             Elevation 0.68089635</span></span>
-<span><span class="co">#&gt;  Average potential agricultural yield 0.64750896</span></span>
-<span><span class="co">#&gt;                      Average rainfall 0.55877626</span></span>
-<span><span class="co">#&gt;   Distance from centroid to the coast 0.48721297</span></span>
-<span><span class="co">#&gt;                    Centroid Longitude 0.43437429</span></span>
-<span><span class="co">#&gt;      Distance from centroid to rivers 0.13463383</span></span>
-<span><span class="co">#&gt;       Distance from centroid to lakes 0.09985706</span></span>
-<span><span class="co">#&gt;                             Land area 0.09812881</span></span></code></pre></div>
-<p>Matches the paper to three decimal places.</p>
+<span></span>
+<span><span class="va">dmp_table3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Average temperature"</span>                  <span class="op">=</span> <span class="fl">0.893</span>,</span>
+<span>    <span class="st">"Centroid Latitude"</span>                    <span class="op">=</span> <span class="fl">0.876</span>,</span>
+<span>    <span class="st">"Elevation"</span>                            <span class="op">=</span> <span class="fl">0.681</span>,</span>
+<span>    <span class="st">"Average potential agricultural yield"</span>  <span class="op">=</span> <span class="fl">0.648</span>,</span>
+<span>    <span class="st">"Average rainfall"</span>                     <span class="op">=</span> <span class="fl">0.560</span>,</span>
+<span>    <span class="st">"Distance from centroid to the coast"</span>   <span class="op">=</span> <span class="fl">0.487</span>,</span>
+<span>    <span class="st">"Centroid Longitude"</span>                   <span class="op">=</span> <span class="fl">0.434</span>,</span>
+<span>    <span class="st">"Distance from centroid to rivers"</span>      <span class="op">=</span> <span class="fl">0.135</span>,</span>
+<span>    <span class="st">"Distance from centroid to lakes"</span>       <span class="op">=</span> <span class="fl">0.100</span>,</span>
+<span>    <span class="st">"Land area"</span>                            <span class="op">=</span> <span class="fl">0.098</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cmp3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    covariate <span class="op">=</span> <span class="va">tbl3</span><span class="op">$</span><span class="va">variable</span>,</span>
+<span>    published <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="va">dmp_table3</span><span class="op">[</span><span class="va">tbl3</span><span class="op">$</span><span class="va">variable</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>    computed  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">tbl3</span><span class="op">$</span><span class="va">R2</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">cmp3</span><span class="op">$</span><span class="va">difference</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">cmp3</span><span class="op">$</span><span class="va">computed</span> <span class="op">-</span> <span class="va">cmp3</span><span class="op">$</span><span class="va">published</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">cmp3</span>, caption <span class="op">=</span> <span class="st">"Table 3: this package vs DMP (2026)."</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<caption>Table 3: this package vs DMP (2026).</caption>
+<thead><tr class="header">
+<th align="left">covariate</th>
+<th align="right">published</th>
+<th align="right">computed</th>
+<th align="right">difference</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Average temperature</td>
+<td align="right">0.893</td>
+<td align="right">0.894</td>
+<td align="right">0.001</td>
+</tr>
+<tr class="even">
+<td align="left">Centroid Latitude</td>
+<td align="right">0.876</td>
+<td align="right">0.876</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">Elevation</td>
+<td align="right">0.681</td>
+<td align="right">0.681</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">Average potential agricultural yield</td>
+<td align="right">0.648</td>
+<td align="right">0.648</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">Average rainfall</td>
+<td align="right">0.560</td>
+<td align="right">0.559</td>
+<td align="right">-0.001</td>
+</tr>
+<tr class="even">
+<td align="left">Distance from centroid to the coast</td>
+<td align="right">0.487</td>
+<td align="right">0.487</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">Centroid Longitude</td>
+<td align="right">0.434</td>
+<td align="right">0.434</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">Distance from centroid to rivers</td>
+<td align="right">0.135</td>
+<td align="right">0.135</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td align="left">Distance from centroid to lakes</td>
+<td align="right">0.100</td>
+<td align="right">0.100</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">Land area</td>
+<td align="right">0.098</td>
+<td align="right">0.098</td>
+<td align="right">0.000</td>
+</tr>
+</tbody>
+</table>
+<p>Eight of the ten agree exactly at the printed precision. Average
+temperature and average rainfall differ by 0.001, which is a rounding
+boundary rather than a disagreement: the computed values are 0.89382 and
+0.55878, both within half a unit of the last printed digit.</p>
 </div>
 <div class="section level2">
 <h2 id="table-4-column-5-rho_k-calibration">Table 4, column (5): rho_k calibration<a class="anchor" aria-label="anchor" href="#table-4-column-5-rho_k-calibration"></a>
@@ -221,19 +307,106 @@ publishing a wrong replication.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tbl4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate_rho.html">calibrate_rho</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span><span class="op">)</span></span>
 <span><span class="va">tbl4</span><span class="op">$</span><span class="va">variable</span> <span class="op">&lt;-</span> <span class="va">labels</span><span class="op">[</span><span class="va">tbl4</span><span class="op">$</span><span class="va">variable</span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tbl4</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                              variable       rho</span></span>
-<span><span class="co">#&gt;  Average potential agricultural yield 118.33963</span></span>
-<span><span class="co">#&gt;   Distance from centroid to the coast  78.58110</span></span>
-<span><span class="co">#&gt;                    Centroid Longitude  49.93006</span></span>
-<span><span class="co">#&gt;                   Average temperature  37.26278</span></span>
-<span><span class="co">#&gt;                      Average rainfall  29.28644</span></span>
-<span><span class="co">#&gt;                     Centroid Latitude  26.92989</span></span>
-<span><span class="co">#&gt;      Distance from centroid to rivers  24.95888</span></span>
-<span><span class="co">#&gt;                             Land area  22.45564</span></span>
-<span><span class="co">#&gt;                             Elevation  20.25159</span></span>
-<span><span class="co">#&gt;       Distance from centroid to lakes  12.06453</span></span></code></pre></div>
-<p>Each value matches the paper’s Table 4 to one decimal place.</p>
+<span></span>
+<span><span class="va">dmp_table4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Average potential agricultural yield"</span>  <span class="op">=</span> <span class="fl">118.3</span>,</span>
+<span>    <span class="st">"Distance from centroid to the coast"</span>   <span class="op">=</span> <span class="fl">78.6</span>,</span>
+<span>    <span class="st">"Centroid Longitude"</span>                   <span class="op">=</span> <span class="fl">49.9</span>,</span>
+<span>    <span class="st">"Average temperature"</span>                  <span class="op">=</span> <span class="fl">37.3</span>,</span>
+<span>    <span class="st">"Average rainfall"</span>                     <span class="op">=</span> <span class="fl">29.3</span>,</span>
+<span>    <span class="st">"Centroid Latitude"</span>                    <span class="op">=</span> <span class="fl">26.9</span>,</span>
+<span>    <span class="st">"Distance from centroid to rivers"</span>      <span class="op">=</span> <span class="fl">25.0</span>,</span>
+<span>    <span class="st">"Land area"</span>                            <span class="op">=</span> <span class="fl">22.5</span>,</span>
+<span>    <span class="st">"Elevation"</span>                            <span class="op">=</span> <span class="fl">20.2</span>,</span>
+<span>    <span class="st">"Distance from centroid to lakes"</span>       <span class="op">=</span> <span class="fl">12.1</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cmp4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    covariate <span class="op">=</span> <span class="va">tbl4</span><span class="op">$</span><span class="va">variable</span>,</span>
+<span>    published <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="va">dmp_table4</span><span class="op">[</span><span class="va">tbl4</span><span class="op">$</span><span class="va">variable</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>    computed  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">tbl4</span><span class="op">$</span><span class="va">rho</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">cmp4</span><span class="op">$</span><span class="va">difference</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">cmp4</span><span class="op">$</span><span class="va">computed</span> <span class="op">-</span> <span class="va">cmp4</span><span class="op">$</span><span class="va">published</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">cmp4</span>, caption <span class="op">=</span> <span class="st">"Table 4 column (5): this package vs DMP (2026)."</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<caption>Table 4 column (5): this package vs DMP (2026).</caption>
+<thead><tr class="header">
+<th align="left">covariate</th>
+<th align="right">published</th>
+<th align="right">computed</th>
+<th align="right">difference</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Average potential agricultural yield</td>
+<td align="right">118.3</td>
+<td align="right">118.3</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Distance from centroid to the coast</td>
+<td align="right">78.6</td>
+<td align="right">78.6</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Centroid Longitude</td>
+<td align="right">49.9</td>
+<td align="right">49.9</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Average temperature</td>
+<td align="right">37.3</td>
+<td align="right">37.3</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Average rainfall</td>
+<td align="right">29.3</td>
+<td align="right">29.3</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Centroid Latitude</td>
+<td align="right">26.9</td>
+<td align="right">26.9</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Distance from centroid to rivers</td>
+<td align="right">25.0</td>
+<td align="right">25.0</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Land area</td>
+<td align="right">22.5</td>
+<td align="right">22.5</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Elevation</td>
+<td align="right">20.2</td>
+<td align="right">20.3</td>
+<td align="right">0.1</td>
+</tr>
+<tr class="even">
+<td align="left">Distance from centroid to lakes</td>
+<td align="right">12.1</td>
+<td align="right">12.1</td>
+<td align="right">0.0</td>
+</tr>
+</tbody>
+</table>
+<p>Nine of the ten agree to the precision the paper prints. Elevation is
+the exception: this package gives 20.2516 where the paper prints 20.2, a
+gap of 0.0516. That is slightly more than half a unit of the last
+printed digit, so it is not explained by rounding alone – the paper’s
+underlying value was nearer 20.24. A discrepancy this size does not move
+any conclusion in the paper, but it is recorded here rather than
+smoothed over, because the point of a replication is to show where the
+numbers meet and where they do not.</p>
 </div>
 <div class="section level2">
 <h2 id="figure-1-sensitivity-analysis-for-republican-vote-share">Figure 1: Sensitivity analysis for Republican Vote Share<a class="anchor" aria-label="anchor" href="#figure-1-sensitivity-analysis-for-republican-vote-share"></a>

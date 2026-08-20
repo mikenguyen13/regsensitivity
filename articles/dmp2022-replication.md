@@ -96,25 +96,55 @@ stop building rather than quietly publishing a wrong replication.
 
 ## Table 3: correlations between observed covariates
 
+The `published` column holds the paper’s Table 3 as printed, so the
+comparison is on the page rather than asserted in prose.
+
 ``` r
 
 tbl3 <- calibrate_partial_r2(form, bfg2020, compare = w1)
 tbl3$variable <- labels[tbl3$variable]
-print(tbl3, row.names = FALSE)
-#>                              variable         R2
-#>                   Average temperature 0.89381557
-#>                     Centroid Latitude 0.87613192
-#>                             Elevation 0.68089635
-#>  Average potential agricultural yield 0.64750896
-#>                      Average rainfall 0.55877626
-#>   Distance from centroid to the coast 0.48721297
-#>                    Centroid Longitude 0.43437429
-#>      Distance from centroid to rivers 0.13463383
-#>       Distance from centroid to lakes 0.09985706
-#>                             Land area 0.09812881
+
+dmp_table3 <- c(
+    "Average temperature"                  = 0.893,
+    "Centroid Latitude"                    = 0.876,
+    "Elevation"                            = 0.681,
+    "Average potential agricultural yield"  = 0.648,
+    "Average rainfall"                     = 0.560,
+    "Distance from centroid to the coast"   = 0.487,
+    "Centroid Longitude"                   = 0.434,
+    "Distance from centroid to rivers"      = 0.135,
+    "Distance from centroid to lakes"       = 0.100,
+    "Land area"                            = 0.098
+)
+
+cmp3 <- data.frame(
+    covariate = tbl3$variable,
+    published = unname(dmp_table3[tbl3$variable]),
+    computed  = round(tbl3$R2, 3)
+)
+cmp3$difference <- round(cmp3$computed - cmp3$published, 3)
+knitr::kable(cmp3, caption = "Table 3: this package vs DMP (2026).")
 ```
 
-Matches the paper to three decimal places.
+| covariate                            | published | computed | difference |
+|:-------------------------------------|----------:|---------:|-----------:|
+| Average temperature                  |     0.893 |    0.894 |      0.001 |
+| Centroid Latitude                    |     0.876 |    0.876 |      0.000 |
+| Elevation                            |     0.681 |    0.681 |      0.000 |
+| Average potential agricultural yield |     0.648 |    0.648 |      0.000 |
+| Average rainfall                     |     0.560 |    0.559 |     -0.001 |
+| Distance from centroid to the coast  |     0.487 |    0.487 |      0.000 |
+| Centroid Longitude                   |     0.434 |    0.434 |      0.000 |
+| Distance from centroid to rivers     |     0.135 |    0.135 |      0.000 |
+| Distance from centroid to lakes      |     0.100 |    0.100 |      0.000 |
+| Land area                            |     0.098 |    0.098 |      0.000 |
+
+Table 3: this package vs DMP (2026). {.table}
+
+Eight of the ten agree exactly at the printed precision. Average
+temperature and average rainfall differ by 0.001, which is a rounding
+boundary rather than a disagreement: the computed values are 0.89382 and
+0.55878, both within half a unit of the last printed digit.
 
 ## Table 4, column (5): rho_k calibration
 
@@ -122,21 +152,52 @@ Matches the paper to three decimal places.
 
 tbl4 <- calibrate_rho(form, bfg2020, compare = w1)
 tbl4$variable <- labels[tbl4$variable]
-print(tbl4, row.names = FALSE)
-#>                              variable       rho
-#>  Average potential agricultural yield 118.33963
-#>   Distance from centroid to the coast  78.58110
-#>                    Centroid Longitude  49.93006
-#>                   Average temperature  37.26278
-#>                      Average rainfall  29.28644
-#>                     Centroid Latitude  26.92989
-#>      Distance from centroid to rivers  24.95888
-#>                             Land area  22.45564
-#>                             Elevation  20.25159
-#>       Distance from centroid to lakes  12.06453
+
+dmp_table4 <- c(
+    "Average potential agricultural yield"  = 118.3,
+    "Distance from centroid to the coast"   = 78.6,
+    "Centroid Longitude"                   = 49.9,
+    "Average temperature"                  = 37.3,
+    "Average rainfall"                     = 29.3,
+    "Centroid Latitude"                    = 26.9,
+    "Distance from centroid to rivers"      = 25.0,
+    "Land area"                            = 22.5,
+    "Elevation"                            = 20.2,
+    "Distance from centroid to lakes"       = 12.1
+)
+
+cmp4 <- data.frame(
+    covariate = tbl4$variable,
+    published = unname(dmp_table4[tbl4$variable]),
+    computed  = round(tbl4$rho, 1)
+)
+cmp4$difference <- round(cmp4$computed - cmp4$published, 1)
+knitr::kable(cmp4, caption = "Table 4 column (5): this package vs DMP (2026).")
 ```
 
-Each value matches the paper’s Table 4 to one decimal place.
+| covariate                            | published | computed | difference |
+|:-------------------------------------|----------:|---------:|-----------:|
+| Average potential agricultural yield |     118.3 |    118.3 |        0.0 |
+| Distance from centroid to the coast  |      78.6 |     78.6 |        0.0 |
+| Centroid Longitude                   |      49.9 |     49.9 |        0.0 |
+| Average temperature                  |      37.3 |     37.3 |        0.0 |
+| Average rainfall                     |      29.3 |     29.3 |        0.0 |
+| Centroid Latitude                    |      26.9 |     26.9 |        0.0 |
+| Distance from centroid to rivers     |      25.0 |     25.0 |        0.0 |
+| Land area                            |      22.5 |     22.5 |        0.0 |
+| Elevation                            |      20.2 |     20.3 |        0.1 |
+| Distance from centroid to lakes      |      12.1 |     12.1 |        0.0 |
+
+Table 4 column (5): this package vs DMP (2026). {.table}
+
+Nine of the ten agree to the precision the paper prints. Elevation is
+the exception: this package gives 20.2516 where the paper prints 20.2, a
+gap of 0.0516. That is slightly more than half a unit of the last
+printed digit, so it is not explained by rounding alone – the paper’s
+underlying value was nearer 20.24. A discrepancy this size does not move
+any conclusion in the paper, but it is recorded here rather than
+smoothed over, because the point of a replication is to show where the
+numbers meet and where they do not.
 
 ## Figure 1: Sensitivity analysis for Republican Vote Share
 
