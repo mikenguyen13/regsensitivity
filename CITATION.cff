@@ -2,7 +2,7 @@ cff-version: 1.2.0
 title: "regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias"
 message: "Please cite this software using the metadata below."
 type: software
-version: 0.1.1
+version: 0.1.2
 date-released: "2026-05-23"
 license: MIT
 repository-code: "https://github.com/mikenguyen13/regsensitivity"
@@ -25,7 +25,7 @@ preferred-citation:
       given-names: Mike
       orcid: "https://orcid.org/0000-0002-3432-8595"
   year: 2026
-  version: 0.1.1
+  version: 0.1.2
   url: "https://github.com/mikenguyen13/regsensitivity"
 references:
   - type: article

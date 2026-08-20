@@ -62,7 +62,6 @@ Produces a ggplot object visualizing either an identified-set sweep (from
 \code{\link[=regsen_bounds]{regsen_bounds()}}) or a breakdown frontier (from \code{\link[=regsen_breakdown]{regsen_breakdown()}}).
 }
 \examples{
-\dontshow{if (requireNamespace("ggplot2", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 \donttest{
 data(bfg2020)
 res <- regsen_bounds(
@@ -72,5 +71,4 @@ res <- regsen_bounds(
 )
 plot(res, xline = 1, base_size = 9)
 }
-\dontshow{\}) # examplesIf}
 }

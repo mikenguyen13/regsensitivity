@@ -32,7 +32,7 @@ NULL
 #' @return A `ggplot` object. Because it is an ordinary ggplot, every default
 #'   here can be overridden by adding scales, themes or annotations to it.
 #'
-#' @examplesIf requireNamespace("ggplot2", quietly = TRUE)
+#' @examples
 #' \donttest{
 #' data(bfg2020)
 #' res <- regsen_bounds(

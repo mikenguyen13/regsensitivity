@@ -1,8 +1,8 @@
 ---
-title: "Replication: Masten and Poirier (2026) stylized examples"
+title: "Stylized examples from Masten and Poirier (2026)"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Replication: Masten and Poirier (2026) stylized examples}
+  %\VignetteIndexEntry{Stylized examples from Masten and Poirier (2026)}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
