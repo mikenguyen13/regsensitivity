@@ -63,6 +63,10 @@ articles:
     contents:
       - plots-and-tables
       - stata-migration
+  - title: "Verification"
+    navbar: "Verification"
+    contents:
+      - articles/figure-comparison
   - title: "Replication studies"
     navbar: "Replications"
     contents:

@@ -26,3 +26,4 @@
 ^\.git-rewrite$
 ^\.DS_Store$
 ^reference-papers$
+^vignettes/articles$
