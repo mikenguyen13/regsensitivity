@@ -1,8 +1,11 @@
 # Regression sensitivity analysis
 
 Top-level dispatcher that mirrors the Stata `regsensitivity` command.
-For most users, calling [`regsen_bounds()`](regsen_bounds.md) or
-[`regsen_breakdown()`](regsen_breakdown.md) directly is clearer.
+For most users, calling
+[`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+or
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+directly is clearer.
 
 ## Usage
 
@@ -40,6 +43,6 @@ An object of class `regsensitivity`.
 
 ## See also
 
-[`regsen_bounds()`](regsen_bounds.md),
-[`regsen_breakdown()`](regsen_breakdown.md),
-[`regsen_summary()`](regsen_summary.md)
+[`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md),
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md),
+[`regsen_summary()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md)

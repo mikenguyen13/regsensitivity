@@ -1,8 +1,10 @@
 # Hypothesis-direction helpers
 
 Convenience wrappers for specifying the direction of a hypothesis used
-by [`regsen_breakdown()`](regsen_breakdown.md) and
-[`regsen_bounds()`](regsen_bounds.md).
+by
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+and
+[`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md).
 
 ## Usage
 

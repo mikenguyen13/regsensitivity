@@ -56,11 +56,13 @@ regsen_breakdown(
 
 - cbar, rybar, rybar_expr:
 
-  (DMP) Same as in [`regsen_bounds()`](regsen_bounds.md).
+  (DMP) Same as in
+  [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md).
 
 - r2long, maxovb:
 
-  (Oster) Same as in [`regsen_bounds()`](regsen_bounds.md).
+  (Oster) Same as in
+  [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md).
 
 - r2long_type:
 
@@ -79,10 +81,11 @@ regsen_breakdown(
   - `"sign"` – the hypothesis that sign(beta_long) = sign(beta_med).
 
   - a numeric scalar or vector. Use the helpers
-    [`bnd_lb()`](hypothesis_helpers.md),
-    [`bnd_ub()`](hypothesis_helpers.md),
-    [`bnd_eq()`](hypothesis_helpers.md) to set the direction, e.g.
-    `beta = bnd_lb(0)` for the hypothesis `beta > 0`.
+    [`bnd_lb()`](https://mikenguyen13.github.io/regsensitivity/reference/hypothesis_helpers.md),
+    [`bnd_ub()`](https://mikenguyen13.github.io/regsensitivity/reference/hypothesis_helpers.md),
+    [`bnd_eq()`](https://mikenguyen13.github.io/regsensitivity/reference/hypothesis_helpers.md)
+    to set the direction, e.g. `beta = bnd_lb(0)` for the hypothesis
+    `beta > 0`.
 
 - ngrid:
 

@@ -28,15 +28,17 @@
   - Oster (2019) identified set (`eq` and `bound` modes) and breakdown
     points.
   - Masten & Poirier (2026) `maxovb` extension.
-- User API: [`regsen_bounds()`](../reference/regsen_bounds.md),
-  [`regsen_breakdown()`](../reference/regsen_breakdown.md),
-  [`regsen_summary()`](../reference/regsen_summary.md),
-  [`regsensitivity()`](../reference/regsensitivity.md) dispatcher,
-  hypothesis helpers ([`bnd_lb()`](../reference/hypothesis_helpers.md),
-  [`bnd_ub()`](../reference/hypothesis_helpers.md),
-  [`bnd_eq()`](../reference/hypothesis_helpers.md)).
+- User API:
+  [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md),
+  [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md),
+  [`regsen_summary()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md),
+  [`regsensitivity()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity.md)
+  dispatcher, hypothesis helpers
+  ([`bnd_lb()`](https://mikenguyen13.github.io/regsensitivity/reference/hypothesis_helpers.md),
+  [`bnd_ub()`](https://mikenguyen13.github.io/regsensitivity/reference/hypothesis_helpers.md),
+  [`bnd_eq()`](https://mikenguyen13.github.io/regsensitivity/reference/hypothesis_helpers.md)).
 - Visualization:
-  [`plot.regsensitivity()`](../reference/plot.regsensitivity.md)
+  [`plot.regsensitivity()`](https://mikenguyen13.github.io/regsensitivity/reference/plot.regsensitivity.md)
   (ggplot2).
 - Vignettes:
   - `regsensitivity`: end-to-end tour with the BFG2020 application.

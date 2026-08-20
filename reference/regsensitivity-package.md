@@ -7,22 +7,23 @@ with omitted variables.
 
 ## Core functions
 
-- [`regsen_bounds()`](regsen_bounds.md) – identified set across
-  sensitivity parameters
+- [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+  – identified set across sensitivity parameters
 
-- [`regsen_breakdown()`](regsen_breakdown.md) – smallest sensitivity
-  value at which a hypothesis fails
+- [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+  – smallest sensitivity value at which a hypothesis fails
 
-- [`regsen_summary()`](regsen_summary.md) – default summary sweep (DMP +
-  Oster)
+- [`regsen_summary()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md)
+  – default summary sweep (DMP + Oster)
 
-- [`plot.regsensitivity()`](plot.regsensitivity.md) – ggplot2
-  visualization
+- [`plot.regsensitivity()`](https://mikenguyen13.github.io/regsensitivity/reference/plot.regsensitivity.md)
+  – ggplot2 visualization
 
 ## Reference data
 
-- [bfg2020](bfg2020.md) – subset of the Bazzi, Fiszbein &
-  Gebresilasse (2020) replication data, used to demonstrate the package.
+- [bfg2020](https://mikenguyen13.github.io/regsensitivity/reference/bfg2020.md)
+  – subset of the Bazzi, Fiszbein & Gebresilasse (2020) replication
+  data, used to demonstrate the package.
 
 ## See also
 

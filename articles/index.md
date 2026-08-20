@@ -2,11 +2,12 @@
 
 ### Get started
 
-- [regsensitivity: a tour](regsensitivity.md):
+- [regsensitivity: a
+  tour](https://mikenguyen13.github.io/regsensitivity/articles/regsensitivity.md):
 
-### Replication
+### Replication studies
 
 - [Replication: Diegert, Masten and Poirier
-  (2026)](dmp2022-replication.md):
+  (2026)](https://mikenguyen13.github.io/regsensitivity/articles/dmp2022-replication.md):
 - [Replication: Masten and Poirier (2026) stylized
-  examples](mp2022-stylized.md):
+  examples](https://mikenguyen13.github.io/regsensitivity/articles/mp2022-stylized.md):

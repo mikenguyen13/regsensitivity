@@ -91,7 +91,7 @@ regsen_bounds(
 - beta:
 
   Hypothesis spec for the breakdown point. See
-  [`regsen_breakdown()`](regsen_breakdown.md).
+  [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md).
 
 - product:
 

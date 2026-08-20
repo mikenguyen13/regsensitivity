@@ -61,10 +61,11 @@ boot <- regsen_boot(form, bfg2020, compare = compare,
 print(boot)
 ```
 
-See [`vignette("regsensitivity")`](articles/regsensitivity.md) for a
-full tour, and
-[`vignette("dmp2022-replication")`](articles/dmp2022-replication.md) for
-the paper-exact replication.
+See
+[`vignette("regsensitivity")`](https://mikenguyen13.github.io/regsensitivity/articles/regsensitivity.md)
+for a full tour, and
+[`vignette("dmp2022-replication")`](https://mikenguyen13.github.io/regsensitivity/articles/dmp2022-replication.md)
+for the paper-exact replication.
 
 ## Crosswalk: Stata → R
 
@@ -140,12 +141,13 @@ ER  -
 
 ### Machine-readable
 
-- [`CITATION.cff`](CITATION.cff) — used by GitHub’s “Cite this
-  repository” widget
-- [`codemeta.json`](codemeta.json) — CodeMeta JSON-LD, consumed by
-  Zenodo, r-universe, OpenAIRE
-- [`inst/CITATION`](inst/CITATION) — R-side
-  [`utils::citation()`](https://rdrr.io/r/utils/citation.html) source
+- [`CITATION.cff`](https://mikenguyen13.github.io/regsensitivity/CITATION.cff)
+  — used by GitHub’s “Cite this repository” widget
+- [`codemeta.json`](https://mikenguyen13.github.io/regsensitivity/codemeta.json)
+  — CodeMeta JSON-LD, consumed by Zenodo, r-universe, OpenAIRE
+- [`inst/CITATION`](https://mikenguyen13.github.io/regsensitivity/inst/CITATION)
+  — R-side [`utils::citation()`](https://rdrr.io/r/utils/citation.html)
+  source
 
 Methodology citations (the underlying papers, which are **separate
 works**) live below in [References](#references).

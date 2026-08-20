@@ -1,8 +1,10 @@
 # Plot a regression sensitivity analysis
 
 Produces a ggplot object visualizing either an identified-set sweep
-(from [`regsen_bounds()`](regsen_bounds.md)) or a breakdown frontier
-(from [`regsen_breakdown()`](regsen_breakdown.md)).
+(from
+[`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md))
+or a breakdown frontier (from
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)).
 
 ## Usage
 

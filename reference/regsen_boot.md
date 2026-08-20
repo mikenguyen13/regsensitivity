@@ -2,8 +2,9 @@
 
 Computes a non-parametric (or cluster) bootstrap percentile confidence
 interval for the breakdown point returned by
-[`regsen_breakdown()`](regsen_breakdown.md) or the scalar `$breakdown`
-field of [`regsen_bounds()`](regsen_bounds.md).
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+or the scalar `$breakdown` field of
+[`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md).
 
 ## Usage
 
@@ -34,8 +35,8 @@ regsen_boot(
 - ...:
 
   Additional arguments forwarded to
-  [`regsen_breakdown()`](regsen_breakdown.md) (the analysis to
-  bootstrap).
+  [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+  (the analysis to bootstrap).
 
 - R:
 
@@ -67,10 +68,11 @@ An object of class `regsensitivity_boot` containing: `point`,
 ## Details
 
 For DMP analyses the breakdown point is computed exactly as in
-[`regsen_breakdown()`](regsen_breakdown.md); when `rxbar`, `rybar` and
-`cbar` are all scalar the returned breakdown is the rxbar breakdown for
-the (scalar) hypothesis on beta. For Oster analyses the breakdown is the
-\|delta\| value at which the hypothesis first fails.
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md);
+when `rxbar`, `rybar` and `cbar` are all scalar the returned breakdown
+is the rxbar breakdown for the (scalar) hypothesis on beta. For Oster
+analyses the breakdown is the \|delta\| value at which the hypothesis
+first fails.
 
 ## Examples
 

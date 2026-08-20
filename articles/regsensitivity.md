@@ -38,10 +38,10 @@ coef(med)["tye_tfe890_500kNI_100_l6"]
 
 ## DMP (2026) bounds
 
-[`regsen_bounds()`](../reference/regsen_bounds.md) is the workhorse. Out
-of the box it sweeps over a grid of `rxbar` from 0 to the threshold
-where the identified set first becomes $`(-\infty,+\infty)`$, holding
-`cbar` fixed at the supplied value.
+[`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+is the workhorse. Out of the box it sweeps over a grid of `rxbar` from 0
+to the threshold where the identified set first becomes
+$`(-\infty,+\infty)`$, holding `cbar` fixed at the supplied value.
 
 ``` r
 
@@ -113,7 +113,9 @@ Setting `rybar` to a finite value adds a constraint on the
 unobservable’s effect on the outcome. When `cbar > 0` this is a
 nonconvex problem and we solve it with a global optimizer (`nloptr` /
 DIRECT-L); when `cbar = 0` it has a closed form. Both cases run through
-the same [`regsen_bounds()`](../reference/regsen_bounds.md) call:
+the same
+[`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+call:
 
 ``` r
 
@@ -178,9 +180,9 @@ expr$results
 
 ## DMP breakdown
 
-[`regsen_breakdown()`](../reference/regsen_breakdown.md) reports the
-breakdown point as a function of one of the sensitivity parameters,
-holding the others fixed:
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+reports the breakdown point as a function of one of the sensitivity
+parameters, holding the others fixed:
 
 ``` r
 
@@ -327,10 +329,10 @@ plot(obd_sign)
 ## Summary call
 
 When you don’t know where to start,
-[`regsen_summary()`](../reference/regsen_summary.md) runs the default
-DMP bounds analysis plus an Oster breakdown sweep at a few standard
-`r2long` values, matching the behaviour of Stata’s `regsensitivity` with
-no subcommand.
+[`regsen_summary()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md)
+runs the default DMP bounds analysis plus an Oster breakdown sweep at a
+few standard `r2long` values, matching the behaviour of Stata’s
+`regsensitivity` with no subcommand.
 
 ``` r
 

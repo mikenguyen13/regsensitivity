@@ -2,7 +2,8 @@
 
 ## Authors
 
-- **Mike Nguyen**. Author, maintainer, copyright holder.
+- **[Mike Nguyen](https://orcid.org/0000-0002-3432-8595)**. Author,
+  maintainer, copyright holder.
   [](https://orcid.org/0000-0002-3432-8595)
 
 ## Citation
