@@ -75,6 +75,16 @@ of \code{data} to include in the estimation.}
 \value{
 A \code{regsensitivity} object. The \code{results} field holds a data.frame
 with one row per sensitivity-parameter point.
+
+For a breakdown analysis, \code{results$breakdown} is \strong{signed}: its sign
+carries the direction of selection, and for Oster it is the \code{delta}
+that solves Proposition 3 for the hypothesised value. Feeding that
+value back into \code{\link[=regsen_bounds]{regsen_bounds()}} recovers the hypothesised beta, but
+feeding \code{abs()} of it lands on a different branch of the cubic. The
+scalar \verb{$breakdown} field and the print method report the magnitude,
+since that is what is quoted as "the breakdown point". Note that the
+scalar exists on \code{\link[=regsen_bounds]{regsen_bounds()}} output only; a \code{\link[=regsen_breakdown]{regsen_breakdown()}}
+result carries the value in \code{results$breakdown} alone.
 }
 \description{
 Computes the identified set for the coefficient on the primary independent

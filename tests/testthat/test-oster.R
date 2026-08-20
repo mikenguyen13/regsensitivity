@@ -84,3 +84,44 @@ test_that("the bound sweep stays nested as dbar grows", {
     expect_false(is.unsorted(rev(r$bmin)))   # bmin non-increasing in dbar
     expect_false(is.unsorted(r$bmax))        # bmax non-decreasing in dbar
 })
+
+test_that("Oster Prop 3 round-trips: delta* reproduces its target beta", {
+    skip_on_cran()
+    # Proposition 3 gives the delta at which beta_long equals a chosen
+    # target; Proposition 2 maps a delta back to the identified set. Feeding
+    # one into the other must return the target. This ties the package to
+    # the paper rather than to its own past output.
+    for (target in c(0, 1, 1.5, 2)) {
+        bd <- regsen_breakdown(bfg_formula(), bfg(), compare = bfg_compare(),
+                                analysis = "oster", r2long = 1,
+                                beta = bnd_eq(target))
+        # Signed, not abs(): the sign carries the direction of selection and
+        # feeding back |delta| lands on a different branch of the cubic.
+        d <- bd$results$breakdown[1]
+        skip_if(!is.finite(d))
+
+        back <- regsen_bounds(bfg_formula(), bfg(), compare = bfg_compare(),
+                               analysis = "oster", delta = d,
+                               delta_type = "eq", r2long = 1)
+        roots <- unlist(back$results[, c("beta1", "beta2", "beta3")])
+        roots <- roots[is.finite(roots)]
+        expect_true(min(abs(roots - target)) < 1e-6,
+                    info = paste("target", target, "delta", d))
+    }
+})
+
+test_that("breakdown is signed in results, and a magnitude on bounds", {
+    skip_on_cran()
+    # Two different objects expose it differently, which is easy to trip
+    # over: regsen_breakdown() carries the signed value in results only,
+    # while regsen_bounds() also exposes a scalar magnitude.
+    bd <- regsen_breakdown(bfg_formula(), bfg(), compare = bfg_compare(),
+                            analysis = "oster", r2long = 1, beta = bnd_eq(0))
+    expect_lt(bd$results$breakdown[1], 0)
+    expect_null(bd$breakdown)
+
+    bb <- regsen_bounds(bfg_formula(), bfg(), compare = bfg_compare(),
+                         cbar = 1)
+    expect_type(bb$breakdown, "double")
+    expect_gt(bb$breakdown, 0)
+})
