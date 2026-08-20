@@ -52,6 +52,11 @@ articles:
       - regsensitivity
   # A section only reaches the dropdown if `navbar:` names it. Omitting it
   # is what previously hid both replications behind "More articles...".
+  - title: "Using the package"
+    navbar: "Guides"
+    contents:
+      - plots-and-tables
+      - stata-migration
   - title: "Replication studies"
     navbar: "Replications"
     contents:

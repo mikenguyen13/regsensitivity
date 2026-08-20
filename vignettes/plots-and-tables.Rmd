@@ -1,0 +1,196 @@
+---
+title: "Publication-ready plots and tables"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Publication-ready plots and tables}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 4,
+  dpi = 150
+)
+library(regsensitivity)
+library(ggplot2)
+```
+
+Getting a sensitivity analysis into a paper means two things: a figure
+that survives a journal's production process, and a table in whatever
+markup the manuscript is written in. This vignette covers both.
+
+```{r data}
+data(bfg2020)
+bfg2020$statea <- factor(bfg2020$statea)
+w1 <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
+        "elev_mean", "d_coa", "d_riv", "d_lak", "ave_gyi")
+form <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+    log_area_2010 + lat + lon + temp_mean + rain_mean + elev_mean +
+    d_coa + d_riv + d_lak + ave_gyi + statea
+
+res <- regsen_bounds(form, bfg2020, compare = w1,
+                      cbar = c(0.1, 0.5, 1))
+```
+
+## Figures
+
+`plot()` returns an ordinary `ggplot`, so nothing here is a dead end:
+anything the arguments do not cover, you add yourself.
+
+```{r basic}
+plot(res)
+```
+
+The defaults follow the economics journals: an L of axis lines rather
+than a box, no grid, ticks outside the panel, and no title, because the
+caption carries it.
+
+### Reading an unbounded identified set
+
+Where the identified set is unbounded, the bounds leave the panel rather
+than tracing along its edge. That distinction matters: a line running
+flat along the axis reads as "the bound levels off here", which is the
+opposite of what an infinite bound means.
+
+```{r unbounded}
+plot(res, ylim = c(-10, 14))
+```
+
+The green and orange curves exit the top and bottom of the panel. They do
+not plateau.
+
+### Reference lines
+
+`xline` is the equivalent of Stata's `xline()`, for marking a threshold
+under discussion in the text.
+
+```{r xline}
+plot(res, xline = c(0.5, 1))
+```
+
+### Sizing for a journal
+
+`base_size` scales the type. For a two-column figure, render at about
+3.3 inches wide and pass `base_size = 9`, which puts the type near 8pt on
+the page.
+
+```{r sizing, fig.width = 3.3, fig.height = 2.6}
+plot(res, base_size = 9, show_legend = FALSE)
+```
+
+### Matching your manuscript's font
+
+Fonts are left to you, because what is installed varies by machine and a
+missing family would make the figure unreproducible. To match a LaTeX
+body type:
+
+```{r font, eval = FALSE}
+plot(res) + theme_regsen(base_family = "Times New Roman")
+```
+
+### Colour, greyscale and accessibility
+
+The palette is Okabe-Ito, which stays distinguishable under the common
+forms of colour vision deficiency. Series are also encoded by line type,
+so the figure still reads when a journal prints it in greyscale --
+colour alone would not survive that.
+
+```{r greyscale}
+plot(res) + scale_colour_grey(start = 0, end = 0.6)
+```
+
+### Overriding anything
+
+```{r override}
+plot(res, subtitle = NA) +
+    theme_regsen(grid = "y", base_size = 10) +
+    labs(caption = "BFG (2020); bounds under DMP (2026).")
+```
+
+## Tables
+
+### The tidy route
+
+`as.data.frame()` gives the results as a plain data frame. This is the
+recommended entry point: it hands the numbers to whichever table package
+you already use, rather than tying the package to one of them.
+
+```{r asdf}
+head(as.data.frame(res, digits = 3))
+```
+
+From here `kableExtra`, `gt`, `modelsummary`, `huxtable`, `tinytable` and
+`xtable` all work as usual.
+
+### The convenience route
+
+`regsen_table()` covers the common case in one call. The `format`
+argument follows the document you are knitting to, so the same chunk
+works whether the target is PDF, HTML or Markdown.
+
+```{r table-md}
+regsen_table(res, format = "markdown", digits = 3, max_rows = 6)
+```
+
+### LaTeX for a journal
+
+The LaTeX flavour follows the economics convention: `booktabs` rules and
+notes inside a `threeparttable`, so the note block sets to the width of
+the table rather than the width of the page.
+
+```{r table-tex, results = "asis"}
+cat(regsen_table(res, format = "latex", digits = 3, max_rows = 4,
+                  caption = "Identified sets for the long-regression coefficient",
+                  label = "idset", notes = TRUE, escape = FALSE),
+    sep = "\n")
+```
+
+`notes = TRUE` writes the note a referee looks for -- which analysis,
+which hypothesis, how many observations. Supply a character vector
+instead to write your own.
+
+Using it in a manuscript needs one line in the preamble:
+
+```latex
+\usepackage{booktabs}
+\usepackage{threeparttable}
+```
+
+Set `threeparttable = FALSE` if you would rather not, and the notes are
+appended as plain `\footnotesize` lines.
+
+### Infinite bounds
+
+An unbounded identified set is a result, not missing data, so it is
+rendered rather than blanked: `$+\infty$` in LaTeX, the infinity
+character in HTML, `+Inf` in Markdown.
+
+```{r infinite}
+regsen_table(res, format = "markdown", digits = 3, max_rows = 8)
+```
+
+### Feeding modelsummary
+
+`regsen_tidy()` and `regsen_glance()` speak broom's vocabulary, so
+results flow into `modelsummary` and anything else built on it. When
+\pkg{generics} is installed these are also reachable as `tidy()` and
+`glance()`.
+
+```{r tidy}
+head(regsen_tidy(res), 4)
+regsen_glance(res)
+```
+
+`estimate` is the medium-regression coefficient, never a function of the
+bounds. Under DMP with `rybar = Inf` the identified set is symmetric
+about that coefficient, so a midpoint would agree here and then diverge
+for Oster or finite `rybar` -- and it is undefined wherever the set is
+unbounded.
+
+```{r session, echo = FALSE}
+sessionInfo()
+```
