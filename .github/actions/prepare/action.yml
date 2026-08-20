@@ -1,0 +1,49 @@
+name: Prepare CI runner
+description: >
+  Shared pre-setup for every R workflow: keep apt from hanging on flaky
+  Ubuntu mirrors, and recreate the CRAN LICENSE stub that is deliberately
+  kept out of git.
+
+runs:
+  using: composite
+  steps:
+    - name: Make apt fail fast instead of hanging
+      # Runs *before* r-lib/actions/setup-r, which shells out to
+      # `apt-get update` to pull R's system dependencies. apt has no default
+      # network timeout: when azure.archive.ubuntu.com stalls (as it did on
+      # 2026-08-19) the step blocks until the 6-hour job cap kills the run.
+      # Point apt at the canonical archive and bound every request.
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo tee /etc/apt/apt.conf.d/99-ci-timeouts >/dev/null <<'EOF'
+        Acquire::http::Timeout "30";
+        Acquire::https::Timeout "30";
+        Acquire::ftp::Timeout "30";
+        Acquire::Retries "2";
+        EOF
+        # The runner images resolve mirrors through apt-mirrors.txt (24.04+)
+        # or plain sources files. Rewrite whichever is present; never fail
+        # the build over it.
+        for f in /etc/apt/apt-mirrors.txt \
+                 /etc/apt/sources.list \
+                 /etc/apt/sources.list.d/*.list \
+                 /etc/apt/sources.list.d/*.sources; do
+          [ -f "$f" ] || continue
+          sudo sed -i 's|https\?://azure\.archive\.ubuntu\.com|http://archive.ubuntu.com|g' "$f" || true
+        done
+
+    - name: Regenerate LICENSE stub
+      # LICENSE is gitignored (so GitHub's licensee detects MIT cleanly from
+      # LICENSE.md). DESCRIPTION still references it via
+      # `License: MIT + file LICENSE`, so every job that builds, installs or
+      # checks the package needs it back on disk.
+      shell: bash
+      run: |
+        set -euo pipefail
+        year=$(date +%Y)
+        {
+          echo "YEAR: $year"
+          echo "COPYRIGHT HOLDER: Mike Nguyen"
+        } > LICENSE
