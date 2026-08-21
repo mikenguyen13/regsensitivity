@@ -52,6 +52,23 @@ match_analysis <- function(analysis) {
 #   c(0, "ub")       -> beta < 0    (hyposign = "<")
 #   c(0, "eq")       -> beta != 0   (hyposign = "=")
 #   list(value=#, sign=">"|"<"|"=") for the more explicit form.
+# Validate the lower end of DMP Assumption A6, R(W2 ~ W1 . W0) in [clow, cbar].
+check_clow <- function(clow, cbar) {
+    if (is.null(clow) || length(clow) == 0) return(0)
+    if (length(clow) != 1 || !is.numeric(clow) || !is.finite(clow)) {
+        stop("`clow` must be a single finite number.", call. = FALSE)
+    }
+    if (clow < 0 || clow > 1) {
+        stop("`clow` must lie in [0, 1]; got ", format(clow), ".",
+             call. = FALSE)
+    }
+    if (clow > min(cbar)) {
+        stop("`clow` must not exceed `cbar`; got clow = ", format(clow),
+             " and cbar = ", format(min(cbar)), ".", call. = FALSE)
+    }
+    clow
+}
+
 parse_beta <- function(beta, dgp) {
     # Defaults -- "sign" hypothesis at 0.
     if (is.null(beta) || identical(beta, "sign") ||
@@ -123,6 +140,11 @@ new_regsen <- function(subcommand, analysis, dgp, inputs, sparams, results,
 #' @param rxbar,rybar,cbar (DMP) Numeric vectors of sensitivity-parameter
 #'   values to sweep over. `rybar = Inf` (the default) gives the no-rybar
 #'   case; setting it finite invokes the global-optimization code path.
+#' @param clow (DMP) Lower bound on control endogeneity, the `clow` of DMP
+#'   Assumption A6 `R(W2 ~ W1 . W0) %in% [clow, cbar]`. Default 0, which
+#'   asserts nothing beyond `cbar`. A positive value asserts that the
+#'   controls are *at least* that endogenous. Must satisfy
+#'   `0 <= clow <= min(cbar)`.
 #' @param rybar_expr (DMP) A function `function(rxbar) rybar` to set rybar
 #'   as a function of rxbar (the only supported form in the Stata source
 #'   is `rybar = rxbar`, i.e. `function(rxbar) rxbar`).
@@ -169,7 +191,7 @@ new_regsen <- function(subcommand, analysis, dgp, inputs, sparams, results,
 regsen_bounds <- function(formula, data,
                           analysis = c("dmp", "oster"),
                           compare = NULL, nocompare = NULL,
-                          rxbar = NULL, rybar = Inf, cbar = 1,
+                          rxbar = NULL, rybar = Inf, cbar = 1, clow = 0,
                           rybar_expr = NULL,
                           delta = NULL, r2long = 1, maxovb = NA,
                           delta_type = c("eq", "bound"),
@@ -191,32 +213,25 @@ regsen_bounds <- function(formula, data,
     hypo <- parse_beta(beta, dgp)
 
     if (analysis == "dmp") {
+        clow <- check_clow(clow, cbar)
         # rxbar defaults to a grid spanning [0, rmax(cbar)] when not specified.
         if (is.null(rxbar)) {
-            rmax <- max(max_beta_bound_vec(as.numeric(cbar), dgp))
+            rmax <- max(max_beta_bound_vec(as.numeric(cbar), dgp, clow = clow))
+            if (!is.finite(rmax)) rmax <- 1
             rxbar <- seq(0, rmax, length.out = 11)
         }
         if (length(rybar) == 0) rybar <- Inf
-        # Evaluate the user-specified rybar expression first so we can run
-        # the safety check on the actual rybar values rather than a placeholder.
         if (!is.null(rybar_expr)) {
             ry_vals <- vapply(rxbar, rybar_expr, numeric(1))
             stopifnot(length(ry_vals) == length(rxbar))
             product <- FALSE
-            safety_ry <- ry_vals
-        } else {
-            safety_ry <- rybar
-        }
-        if (dmp_sparam_unsafe(rxbar, safety_ry, cbar, product, dgp)) {
-            stop("Bounds calculation not implemented in the region where ",
-                 "rxbar > rmax(c) > rybar (see DMP 2026)", call. = FALSE)
         }
 
         idset <- dmp_identified_set(
             rxbar = rxbar,
             rybar = if (!is.null(rybar_expr)) ry_vals else rybar,
             cbar  = cbar,
-            s = dgp, product = product
+            s = dgp, product = product, clow = clow
         )
 
         # Decide which sparams are scalar vs varying, for downstream display.
@@ -236,13 +251,13 @@ regsen_bounds <- function(formula, data,
                 beta = hypo$value, cs = unique(cbar),
                 ry = if (!is.null(rybar_expr)) Inf else unique(rybar),
                 hyposign = hypo$sign, s = dgp,
-                ry_expr = rybar_expr
+                ry_expr = rybar_expr, clow = clow
             )
             breakdown <- bf$breakdown[1]
         }
 
         sparams <- list(rxbar = rxbar, rybar = rybar, cbar = cbar,
-                        rybar_expr = rybar_expr,
+                        clow = clow, rybar_expr = rybar_expr,
                         scalar = scalar_sparam, nonscalar = nonscalar_sparam,
                         product = product)
 
@@ -317,8 +332,9 @@ regsen_bounds <- function(formula, data,
 #'
 #' Find the smallest sensitivity-parameter value at which a given hypothesis
 #' about the long-regression coefficient first fails. For DMP, this is rxbar
-#' as a function of (cbar, rybar, beta). For Oster, this is |delta| as a
-#' function of R-squared(long), beta and (optionally) maxovb.
+#' as a function of (cbar, rybar, beta) or -- with `direction = "rybar"` --
+#' rybar as a function of (rxbar, cbar, beta). For Oster, this is |delta| as
+#' a function of R-squared(long), beta and (optionally) maxovb.
 #'
 #' @inheritParams regsen_bounds
 #' @param beta Hypothesis spec. One of:
@@ -326,10 +342,21 @@ regsen_bounds <- function(formula, data,
 #'   * a numeric scalar or vector. Use the helpers [bnd_lb()], [bnd_ub()],
 #'     [bnd_eq()] to set the direction, e.g. `beta = bnd_lb(0)` for the
 #'     hypothesis `beta > 0`.
-#' @param cbar,rybar,rybar_expr (DMP) Same as in [regsen_bounds()].
+#' @param cbar,clow,rybar,rybar_expr (DMP) Same as in [regsen_bounds()].
+#' @param direction (DMP) Which sensitivity parameter the breakdown point is
+#'   reported in: `"rxbar"` (default) sweeps `cbar` or `beta` and solves for
+#'   rxbar; `"rybar"` sweeps `rxbar` and solves for rybar, the frontier
+#'   `rybar_bf(rxbar)` of DMP (2026) Theorem 4. The two trace the same
+#'   frontier, but only the rybar direction can describe its horizontal arm,
+#'   where the conclusion survives every rxbar and the rxbar breakdown point
+#'   is `+Inf`.
+#' @param rxbar (DMP, `direction = "rybar"`) Numeric vector of rxbar values
+#'   at which to evaluate the frontier. Defaults to an 11-point grid over
+#'   `[0, 2 * rmax(cbar)]`.
 #' @param r2long,maxovb (Oster) Same as in [regsen_bounds()].
 #'
-#' @return A `regsensitivity` object.
+#' @return A `regsensitivity` object. `results$index` holds the swept
+#'   parameter and `results$breakdown` the breakdown point at each value.
 #' @examples
 #' \donttest{
 #' data(bfg2020)
@@ -346,7 +373,10 @@ regsen_bounds <- function(formula, data,
 regsen_breakdown <- function(formula, data,
                              analysis = c("dmp", "oster"),
                              compare = NULL, nocompare = NULL,
-                             cbar = 1, rybar = Inf, rybar_expr = NULL,
+                             cbar = 1, clow = 0, rybar = Inf,
+                             rybar_expr = NULL,
+                             direction = c("rxbar", "rybar"),
+                             rxbar = NULL,
                              r2long = 1, maxovb = NA,
                              r2long_type = c("eq", "relative"),
                              maxovb_type = c("bound", "relative"),
@@ -355,6 +385,7 @@ regsen_breakdown <- function(formula, data,
                              subset = NULL) {
     cl <- match.call()
     analysis <- match_analysis(analysis)
+    direction <- match.arg(direction)
     r2long_type <- match.arg(r2long_type)
     maxovb_type <- match.arg(maxovb_type)
 
@@ -364,17 +395,38 @@ regsen_breakdown <- function(formula, data,
     hypo <- parse_beta(beta, dgp)
 
     if (analysis == "dmp") {
-        bf <- dmp_breakdown_frontier(
-            beta = hypo$value, cs = cbar,
-            ry = if (is.null(rybar_expr)) rybar[1] else Inf,
-            hyposign = hypo$sign, s = dgp,
-            ry_expr = rybar_expr
-        )
-        sparams <- list(cbar = cbar, rybar = rybar, rybar_expr = rybar_expr)
+        clow <- check_clow(clow, cbar)
+        if (direction == "rybar") {
+            if (length(unique(cbar)) > 1) {
+                stop("`cbar` must be a single value when ",
+                     "direction = \"rybar\".", call. = FALSE)
+            }
+            if (is.null(rxbar)) {
+                rmax <- max_beta_bound(cbar[1], dgp, clow = clow)
+                hi <- if (is.finite(rmax)) 2 * rmax else 2
+                rxbar <- seq(0, hi, length.out = 11)
+            }
+            bf <- dmp_breakdown_frontier_ry(
+                beta = hypo$value[1], cbar = cbar[1], rxbar = rxbar,
+                hyposign = hypo$sign, s = dgp, clow = clow
+            )
+        } else {
+            bf <- dmp_breakdown_frontier(
+                beta = hypo$value, cs = cbar,
+                ry = if (is.null(rybar_expr)) rybar[1] else Inf,
+                hyposign = hypo$sign, s = dgp,
+                ry_expr = rybar_expr, clow = clow
+            )
+        }
+        sparams <- list(cbar = cbar, clow = clow, rybar = rybar,
+                        rxbar = rxbar, rybar_expr = rybar_expr,
+                        direction = direction)
         extras <- list(
             hyposign = hypo$sign,
             hypoval = if (hypo$multiple) NA_real_ else hypo$value,
-            varying = if (length(hypo$value) > 1) "beta" else "cbar"
+            direction = direction,
+            varying = if (direction == "rybar") "rxbar"
+                      else if (length(hypo$value) > 1) "beta" else "cbar"
         )
         return(new_regsen(
             subcommand = "breakdown", analysis = "DMP (2026)",

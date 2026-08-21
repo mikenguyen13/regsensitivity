@@ -258,8 +258,17 @@ plot_breakdown <- function(x, title = NULL, subtitle = NULL,
     df$x <- df$index
 
     dmp <- x$analysis == "DMP (2026)"
-    xdef <- if (dmp) sparam_label("cbar")  else sparam_label("r2long")
-    ydef <- if (dmp) breakdown_label("rxbar") else breakdown_label("delta")
+    # `varying` names the swept parameter, which for DMP is cbar, beta, or --
+    # when the frontier is taken in the rybar direction -- rxbar.
+    varying <- if (!is.null(x$varying)) x$varying else if (dmp) "cbar" else NULL
+    xdef <- if (dmp) sparam_label(varying) else sparam_label("r2long")
+    ydef <- if (!dmp) {
+        breakdown_label("delta")
+    } else if (identical(x$direction, "rybar")) {
+        breakdown_label("rybar")
+    } else {
+        breakdown_label("rxbar")
+    }
 
     p <- ggplot(df, aes(x = .data$x, y = .data$y)) +
         geom_line(linewidth = 0.6, na.rm = TRUE) +

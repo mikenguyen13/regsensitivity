@@ -51,13 +51,14 @@ test_that("breakdown_point_dmp returns NA on degenerate inputs", {
     inp <- regsensitivity:::build_dgp_inputs(
         bfg_formula(), bfg(), compare = bfg_compare())
     dgp <- regsensitivity:::get_dgp(inp)
-    # NA bfmax should not crash
     res <- regsensitivity:::breakdown_point_dmp(beta = 0, c = 0.5,
-                                                 bfmax = NA_real_,
                                                  lower_bound = TRUE, s = dgp)
-    # Returns either 0 (hypothesis already false at rx=0) or a finite
-    # number computed without using bfmax; just should not error.
-    expect_true(is.finite(res) || is.na(res))
+    expect_true(is.finite(res))
+    # A hypothesis that cannot be evaluated returns NA rather than a number.
+    expect_true(is.na(regsensitivity:::breakdown_point_dmp(
+        beta = NA_real_, c = 0.5, lower_bound = TRUE, s = dgp)))
+    expect_true(is.na(regsensitivity:::breakdown_point_dmp(
+        beta = 0, c = NA_real_, lower_bound = TRUE, s = dgp)))
 })
 
 test_that("regsen_bounds with rybar=2, cbar=1 still computes without erroring", {
