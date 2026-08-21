@@ -28,7 +28,9 @@ are controls.}
 analysis to bootstrap).}
 
 \item{type}{Interval type reported in \verb{$ci}: \code{"bca"} (default) or
-\code{"perc"}. Both are computed and stored; see Details.}
+\code{"perc"}. Under \code{"bca"} both intervals are computed and stored; under
+\code{"perc"} the jackknife BCa needs is skipped and \verb{$ci_bca} is \code{NA}.
+See Details.}
 
 \item{R}{Integer. Number of bootstrap replications. Defaults to 999.}
 
@@ -78,10 +80,12 @@ it reads by two constants: \code{z0}, a median-bias correction equal to the
 normal quantile of the share of replicates below the point estimate, and
 \code{acceleration}, computed from the delete-one jackknife over sampling
 units -- rows, or clusters when \code{cluster} is given. The jackknife costs
-one breakdown computation per unit; both it and the replicates honour
-\code{ncores}. When the jackknife is degenerate (every unit gives the same
-estimate, so the acceleration is undefined) the BCa interval falls back
-to the percentile interval and \code{acceleration} is \code{NA}.
+one breakdown computation per unit, which under an i.i.d. bootstrap
+means one per row and usually dominates the run; both it and the
+replicates honour \code{ncores}, and \code{type = "perc"} skips it. When the
+jackknife is degenerate (every unit gives the same estimate, so the
+acceleration is undefined) the BCa interval falls back to the percentile
+interval and \code{acceleration} is \code{NA}.
 }
 \examples{
 \donttest{

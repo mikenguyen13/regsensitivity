@@ -259,22 +259,25 @@ c(rybar_inf   = abs(solid$breakdown),     # paper: 0.804
 
 The paper's right panel is a different object from the left: it plots the
 breakdown frontier $\bar r_Y^{bf}(\bar r_X)$, one curve per $\bar c$, in
-the $(\bar r_X, \bar r_Y)$ plane. `regsen_breakdown()` solves for the
-$\bar r_X$ breakdown at a *fixed* $\bar r_Y$, so sweeping $\bar r_Y$
-traces the same curve from the other side:
+the $(\bar r_X, \bar r_Y)$ plane. That is what
+`direction = "rybar"` computes -- the frontier of DMP Theorem 4, solved
+for $\bar r_Y$ at each $\bar r_X$:
 
 ```{r fig1-right, fig.height = 4.5}
-frontier <- function(cbar, rys) {
-    rx <- vapply(rys, function(ry) {
-        r <- try(regsen_breakdown(form, bfg2020, compare = w1,
-                                   cbar = cbar, rybar = ry), silent = TRUE)
-        if (inherits(r, "try-error")) NA_real_ else abs(r$results$breakdown[1])
-    }, numeric(1))
-    data.frame(rxbar = rx, rybar = rys, cbar = factor(cbar))
+frontier <- function(cbar, rxs) {
+    r <- regsen_breakdown(form, bfg2020, compare = w1, cbar = cbar,
+                           direction = "rybar", rxbar = rxs)
+    data.frame(rxbar = rxs, rybar = r$results$breakdown,
+               cbar = factor(cbar))
 }
 
-rys <- c(seq(0.6, 2, by = 0.2), 2.5, 3, 4)
-fr  <- do.call(rbind, lapply(c(1, 0.75, 0.5), frontier, rys = rys))
+rxs <- c(0.75, 0.85, 0.95, 1.05, 1.2, 1.4, 1.7, 2.2, 3, 4)
+fr  <- do.call(rbind, lapply(c(1, 0.75, 0.5), frontier, rxs = rxs))
+
+# Below its rxbar breakdown point a curve survives every rybar, so the
+# frontier is +Inf: send those points off the top and let the panel clip
+# them, which draws the vertical arm.
+fr$rybar[!is.finite(fr$rybar)] <- 40
 
 # As in the paper: thick black is cbar = 1; the greys are 0.75 and
 # 0.5, moving outward. The coarse grid keeps the CRAN build fast; the
@@ -286,36 +289,41 @@ ggplot(fr, aes(x = rxbar, y = rybar, group = cbar)) +
                             guide = "none") +
     scale_colour_manual(values = c(`TRUE` = "black", `FALSE` = "grey55"),
                          guide = "none") +
+    coord_cartesian(xlim = c(0, 4), ylim = c(0, 4)) +
     labs(x = expression(bar(r)[X]), y = expression(bar(r)[Y])) +
     theme_regsen(base_size = 10)
 ```
 
 Each curve is the boundary between $(\bar r_X, \bar r_Y)$ pairs under
-which the sign conclusion survives and those under which it fails. For
-$\bar c = 1$ the frontier flattens onto $\bar r_X = 0.804$, the breakdown
-point from Table 1; smaller $\bar c$ pushes the frontier out, because
-restricting how endogenous the controls may be makes the conclusion
-harder to overturn.
+which the sign conclusion survives and those under which it fails. Each
+has two arms. The vertical one sits at $\bar r_X = 0.804$ for
+$\bar c = 1$, the breakdown point from Table 1: as $\bar r_Y$ grows the
+restriction on the outcome side stops binding and the frontier is the
+$\bar r_X$ breakdown point under no restriction at all. The horizontal
+arm is the level of $\bar r_Y$ below which the sign survives *any*
+$\bar r_X$. Smaller $\bar c$ pushes both out, because restricting how
+endogenous the controls may be makes the conclusion harder to overturn.
 
-**One difference from the published figure.** The paper's right panel runs
-to $\bar r_X = 4$, where each curve has flattened onto its horizontal arm.
-This reconstruction stops near $\bar r_X = 1/\bar c$, and the reason is
-explicit rather than incidental:
+Reading the frontier in the other direction shows why the package offers
+both. Fix $\bar r_Y$ and ask for the $\bar r_X$ at which the sign fails:
+just above the horizontal arm there is an answer, and on it there is
+none, because no $\bar r_X$ overturns the sign there.
 
 ```{r frontier-limit}
-tryCatch(
-    regsen_bounds(form, bfg2020, compare = w1,
-                  cbar = 1, rxbar = 2, rybar = 0.6),
-    error = conditionMessage
-)
+vapply(c(0.7, 0.6, 0.55, 0.5), function(ry) {
+    regsen_breakdown(form, bfg2020, compare = w1,
+                     cbar = 1, rybar = ry)$results$breakdown
+}, numeric(1))
 ```
 
-The horizontal arm lives in the region
-$\bar r_X > r_{max}(\bar c) > \bar r_Y$, which this package does not
-implement -- it raises an error carrying the message above rather than
-returning a number it cannot stand behind. The vertical arm, which carries the breakdown point
-the paper actually reports, is reproduced exactly: each curve approaches
-$\bar r_X = 0.804$ as $\bar r_Y$ grows.
+The identified set at those larger $\bar r_X$ is bounded, even though
+$\bar r_X$ alone would say nothing there -- restricting $\bar r_Y$ is
+what keeps it finite:
+
+```{r frontier-arm}
+regsen_bounds(form, bfg2020, compare = w1,
+              cbar = 1, rxbar = c(2, 4, 10), rybar = 0.5)$results
+```
 
 ### Overlaying the calibration values
 

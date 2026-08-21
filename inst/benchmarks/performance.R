@@ -25,6 +25,10 @@ mb <- microbenchmark(
                        rxbar = seq(0, 0.8, length.out = 10)),
     `DMP breakdown over cbar grid (11 points)`     =
         regsen_breakdown(form, d, compare = w1, cbar = seq(0, 1, 0.1)),
+    `DMP rybar frontier, 5 rxbar points`           =
+        regsen_breakdown(form, d, compare = w1, cbar = 1,
+                          direction = "rybar",
+                          rxbar = c(0.5, 1, 1.5, 2, 4)),
     `Oster bounds equality (21 delta)`             =
         regsen_bounds(form, d, compare = w1,
                        analysis = "oster",
@@ -39,22 +43,28 @@ print(mb, unit = "ms")
 
 cat("\n==== Bootstrap timing ====\n")
 t0 <- Sys.time()
-suppressMessages(regsen_boot(form, d, compare = w1, cbar = 1,
-                              R = 99, show_progress = FALSE,
-                              seed = 1))
+invisible(regsen_boot(form, d, compare = w1, cbar = 1,
+                      R = 99, show_progress = FALSE, seed = 1))
 t1 <- Sys.time()
-cat(sprintf("  R=99 standard bootstrap     : %.2fs (~ %.0fms/replicate)\n",
+cat(sprintf("  R=99 standard bootstrap, BCa: %.2fs (~ %.0fms/replicate)\n",
+            as.numeric(t1 - t0, units = "secs"),
+            1000 * as.numeric(t1 - t0, units = "secs") / 99))
+
+t0 <- Sys.time()
+invisible(regsen_boot(form, d, compare = w1, cbar = 1, type = "perc",
+                      R = 99, show_progress = FALSE, seed = 1))
+t1 <- Sys.time()
+cat(sprintf("  R=99 standard bootstrap, pct: %.2fs (~ %.0fms/replicate)\n",
             as.numeric(t1 - t0, units = "secs"),
             1000 * as.numeric(t1 - t0, units = "secs") / 99))
 
 ## The cluster bootstrap is the variant reported in the paper's timing
 ## table; it is slower because each replicate resamples whole grid cells.
 t0 <- Sys.time()
-suppressMessages(regsen_boot(form, d, compare = w1, cbar = 1,
-                              cluster = "km_grid_cel_code",
-                              R = 99, show_progress = FALSE,
-                              seed = 1))
+invisible(regsen_boot(form, d, compare = w1, cbar = 1,
+                      cluster = "km_grid_cel_code",
+                      R = 99, show_progress = FALSE, seed = 1))
 t1 <- Sys.time()
-cat(sprintf("  R=99 cluster bootstrap      : %.2fs (~ %.0fms/replicate)\n",
+cat(sprintf("  R=99 cluster bootstrap, BCa : %.2fs (~ %.0fms/replicate)\n",
             as.numeric(t1 - t0, units = "secs"),
             1000 * as.numeric(t1 - t0, units = "secs") / 99))

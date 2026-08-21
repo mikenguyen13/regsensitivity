@@ -228,3 +228,36 @@ with no arguments replots whatever ran last. Here each function returns
 its result and `plot()` takes it explicitly, which is what lets you keep
 several analyses side by side in one session.
 
+## Beyond the Stata package
+
+Three things here have no Stata counterpart, so nothing in the table
+above maps onto them.
+
+`direction = "rybar"` reports the breakdown point in `rybar` at a given
+`rxbar` rather than the other way round -- the frontier of DMP Theorem 4,
+and the only direction that can describe the part of it where no `rxbar`
+overturns the conclusion.
+
+```{r direction}
+regsen_breakdown(form, bfg2020, compare = w1, cbar = 1,
+                  direction = "rybar",
+                  rxbar = c(0.5, 1, 2, 4))$results
+```
+
+`clow` is the lower end of Assumption A6, asserting that the controls are
+*at least* that endogenous, which narrows the identified set.
+
+```{r clow}
+regsen_bounds(form, bfg2020, compare = w1, cbar = 1, clow = 0.99,
+               rxbar = c(0.5, 0.9))$results
+```
+
+And the identified set is computed for every triple of sensitivity
+parameters, including `rxbar > rmax(cbar) > rybar`, where both packages
+previously stopped:
+
+```{r region}
+regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
+               rxbar = 2, rybar = 0.5)$results
+```
+

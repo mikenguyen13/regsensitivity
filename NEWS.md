@@ -58,7 +58,8 @@
 * `rmax`, the `rxbar` at which the identified set becomes unbounded, was
   wrong for `cbar < 1`. It solved the `cbar` branch of DMP appendix
   equation (S18) unconditionally, when the maximising `||c||` is `rxbar`
-  itself wherever A6 allows it. With `cbar = 0.5` on the bundled data it
+  itself wherever A6 allows it. With `cbar = 0.5` on the bundled data,
+  calibrating against the ten geographic and climate covariates, it
   reported 1.48 where the set is in fact unbounded from 1.19, so
   `regsen_bounds()` printed a large finite number in place of an infinite
   one across that range, and the default `rxbar` grid ran past the point

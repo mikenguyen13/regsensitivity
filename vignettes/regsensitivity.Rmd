@@ -113,6 +113,39 @@ hyp <- regsen_breakdown(form, bfg2020, compare = compare,
 print(hyp)
 ```
 
+### The frontier in the other direction
+
+`direction = "rybar"` reports the breakdown point in `rybar` at each
+`rxbar` instead: how much the unobservable may matter for the *outcome*
+before the conclusion fails, given how much it may matter for the
+treatment. This is the frontier of DMP Theorem 4, and the two directions
+trace the same curve in the $(\bar r_X, \bar r_Y)$ plane.
+
+```{r}
+fr <- regsen_breakdown(form, bfg2020, compare = compare, cbar = 1,
+                        direction = "rybar",
+                        rxbar = c(0.5, 1, 2, 4))
+fr$results
+```
+
+An `Inf` says the conclusion survives every `rybar` at that `rxbar`; the
+mirror image, an `Inf` from the default direction, says it survives every
+`rxbar` at that `rybar`.
+
+### Asserting endogenous controls
+
+`cbar` caps how much of the unobservable the comparison controls can
+explain. `clow` is the other end of DMP Assumption A6: setting it above
+zero asserts that the controls are *at least* that endogenous, which
+narrows the identified set rather than widening it.
+
+```{r}
+vapply(c(0, 0.9, 0.99), function(cl) {
+    regsen_breakdown(form, bfg2020, compare = compare,
+                      cbar = 1, clow = cl)$results$breakdown
+}, numeric(1))
+```
+
 ## Oster (2019) bounds
 
 Switching to the Oster analysis with `analysis = "oster"`:

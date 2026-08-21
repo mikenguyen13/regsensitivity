@@ -36,7 +36,9 @@
 #' @param ... Additional arguments forwarded to [regsen_breakdown()] (the
 #'   analysis to bootstrap).
 #' @param type Interval type reported in `$ci`: `"bca"` (default) or
-#'   `"perc"`. Both are computed and stored; see Details.
+#'   `"perc"`. Under `"bca"` both intervals are computed and stored; under
+#'   `"perc"` the jackknife BCa needs is skipped and `$ci_bca` is `NA`.
+#'   See Details.
 #' @param R Integer. Number of bootstrap replications. Defaults to 999.
 #' @param cluster Optional character scalar naming a column of `data` to
 #'   resample at the cluster level (e.g. `"km_grid_cel_code"` for the BFG
@@ -72,10 +74,12 @@
 #' normal quantile of the share of replicates below the point estimate, and
 #' `acceleration`, computed from the delete-one jackknife over sampling
 #' units -- rows, or clusters when `cluster` is given. The jackknife costs
-#' one breakdown computation per unit; both it and the replicates honour
-#' `ncores`. When the jackknife is degenerate (every unit gives the same
-#' estimate, so the acceleration is undefined) the BCa interval falls back
-#' to the percentile interval and `acceleration` is `NA`.
+#' one breakdown computation per unit, which under an i.i.d. bootstrap
+#' means one per row and usually dominates the run; both it and the
+#' replicates honour `ncores`, and `type = "perc"` skips it. When the
+#' jackknife is degenerate (every unit gives the same estimate, so the
+#' acceleration is undefined) the BCa interval falls back to the percentile
+#' interval and `acceleration` is `NA`.
 #'
 #' @export
 #' @examples
@@ -176,17 +180,27 @@ regsen_boot <- function(formula, data,
                                names = FALSE, na.rm = TRUE)
 
     # BCa. The jackknife runs over the same units the bootstrap resamples,
-    # so a cluster bootstrap gets a cluster jackknife.
-    jack_units <- if (is.null(cluster)) seq_len(n) else seq_along(unit_rows)
-    jack_one <- function(u) {
-        drop <- if (is.null(cluster)) u else unit_rows[[u]]
-        evaluate(seq_len(n)[-drop])
+    # so a cluster bootstrap gets a cluster jackknife. It costs one
+    # breakdown computation per unit, which for an i.i.d. bootstrap is one
+    # per row and dominates the run, so it is skipped when the caller has
+    # asked for the percentile interval.
+    if (type == "bca") {
+        jack_units <- if (is.null(cluster)) seq_len(n) else seq_along(unit_rows)
+        jack_one <- function(u) {
+            drop <- if (is.null(cluster)) u else unit_rows[[u]]
+            evaluate(seq_len(n)[-drop])
+        }
+        jack <- run_replicates(jack_one, length(jack_units),
+                               min(ncores, length(jack_units)), show_progress,
+                               label = paste0("Jackknife (",
+                                              length(jack_units), " units)"))
+        bca <- bca_interval(point, reps, jack, level)
+    } else {
+        jack <- numeric(0)
+        bca <- list(ci = c(NA_real_, NA_real_), z0 = NA_real_,
+                    acceleration = NA_real_, fellback = FALSE,
+                    extreme = FALSE)
     }
-    jack <- run_replicates(jack_one, length(jack_units),
-                           min(ncores, length(jack_units)), show_progress,
-                           label = paste0("Jackknife (", length(jack_units),
-                                          " units)"))
-    bca <- bca_interval(point, reps, jack, level)
 
     structure(
         list(

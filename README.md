@@ -34,7 +34,12 @@ Implements the identified-set and breakdown-point analyses described in:
 
 > Both arXiv working papers above are still revised periodically; citations in this package track the year of the latest arXiv revision.
 
-The package provides a formula + `data.frame` API, `ggplot2`-based plotting, and a percentile/cluster bootstrap on the breakdown point.
+The package provides a formula + `data.frame` API, `ggplot2`-based plotting, and percentile and bias-corrected-and-accelerated bootstrap intervals — i.i.d. or clustered — on the breakdown point.
+
+Beyond the Stata original it computes the identified set at every triple of
+sensitivity parameters, including the region `rxbar > rmax(cbar) > rybar`;
+traces the breakdown frontier in either direction (`direction = "rybar"`);
+and takes Assumption A6 in its two-sided form (`clow`).
 
 ## Installation
 
@@ -92,6 +97,8 @@ See `vignette("regsensitivity")` for a full tour, and `vignette("dmp2022-replica
 | `regsensitivity breakdown ... cbar(0(.1)1)` | `regsen_breakdown(..., cbar = seq(0, 1, 0.1))` |
 | `regsensitivity breakdown ... beta(-1(.2)1 lb)` | `regsen_breakdown(..., beta = bnd_lb(seq(-1, 1, 0.2)))` |
 | `regsensitivity breakdown ... beta(4 ub)` | `regsen_breakdown(..., beta = bnd_ub(4))` |
+| *(no equivalent)* | `regsen_breakdown(..., direction = "rybar", rxbar = ...)` |
+| *(no equivalent)* | `regsen_bounds(..., clow = 0.5)` |
 | `regsensitivity breakdown ... oster rmax(0(.1)1) beta(0 eq)` | `regsen_breakdown(..., analysis = "oster", r2long = seq(0, 1, 0.1), beta = bnd_eq(0))` |
 | `regsensitivity plot` | `plot(result)` |
 | `regsensitivity` (no subcommand) | `regsen_summary(...)` |
