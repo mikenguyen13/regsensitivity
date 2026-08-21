@@ -346,17 +346,31 @@ pick_in_intervals <- function(ivs, u) {
     ivs[[n]][2]
 }
 
+# Both real roots of coef[1] + coef[2] x + coef[3] x^2, ordered.
+#
+# Solved directly rather than through `real_roots()`, which goes via
+# polyroot(): this sits inside the optimizer's objective and is evaluated a
+# few thousand times per bound, where the general complex root finder costs
+# more than the whole rest of the evaluation. The textbook formula is
+# rearranged the usual way to avoid cancellation when b^2 dominates 4ac --
+# one root from the addition that cannot cancel, the other from the product
+# of the roots.
 quadratic_real_roots <- function(coef, discrim) {
     if (!is.finite(discrim)) {
         return(c(NA_real_, NA_real_))
     }
-    if (discrim >= 0) {
-        rts <- real_roots(coef)
-        if (length(rts) == 0) return(c(NA_real_, NA_real_))
-        if (length(rts) == 1) return(c(rts, rts))
-        return(sort(rts))
+    if (discrim < 0) {
+        return(c(NEG_INF, POS_INF))
     }
-    c(NEG_INF, POS_INF)
+    a <- coef[3]; b <- coef[2]; cc <- coef[1]
+    if (a == 0) {
+        if (b == 0) return(c(NA_real_, NA_real_))
+        return(rep(-cc / b, 2))
+    }
+    q <- -0.5 * (b + if (b >= 0) sqrt(discrim) else -sqrt(discrim))
+    r1 <- q / a
+    r2 <- if (q != 0) cc / q else r1
+    if (r1 <= r2) c(r1, r2) else c(r2, r1)
 }
 
 ## ---------------------------------------------------------------------------

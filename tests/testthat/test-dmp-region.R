@@ -62,6 +62,34 @@ test_that("quad_ineq_intervals solves the linear and degenerate cases", {
         regsensitivity:::quad_ineq_intervals(c(NA, 0, 1), c(0, 1)), 0L)
 })
 
+test_that("quadratic_real_roots agrees with polyroot across scales", {
+    # The solver stopped going through polyroot() for speed, so the two must
+    # be checked against each other -- including where b^2 dominates 4ac and
+    # the textbook formula loses the smaller root to cancellation.
+    set.seed(20260820)
+    worst <- 0
+    checked <- 0L
+    for (i in seq_len(2000)) {
+        co <- rnorm(3) * 10^runif(3, -6, 6)
+        disc <- co[2]^2 - 4 * co[3] * co[1]
+        if (disc < 0) next
+        ref <- sort(regsensitivity:::real_roots(co))
+        if (length(ref) != 2) next
+        got <- regsensitivity:::quadratic_real_roots(co, disc)
+        worst <- max(worst, max(abs(got - ref) / pmax(abs(ref), 1e-12)))
+        checked <- checked + 1L
+    }
+    expect_gt(checked, 500)
+    expect_lt(worst, 1e-6)
+
+    # A discriminant of zero is a double root; a negative one has none, which
+    # the caller reads as "no constraint from this quadratic".
+    expect_equal(regsensitivity:::quadratic_real_roots(c(1, -2, 1), 0),
+                 c(1, 1))
+    expect_equal(regsensitivity:::quadratic_real_roots(c(1, 0, 1), -4),
+                 c(-Inf, Inf))
+})
+
 test_that("pick_in_intervals covers a union in proportion to length", {
     ivs <- list(c(0, 1), c(3, 5))
     pick <- regsensitivity:::pick_in_intervals
