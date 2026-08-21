@@ -1,15 +1,17 @@
 ## dmp.R --- Diegert, Masten and Poirier (2026) identified set
 ## and breakdown frontier.
 ##
-## Three sensitivity parameters:
+## Sensitivity parameters:
 ##   rxbar : magnitude of selection on unobservables, X side
 ##   rybar : magnitude of selection on unobservables, Y side (+Inf = no constraint)
-##   cbar  : maximum correlation between comparison controls and unobservable
+##   cbar  : largest correlation between comparison controls and unobservable
+##   clow  : smallest such correlation (0 = A6 imposes nothing from below)
 ##
-## Three regimes for the identified set, dispatched in `dmp_identified_set()`:
-##   rybar = +Inf                 -> closed-form via beta_deviation_ryinf()
-##   rybar < +Inf, cbar = 0       -> closed form via quadratic inequality
-##   rybar < +Inf, cbar > 0       -> DIRECT global optimization (nonconvex)
+## Four regimes for the identified set, dispatched in `dmp_identified_set()`:
+##   rxbar and rybar both past rmax -> (-Inf, +Inf), no computation
+##   rybar = +Inf                   -> closed form via beta_deviation_ryinf()
+##   rybar < +Inf, cbar = 0         -> closed form via quadratic inequality
+##   rybar < +Inf, cbar > 0         -> DIRECT global optimization (nonconvex)
 
 # Smallest rxbar at which zXbar(rxbar, clow, cbar) reaches `ztarget`.
 #
@@ -61,9 +63,10 @@ rxbar_at_zbar <- function(ztarget, cbar, s, clow = 0) {
 #
 # Through 0.1.2 this solved the cbar branch of the equation unconditionally,
 # which overstated the threshold whenever cbar was below sqrt(1 - R2(X ~ W1))
-# -- with cbar = 0.5 on the bundled data it reported 1.48 where the identified
-# set is in fact already unbounded at 1.20, so `regsen_bounds()` printed a
-# huge finite number in place of an infinite one.
+# -- with cbar = 0.5 on the bundled data, calibrating against the ten
+# geographic and climate covariates, it reported 1.48 where the identified
+# set is in fact already unbounded at 1.19, so `regsen_bounds()` printed a
+# large finite number in place of an infinite one across that range.
 max_beta_bound <- function(c, s, clow = 0) {
     if (!is.finite(c) || !is.finite(s$k0) || !is.finite(s$var_x) ||
         s$var_x <= 0 || s$k0 < 0) {
@@ -98,6 +101,10 @@ format_dmp_sparams <- function(rxbar, rybar, cbar, product) {
 # zXbar(rxbar, clow, cbar), DMP (2026) appendix equation (S18): the largest
 # |z| the sensitivity parameters allow. The maximising ||c|| is rxbar itself
 # where A6 permits it, and the nearer endpoint of [clow, cbar] otherwise.
+#
+# The expression holds below rmax, which is where the caller uses it: past
+# rmax the supremum is infinite and `dmp_identified_set()` has already
+# returned (-Inf, +Inf) without asking.
 zmax <- function(c, rx, s, clow = 0) {
     cmax <- max(min(c, rx), clow)
     z <- sqrt(s$covwx_norm_sq) * rx * sqrt(max(1 - cmax^2, 0))
@@ -540,7 +547,12 @@ breakdown_point_dmp <- function(beta, c, lower_bound, s, clow = 0) {
 dmp_tested_bound <- function(rx, ry, c, clow, s, lower_bound,
                               maxiter = 1000L, polish = 300L) {
     sp <- list(rxbar = rx, rybar = ry, cbar = c, clow = clow)
-    bnd <- if (isTRUE(c == 0)) {
+    # A rybar_expr may hand back +Inf at some rxbar; that is the closed-form
+    # regime, not a degenerate case of the optimizer's.
+    bnd <- if (!is.finite(ry)) {
+        row <- dmp_identified_set(rx, POS_INF, c, s, clow = clow)
+        c(row$bmin[1], row$bmax[1])
+    } else if (isTRUE(c == 0)) {
         beta_bounds_ryfinite_cbar_eq0(sp, s)
     } else {
         beta_bounds_ryfinite_cbar_neq0(
