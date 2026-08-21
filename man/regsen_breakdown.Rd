@@ -11,8 +11,11 @@ regsen_breakdown(
   compare = NULL,
   nocompare = NULL,
   cbar = 1,
+  clow = 0,
   rybar = Inf,
   rybar_expr = NULL,
+  direction = c("rxbar", "rybar"),
+  rxbar = NULL,
   r2long = 1,
   maxovb = NA,
   r2long_type = c("eq", "relative"),
@@ -39,7 +42,19 @@ comparison set. Defaults to all controls if neither \code{compare} nor
 \item{nocompare}{Optional character vector of controls to \emph{exclude} from
 the comparison set.}
 
-\item{cbar, rybar, rybar_expr}{(DMP) Same as in \code{\link[=regsen_bounds]{regsen_bounds()}}.}
+\item{cbar, clow, rybar, rybar_expr}{(DMP) Same as in \code{\link[=regsen_bounds]{regsen_bounds()}}.}
+
+\item{direction}{(DMP) Which sensitivity parameter the breakdown point is
+reported in: \code{"rxbar"} (default) sweeps \code{cbar} or \code{beta} and solves for
+rxbar; \code{"rybar"} sweeps \code{rxbar} and solves for rybar, the frontier
+\code{rybar_bf(rxbar)} of DMP (2026) Theorem 4. The two trace the same
+frontier, but only the rybar direction can describe its horizontal arm,
+where the conclusion survives every rxbar and the rxbar breakdown point
+is \code{+Inf}.}
+
+\item{rxbar}{(DMP, \code{direction = "rybar"}) Numeric vector of rxbar values
+at which to evaluate the frontier. Defaults to an 11-point grid over
+\verb{[0, 2 * rmax(cbar)]}.}
 
 \item{r2long, maxovb}{(Oster) Same as in \code{\link[=regsen_bounds]{regsen_bounds()}}.}
 
@@ -63,13 +78,15 @@ hypothesis \code{beta > 0}.
 of \code{data} to include in the estimation.}
 }
 \value{
-A \code{regsensitivity} object.
+A \code{regsensitivity} object. \code{results$index} holds the swept
+parameter and \code{results$breakdown} the breakdown point at each value.
 }
 \description{
 Find the smallest sensitivity-parameter value at which a given hypothesis
 about the long-regression coefficient first fails. For DMP, this is rxbar
-as a function of (cbar, rybar, beta). For Oster, this is |delta| as a
-function of R-squared(long), beta and (optionally) maxovb.
+as a function of (cbar, rybar, beta) or -- with \code{direction = "rybar"} --
+rybar as a function of (rxbar, cbar, beta). For Oster, this is |delta| as
+a function of R-squared(long), beta and (optionally) maxovb.
 }
 \examples{
 \donttest{

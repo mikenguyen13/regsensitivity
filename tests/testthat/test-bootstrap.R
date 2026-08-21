@@ -91,6 +91,48 @@ test_that("ncores is validated and capped at R", {
     expect_length(b$replicates, 2L)
 })
 
+test_that("regsen_boot reports both interval types", {
+    skip_on_cran()
+    res <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                       cbar = 1, R = 49, seed = 7, show_progress = FALSE)
+    expect_equal(res$type, "bca")
+    expect_equal(res$ci, res$ci_bca)
+    expect_true(is.finite(res$z0))
+    expect_true(is.finite(res$acceleration))
+    expect_length(res$jackknife, res$point_res$n)
+    # The two intervals read the same replicates at different quantiles.
+    expect_true(all(res$ci_bca >= min(res$replicates, na.rm = TRUE) - 1e-9))
+    expect_true(all(res$ci_bca <= max(res$replicates, na.rm = TRUE) + 1e-9))
+    expect_false(isTRUE(all.equal(res$ci_bca, res$ci_perc)))
+
+    perc <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                        cbar = 1, R = 49, seed = 7, type = "perc",
+                        show_progress = FALSE)
+    expect_equal(perc$ci, perc$ci_perc)
+    # Same seed, same replicates: only the interval read off them differs.
+    expect_equal(perc$replicates, res$replicates)
+})
+
+test_that("BCa constants have the meaning the interval assumes", {
+    skip_on_cran()
+    res <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                       cbar = 1, R = 99, seed = 11, show_progress = FALSE)
+    share <- mean(res$replicates[is.finite(res$replicates)] < res$point)
+    expect_equal(res$z0, stats::qnorm(share), tolerance = 1e-10)
+    # The bootstrap distribution of the breakdown point sits below the point
+    # estimate on this data, so the correction moves the interval up.
+    expect_gt(res$z0, 0)
+    expect_gt(res$ci_bca[1], res$ci_perc[1])
+})
+
+test_that("a degenerate jackknife falls back to the percentile interval", {
+    reps <- rep(0.5, 50)                 # no spread at all
+    out <- regsensitivity:::bca_interval(0.5, reps, rep(0.3, 20), 0.95)
+    expect_true(out$fellback)
+    expect_true(is.na(out$acceleration))
+    expect_equal(out$ci, c(0.5, 0.5))
+})
+
 test_that("the caller's RNG state is not disturbed by seeding", {
     skip_on_cran()
     set.seed(123)

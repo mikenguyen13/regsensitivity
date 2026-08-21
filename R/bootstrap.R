@@ -1,5 +1,5 @@
-## bootstrap.R --- inference for the breakdown point via percentile or
-## cluster bootstrap.
+## bootstrap.R --- inference for the breakdown point via percentile, BCa,
+## or cluster bootstrap.
 ##
 ## The breakdown point is a function of the data (it depends on Var(Y, X, W1)
 ## after partialling out W0). Standard delta-method inference is awkward
@@ -12,18 +12,31 @@
 ##     the clustering structure used in many applied papers (e.g. the
 ##     km_grid_cel_code clusters in BFG 2020)
 ##
+## and two interval types on top of either: the percentile interval, and the
+## bias-corrected and accelerated (BCa) interval of Efron (1987). The
+## breakdown point is a smooth but markedly nonlinear functional of an
+## estimated variance matrix, so its bootstrap distribution is skewed in
+## small samples and the percentile interval inherits that skewness without
+## correcting for it. BCa corrects it with two constants: a median-bias
+## correction read off the replicates, and an acceleration read off the
+## delete-one jackknife over sampling units.
+##
 ## Returns a `regsensitivity_boot` object: the original breakdown estimate,
-## a vector of bootstrap replicates, and a percentile CI.
+## the vector of bootstrap replicates, and both intervals.
 
 #' Bootstrap confidence interval for the breakdown point
 #'
-#' Computes a non-parametric (or cluster) bootstrap percentile confidence
-#' interval for the breakdown point returned by [regsen_breakdown()] or the
-#' scalar `$breakdown` field of [regsen_bounds()].
+#' Computes a non-parametric (or cluster) bootstrap confidence interval for
+#' the breakdown point returned by [regsen_breakdown()] or the scalar
+#' `$breakdown` field of [regsen_bounds()]. Both a bias-corrected and
+#' accelerated (BCa) interval and a percentile interval are returned; `type`
+#' chooses which one `$ci` reports.
 #'
 #' @inheritParams regsen_breakdown
 #' @param ... Additional arguments forwarded to [regsen_breakdown()] (the
 #'   analysis to bootstrap).
+#' @param type Interval type reported in `$ci`: `"bca"` (default) or
+#'   `"perc"`. Both are computed and stored; see Details.
 #' @param R Integer. Number of bootstrap replications. Defaults to 999.
 #' @param cluster Optional character scalar naming a column of `data` to
 #'   resample at the cluster level (e.g. `"km_grid_cel_code"` for the BFG
@@ -43,8 +56,9 @@
 #'   depend on the cap.
 #' @param show_progress Logical; print progress bar.
 #'
-#' @return An object of class `regsensitivity_boot` containing:
-#'   `point`, `replicates`, `ci`, `level`, `R`, `cluster`, `na`.
+#' @return An object of class `regsensitivity_boot` containing: `point`,
+#'   `replicates`, `ci` (the interval named by `type`), `ci_bca`, `ci_perc`,
+#'   `z0`, `acceleration`, `type`, `level`, `R`, `cluster`, `na`.
 #'
 #' @details
 #' For DMP analyses the breakdown point is computed exactly as in
@@ -52,6 +66,16 @@
 #' returned breakdown is the rxbar breakdown for the (scalar) hypothesis on
 #' beta. For Oster analyses the breakdown is the |delta| value at which
 #' the hypothesis first fails.
+#'
+#' The BCa interval takes the percentile interval and shifts the quantiles
+#' it reads by two constants: `z0`, a median-bias correction equal to the
+#' normal quantile of the share of replicates below the point estimate, and
+#' `acceleration`, computed from the delete-one jackknife over sampling
+#' units -- rows, or clusters when `cluster` is given. The jackknife costs
+#' one breakdown computation per unit; both it and the replicates honour
+#' `ncores`. When the jackknife is degenerate (every unit gives the same
+#' estimate, so the acceleration is undefined) the BCa interval falls back
+#' to the percentile interval and `acceleration` is `NA`.
 #'
 #' @export
 #' @examples
@@ -68,13 +92,15 @@
 #' print(bb)
 #' }
 regsen_boot <- function(formula, data,
-                        ..., R = 999L,
+                        ..., type = c("bca", "perc"),
+                        R = 999L,
                         cluster = NULL,
                         level = 0.95,
                         seed = NULL,
                         ncores = 1L,
                         show_progress = interactive()) {
     stopifnot(is.data.frame(data), R >= 1, level > 0, level < 1)
+    type <- match.arg(type)
     ncores <- as.integer(ncores)
     if (is.na(ncores) || ncores < 1L) {
         stop("`ncores` must be a positive integer.", call. = FALSE)
@@ -86,14 +112,40 @@ regsen_boot <- function(formula, data,
     point_res <- regsen_breakdown(formula, data, ...)
     point <- point_res$results$breakdown[1]
 
-    n <- nrow(data)
+    # Build the model matrices once; every replicate is a row subset of
+    # them. `regsen_breakdown()` above has already validated the arguments,
+    # so anything that goes wrong from here is a property of the resample.
+    dots <- list(...)
+    boot_args <- resolve_boot_args(...)
+    inputs <- build_dgp_inputs(formula, data,
+                               compare = dots$compare,
+                               nocompare = dots$nocompare,
+                               subset = dots$subset)
+    evaluate <- function(rows) {
+        res <- tryCatch(
+            do.call(breakdown_from_dgp,
+                    c(list(get_dgp(subset_dgp_inputs(inputs, rows))),
+                      boot_args)),
+            error = function(e) NULL
+        )
+        if (is.null(res) || nrow(res$results) == 0) {
+            return(NA_real_)
+        }
+        res$results$breakdown[1]
+    }
+
+    n <- inputs$n
     if (!is.null(cluster)) {
         if (!cluster %in% names(data)) {
             stop("`cluster` column '", cluster, "' not found in data.",
                  call. = FALSE)
         }
-        cluster_id <- data[[cluster]]
+        # The rows the model frame kept, in the order the inputs hold them.
+        cluster_id <- data[[cluster]][inputs$rows]
         cluster_levels <- unique(cluster_id)
+        unit_rows <- lapply(cluster_levels, function(g) which(cluster_id == g))
+    } else {
+        unit_rows <- NULL
     }
 
     # One seed per replicate, drawn once here. Each replicate then sets its
@@ -106,54 +158,49 @@ regsen_boot <- function(formula, data,
 
     boot_one <- function(b) {
         set.seed(rep_seeds[b])
-        if (is.null(cluster)) {
-            idx <- sample.int(n, replace = TRUE)
+        idx <- if (is.null(cluster)) {
+            sample.int(n, replace = TRUE)
         } else {
-            sampled <- sample(cluster_levels, length(cluster_levels),
-                              replace = TRUE)
-            idx <- unlist(lapply(sampled, function(g) which(cluster_id == g)))
+            unlist(unit_rows[sample.int(length(unit_rows), replace = TRUE)])
         }
-        d_b <- data[idx, , drop = FALSE]
-        res <- tryCatch(
-            regsen_breakdown(formula, d_b, ...),
-            error = function(e) NULL
-        )
-        if (is.null(res) || nrow(res$results) == 0) {
-            return(NA_real_)
-        }
-        res$results$breakdown[1]
+        evaluate(idx)
     }
 
-    if (ncores > 1L) {
-        # A progress bar cannot report meaningfully from several workers,
-        # so it is suppressed rather than printed wrongly.
-        reps <- boot_parallel(boot_one, R, ncores)
-    } else {
-        reps <- numeric(R)
-        if (show_progress) {
-            message("Bootstrap (R=", R, ")...")
-            pb <- utils::txtProgressBar(min = 0, max = R, style = 3)
-        }
-        for (b in seq_len(R)) {
-            reps[b] <- boot_one(b)
-            if (show_progress) utils::setTxtProgressBar(pb, b)
-        }
-        if (show_progress) close(pb)
-    }
+    reps <- run_replicates(boot_one, R, ncores, show_progress,
+                           label = paste0("Bootstrap (R=", R, ")"))
 
     na_count <- sum(is.na(reps))
-    finite_reps <- reps[is.finite(reps)]
     alpha <- (1 - level) / 2
-    ci <- stats::quantile(finite_reps,
-                          probs = c(alpha, 1 - alpha),
-                          names = FALSE,
-                          na.rm = TRUE)
+    ci_perc <- stats::quantile(reps[is.finite(reps)],
+                               probs = c(alpha, 1 - alpha),
+                               names = FALSE, na.rm = TRUE)
+
+    # BCa. The jackknife runs over the same units the bootstrap resamples,
+    # so a cluster bootstrap gets a cluster jackknife.
+    jack_units <- if (is.null(cluster)) seq_len(n) else seq_along(unit_rows)
+    jack_one <- function(u) {
+        drop <- if (is.null(cluster)) u else unit_rows[[u]]
+        evaluate(seq_len(n)[-drop])
+    }
+    jack <- run_replicates(jack_one, length(jack_units),
+                           min(ncores, length(jack_units)), show_progress,
+                           label = paste0("Jackknife (", length(jack_units),
+                                          " units)"))
+    bca <- bca_interval(point, reps, jack, level)
 
     structure(
         list(
             point = point,
             replicates = reps,
-            ci = ci,
+            jackknife = jack,
+            ci = if (type == "bca") bca$ci else ci_perc,
+            ci_bca = bca$ci,
+            ci_perc = ci_perc,
+            z0 = bca$z0,
+            acceleration = bca$acceleration,
+            extreme_endpoint = bca$extreme,
+            type = if (type == "bca" && bca$fellback) "perc" else type,
+            requested_type = type,
             level = level,
             R = R,
             cluster = cluster,
@@ -163,6 +210,87 @@ regsen_boot <- function(formula, data,
         ),
         class = "regsensitivity_boot"
     )
+}
+
+# Arguments of `regsen_breakdown()` that `breakdown_from_dgp()` also takes.
+# Anything else in `...` -- `compare`, `subset` and friends -- is already
+# baked into the model matrices and must not be passed on.
+resolve_boot_args <- function(...) {
+    args <- list(...)
+    keep <- c("analysis", "beta", "cbar", "clow", "rybar", "rybar_expr",
+              "direction", "rxbar", "r2long", "maxovb", "r2long_type",
+              "maxovb_type")
+    args <- args[intersect(names(args), keep)]
+    if (!is.null(args$analysis)) args$analysis <- match_analysis(args$analysis)
+    args
+}
+
+# The BCa endpoints of Efron (1987): the percentile interval read at
+# quantiles shifted by the median-bias correction z0 and the acceleration a.
+#
+# `a` comes from the skewness of the jackknife values. Both constants are
+# undefined in degenerate cases -- every replicate on one side of the point
+# estimate, or a jackknife with no spread -- and the interval then falls back
+# to the percentile one rather than returning an endpoint built from an
+# infinite z.
+bca_interval <- function(point, reps, jack, level) {
+    alpha <- (1 - level) / 2
+    probs <- c(alpha, 1 - alpha)
+    finite_reps <- reps[is.finite(reps)]
+    fallback <- list(
+        ci = stats::quantile(finite_reps, probs = probs, names = FALSE,
+                             na.rm = TRUE),
+        z0 = NA_real_, acceleration = NA_real_, fellback = TRUE,
+        extreme = FALSE
+    )
+    if (length(finite_reps) < 10 || !is.finite(point)) return(fallback)
+
+    share <- mean(finite_reps < point)
+    if (share <= 0 || share >= 1) return(fallback)
+    z0 <- stats::qnorm(share)
+
+    jack <- jack[is.finite(jack)]
+    if (length(jack) < 3) return(fallback)
+    dev <- mean(jack) - jack
+    denom <- 6 * sum(dev^2)^1.5
+    if (!is.finite(denom) || denom <= 0) return(fallback)
+    acc <- sum(dev^3) / denom
+    if (!is.finite(acc)) return(fallback)
+
+    zq <- stats::qnorm(probs)
+    adj <- stats::pnorm(z0 + (z0 + zq) / (1 - acc * (z0 + zq)))
+    if (any(!is.finite(adj))) return(fallback)
+    ci <- stats::quantile(finite_reps, probs = adj, names = FALSE,
+                          na.rm = TRUE)
+    # An adjusted quantile past the smallest or largest replicate makes the
+    # endpoint an extreme order statistic, which is where BCa is least
+    # reliable; the fix is more replicates, and the caller reports it.
+    nb <- length(finite_reps)
+    extreme <- any(adj < 1 / (nb + 1)) || any(adj > nb / (nb + 1))
+    list(ci = ci, z0 = z0, acceleration = acc, fellback = FALSE,
+         extreme = extreme)
+}
+
+# Run `fn` over seq_len(n), serially with an optional progress bar or across
+# `ncores` workers.
+run_replicates <- function(fn, n, ncores, show_progress, label) {
+    if (n == 0) return(numeric(0))
+    if (ncores > 1L) {
+        # A progress bar cannot report meaningfully from several workers,
+        # so it is suppressed rather than printed wrongly.
+        return(boot_parallel(fn, n, ncores))
+    }
+    out <- numeric(n)
+    if (show_progress) {
+        message(label, "...")
+        pb <- utils::txtProgressBar(min = 0, max = n, style = 3)
+    }
+    for (i in seq_len(n)) {
+        out[i] <- fn(i)
+        if (show_progress) utils::setTxtProgressBar(pb, i)
+    }
+    if (show_progress) close(pb)
+    out
 }
 
 #' @export
@@ -175,10 +303,26 @@ print.regsensitivity_boot <- function(x, ...) {
     if (!is.null(x$ncores) && x$ncores > 1L) {
         cat(sprintf("  Cores              : %d\n", x$ncores))
     }
+    kind <- if (identical(x$type, "bca")) "BCa" else "percentile"
+    cat(sprintf("  Interval           : %s\n", kind))
+    if (identical(x$type, "bca")) {
+        cat(sprintf("  Bias corr. (z0)    : %.4f\n", x$z0))
+        cat(sprintf("  Acceleration       : %.4f\n", x$acceleration))
+    } else if (identical(x$requested_type, "bca")) {
+        cat("  (BCa unavailable on these replicates; showing percentile)\n")
+    }
     cat(sprintf("  Confidence level   : %.0f%%\n", 100 * x$level))
     cat(sprintf("  Point estimate     : %.4f\n", abs(x$point)))
     cat(sprintf("  %s%% CI            : [%.4f, %.4f]\n",
                 round(100 * x$level), abs(x$ci[1]), abs(x$ci[2])))
+    if (isTRUE(x$extreme_endpoint)) {
+        cat("  (An endpoint is an extreme replicate; raise R)\n")
+    }
+    if (!is.null(x$ci_perc) && identical(x$type, "bca")) {
+        cat(sprintf("  %s%% CI (percentile): [%.4f, %.4f]\n",
+                    round(100 * x$level), abs(x$ci_perc[1]),
+                    abs(x$ci_perc[2])))
+    }
     if (x$na > 0) {
         cat(sprintf("  (Failed replicates : %d/%d)\n", x$na, x$R))
     }

@@ -25,8 +25,13 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
     if (!is.data.frame(data)) {
         stop("`data` must be a data.frame.", call. = FALSE)
     }
+    # Row positions in the data as handed in, carried through subsetting and
+    # na.omit so that a caller can line another column of `data` up with the
+    # rows the analysis actually used (regsen_boot() does this for clusters).
+    orig_rows <- seq_len(nrow(data))
     if (!is.null(subset)) {
         data <- data[subset, , drop = FALSE]
+        orig_rows <- orig_rows[subset]
     }
     if (nrow(data) < 10) {
         stop("Need at least 10 complete observations; got ", nrow(data), ".",
@@ -94,8 +99,25 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
         x_name = xname,
         compare_names = colnames(w1),
         control_names = c(colnames(w1), colnames(w0)),
+        rows = orig_rows[keep_rows],
         n = length(y)
     )
+}
+
+# Take a row subset (or resample) of already-built dgp inputs.
+#
+# `rows` may repeat indices, which is what a bootstrap resample needs. The
+# model matrices are reused rather than rebuilt, so a factor level missing
+# from the resample leaves an all-zero column behind rather than dropping
+# one: `get_dgp()` removes zero-variance comparison columns, and the QR it
+# runs on the control block handles a rank deficiency there.
+subset_dgp_inputs <- function(inputs, rows) {
+    inputs$y  <- inputs$y[rows]
+    inputs$x  <- inputs$x[rows]
+    inputs$w1 <- inputs$w1[rows, , drop = FALSE]
+    inputs$w0 <- inputs$w0[rows, , drop = FALSE]
+    inputs$n  <- length(rows)
+    inputs
 }
 
 # Residualize a numeric matrix on `w0` (after adding an intercept).

@@ -8,6 +8,7 @@ regsen_boot(
   formula,
   data,
   ...,
+  type = c("bca", "perc"),
   R = 999L,
   cluster = NULL,
   level = 0.95,
@@ -25,6 +26,9 @@ are controls.}
 
 \item{...}{Additional arguments forwarded to \code{\link[=regsen_breakdown]{regsen_breakdown()}} (the
 analysis to bootstrap).}
+
+\item{type}{Interval type reported in \verb{$ci}: \code{"bca"} (default) or
+\code{"perc"}. Both are computed and stored; see Details.}
 
 \item{R}{Integer. Number of bootstrap replications. Defaults to 999.}
 
@@ -51,13 +55,16 @@ depend on the cap.}
 \item{show_progress}{Logical; print progress bar.}
 }
 \value{
-An object of class \code{regsensitivity_boot} containing:
-\code{point}, \code{replicates}, \code{ci}, \code{level}, \code{R}, \code{cluster}, \code{na}.
+An object of class \code{regsensitivity_boot} containing: \code{point},
+\code{replicates}, \code{ci} (the interval named by \code{type}), \code{ci_bca}, \code{ci_perc},
+\code{z0}, \code{acceleration}, \code{type}, \code{level}, \code{R}, \code{cluster}, \code{na}.
 }
 \description{
-Computes a non-parametric (or cluster) bootstrap percentile confidence
-interval for the breakdown point returned by \code{\link[=regsen_breakdown]{regsen_breakdown()}} or the
-scalar \verb{$breakdown} field of \code{\link[=regsen_bounds]{regsen_bounds()}}.
+Computes a non-parametric (or cluster) bootstrap confidence interval for
+the breakdown point returned by \code{\link[=regsen_breakdown]{regsen_breakdown()}} or the scalar
+\verb{$breakdown} field of \code{\link[=regsen_bounds]{regsen_bounds()}}. Both a bias-corrected and
+accelerated (BCa) interval and a percentile interval are returned; \code{type}
+chooses which one \verb{$ci} reports.
 }
 \details{
 For DMP analyses the breakdown point is computed exactly as in
@@ -65,6 +72,16 @@ For DMP analyses the breakdown point is computed exactly as in
 returned breakdown is the rxbar breakdown for the (scalar) hypothesis on
 beta. For Oster analyses the breakdown is the |delta| value at which
 the hypothesis first fails.
+
+The BCa interval takes the percentile interval and shifts the quantiles
+it reads by two constants: \code{z0}, a median-bias correction equal to the
+normal quantile of the share of replicates below the point estimate, and
+\code{acceleration}, computed from the delete-one jackknife over sampling
+units -- rows, or clusters when \code{cluster} is given. The jackknife costs
+one breakdown computation per unit; both it and the replicates honour
+\code{ncores}. When the jackknife is degenerate (every unit gives the same
+estimate, so the acceleration is undefined) the BCa interval falls back
+to the percentile interval and \code{acceleration} is \code{NA}.
 }
 \examples{
 \donttest{

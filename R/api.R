@@ -392,6 +392,39 @@ regsen_breakdown <- function(formula, data,
     inputs <- build_dgp_inputs(formula, data, compare = compare,
                                 nocompare = nocompare, subset = subset)
     dgp <- get_dgp(inputs)
+    bd <- breakdown_from_dgp(
+        dgp, analysis = analysis, beta = beta,
+        cbar = cbar, clow = clow, rybar = rybar, rybar_expr = rybar_expr,
+        direction = direction, rxbar = rxbar,
+        r2long = r2long, maxovb = maxovb,
+        r2long_type = r2long_type, maxovb_type = maxovb_type
+    )
+    new_regsen(
+        subcommand = "breakdown",
+        analysis = if (analysis == "dmp") "DMP (2026)" else "Oster (2019)",
+        dgp = dgp, inputs = inputs,
+        sparams = bd$sparams,
+        results = bd$results, call = cl, extras = bd$extras
+    )
+}
+
+# The breakdown computation of `regsen_breakdown()`, resolved against a dgp
+# instead of a data set.
+#
+# Both the public function and the bootstrap go through this. A bootstrap or
+# jackknife replicate can therefore reuse the model matrices built once for
+# the original data instead of paying for model.frame() every time -- on the
+# bundled data that is the difference between 71 and 10 milliseconds per
+# replicate. Everything that depends on the sample (the direction of a
+# "sign" hypothesis, a relative r2long, a relative maxovb) is resolved from
+# the dgp passed in, so a replicate is computed exactly as the point
+# estimate is.
+breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
+                               cbar = 1, clow = 0, rybar = Inf,
+                               rybar_expr = NULL,
+                               direction = "rxbar", rxbar = NULL,
+                               r2long = 1, maxovb = NA,
+                               r2long_type = "eq", maxovb_type = "bound") {
     hypo <- parse_beta(beta, dgp)
 
     if (analysis == "dmp") {
@@ -418,21 +451,18 @@ regsen_breakdown <- function(formula, data,
                 ry_expr = rybar_expr, clow = clow
             )
         }
-        sparams <- list(cbar = cbar, clow = clow, rybar = rybar,
-                        rxbar = rxbar, rybar_expr = rybar_expr,
-                        direction = direction)
-        extras <- list(
-            hyposign = hypo$sign,
-            hypoval = if (hypo$multiple) NA_real_ else hypo$value,
-            direction = direction,
-            varying = if (direction == "rybar") "rxbar"
-                      else if (length(hypo$value) > 1) "beta" else "cbar"
-        )
-        return(new_regsen(
-            subcommand = "breakdown", analysis = "DMP (2026)",
-            dgp = dgp, inputs = inputs,
-            sparams = sparams,
-            results = bf, call = cl, extras = extras
+        return(list(
+            results = bf,
+            sparams = list(cbar = cbar, clow = clow, rybar = rybar,
+                           rxbar = rxbar, rybar_expr = rybar_expr,
+                           direction = direction),
+            extras = list(
+                hyposign = hypo$sign,
+                hypoval = if (hypo$multiple) NA_real_ else hypo$value,
+                direction = direction,
+                varying = if (direction == "rybar") "rxbar"
+                          else if (length(hypo$value) > 1) "beta" else "cbar"
+            )
         ))
     }
 
@@ -444,7 +474,11 @@ regsen_breakdown <- function(formula, data,
     if (is.na(maxovb[1])) {
         maxovb_use <- NA_real_
     } else {
-        maxovb_use <- if (maxovb_type == "relative") maxovb * abs(dgp$beta_med) else maxovb
+        maxovb_use <- if (maxovb_type == "relative") {
+            maxovb * abs(dgp$beta_med)
+        } else {
+            maxovb
+        }
     }
     if (hypo$sign == "=") {
         bf <- oster_breakdown_eq(r2long, hypo$value, maxovb_use, dgp)
@@ -452,19 +486,16 @@ regsen_breakdown <- function(formula, data,
         bf <- oster_breakdown_bound(r2long, hypo$value, maxovb_use,
                                      hypo$sign, dgp)
     }
-    sparams <- list(r2long = r2long, maxovb = maxovb_use,
-                    r2long_type = r2long_type, maxovb_type = maxovb_type)
-    extras <- list(
-        hyposign = hypo$sign,
-        hypoval = if (hypo$multiple) NA_real_ else hypo$value,
-        varying = if (length(unique(maxovb_use)) > 1) "maxovb"
-                   else if (length(unique(r2long)) > 1) "r2long" else "beta"
-    )
-    new_regsen(
-        subcommand = "breakdown", analysis = "Oster (2019)",
-        dgp = dgp, inputs = inputs,
-        sparams = sparams,
-        results = bf, call = cl, extras = extras
+    list(
+        results = bf,
+        sparams = list(r2long = r2long, maxovb = maxovb_use,
+                       r2long_type = r2long_type, maxovb_type = maxovb_type),
+        extras = list(
+            hyposign = hypo$sign,
+            hypoval = if (hypo$multiple) NA_real_ else hypo$value,
+            varying = if (length(unique(maxovb_use)) > 1) "maxovb"
+                      else if (length(unique(r2long)) > 1) "r2long" else "beta"
+        )
     )
 }
 

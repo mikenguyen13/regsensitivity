@@ -115,7 +115,7 @@ Copy-pasteable forms below.
     title  = {regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias},
     author = {Mike Nguyen},
     year   = {2026},
-    note   = {R package version 0.1.2},
+    note   = {R package version 0.2.0},
     url    = {https://github.com/mikenguyen13/regsensitivity}
 }
 ```
@@ -128,22 +128,22 @@ TI  - regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias
 AU  - Nguyen, Mike
 PY  - 2026
 PB  - GitHub
-ET  - 0.1.2
+ET  - 0.2.0
 UR  - https://github.com/mikenguyen13/regsensitivity
 ER  -
 ```
 
 ### APA 7
 
-> Nguyen, M. (2026). *regsensitivity: Regression sensitivity analysis for omitted variable bias* (Version 0.1.2) \[R package\]. <https://github.com/mikenguyen13/regsensitivity>
+> Nguyen, M. (2026). *regsensitivity: Regression sensitivity analysis for omitted variable bias* (Version 0.2.0) \[R package\]. <https://github.com/mikenguyen13/regsensitivity>
 
 ### MLA 9
 
-> Nguyen, Mike. *regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias*. Version 0.1.2, 2026. <https://github.com/mikenguyen13/regsensitivity>.
+> Nguyen, Mike. *regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias*. Version 0.2.0, 2026. <https://github.com/mikenguyen13/regsensitivity>.
 
 ### Chicago (author-date)
 
-> Nguyen, Mike. 2026. “regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias.” R package version 0.1.2. <https://github.com/mikenguyen13/regsensitivity>.
+> Nguyen, Mike. 2026. “regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias.” R package version 0.2.0. <https://github.com/mikenguyen13/regsensitivity>.
 
 ### Machine-readable
 

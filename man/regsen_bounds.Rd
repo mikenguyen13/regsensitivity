@@ -13,6 +13,7 @@ regsen_bounds(
   rxbar = NULL,
   rybar = Inf,
   cbar = 1,
+  clow = 0,
   rybar_expr = NULL,
   delta = NULL,
   r2long = 1,
@@ -46,6 +47,12 @@ the comparison set.}
 \item{rxbar, rybar, cbar}{(DMP) Numeric vectors of sensitivity-parameter
 values to sweep over. \code{rybar = Inf} (the default) gives the no-rybar
 case; setting it finite invokes the global-optimization code path.}
+
+\item{clow}{(DMP) Lower bound on control endogeneity, the \code{clow} of DMP
+Assumption A6 \verb{R(W2 ~ W1 . W0) \%in\% [clow, cbar]}. Default 0, which
+asserts nothing beyond \code{cbar}. A positive value asserts that the
+controls are \emph{at least} that endogenous. Must satisfy
+\verb{0 <= clow <= min(cbar)}.}
 
 \item{rybar_expr}{(DMP) A function \code{function(rxbar) rybar} to set rybar
 as a function of rxbar (the only supported form in the Stata source

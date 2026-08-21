@@ -1,3 +1,88 @@
+# regsensitivity 0.2.0
+
+## The identified set is now computed everywhere
+
+* The region `rxbar > rmax(cbar) > rybar` no longer raises an error.
+  `regsen_bounds()` and `regsen_breakdown()` compute it like any other,
+  and the numbers agree with an independent search over the constraint
+  set of DMP (2026) Theorem 5 to within 0.01, continuously across
+  `rmax`.
+
+  What stood in the way was the solver for the constraint Assumption A3
+  places on `z`. That constraint is a quadratic inequality whose leading
+  coefficient turns negative exactly when `rxbar * ||c|| > 1`; its
+  solution set is then the complement of an interval, not an interval,
+  and the solver returned the hull of the two pieces. Sampling that hull
+  hands the optimizer selection equations that violate A3, so the region
+  was refused rather than reported. The feasible set is now represented
+  as the list of intervals it is, and sampled in proportion to their
+  lengths.
+
+* The breakdown point in `rxbar` is no longer capped at `rmax(cbar)`.
+  That ceiling binds only when `rybar` is unrestricted; with `rybar`
+  finite the breakdown point can lie well past it. Where no `rxbar`
+  overturns the conclusion -- the horizontal arm of the breakdown
+  frontier -- the reported value is now `+Inf` instead of the ceiling.
+
+* `regsen_breakdown()` gains `direction = "rybar"`, giving the frontier
+  `rybar_bf(rxbar)` of DMP (2026) Theorem 4 over a grid of `rxbar`. This
+  is the form the paper's Figure 1 plots, and the only one that can
+  describe the frontier's horizontal arm.
+
+## Assumption A6 in its general form
+
+* `regsen_bounds()` and `regsen_breakdown()` gain `clow`, the lower end
+  of DMP Assumption A6, `R(W2 ~ W1 . W0)` in `[clow, cbar]`. Asserting
+  that the controls are *at least* somewhat endogenous tightens the
+  identified set and raises the breakdown point. `clow = 0`, the default,
+  is the previous behaviour.
+
+## Inference
+
+* `regsen_boot()` now reports a bias-corrected and accelerated (BCa)
+  interval alongside the percentile interval, and returns it by default;
+  `type = "perc"` restores the old choice. The acceleration comes from a
+  delete-one jackknife over the units the bootstrap resamples -- rows, or
+  clusters under a cluster bootstrap. In the simulation design of the
+  package's paper at `n = 500`, coverage improves from 92.0% to 94.0%
+  against a nominal 95% at the same interval width; the two agree by
+  `n = 1000`. `z0` and `acceleration` are returned so the correction can
+  be inspected, and an endpoint that falls on an extreme replicate is
+  reported as such.
+* Bootstrap replicates are around seven times faster on the bundled data.
+  A replicate is now a row subset of model matrices built once, rather
+  than a fresh `model.frame()` call per draw.
+
+## Bug fixes
+
+* `rmax`, the `rxbar` at which the identified set becomes unbounded, was
+  wrong for `cbar < 1`. It solved the `cbar` branch of DMP appendix
+  equation (S18) unconditionally, when the maximising `||c||` is `rxbar`
+  itself wherever A6 allows it. With `cbar = 0.5` on the bundled data it
+  reported 1.48 where the set is in fact unbounded from 1.19, so
+  `regsen_bounds()` printed a large finite number in place of an infinite
+  one across that range, and the default `rxbar` grid ran past the point
+  where the analysis says anything.
+* A breakdown point for an upper-bound hypothesis (`beta = bnd_ub(v)`)
+  was computed from the lower end of the identified set. With `rybar`
+  finite the set is not symmetric around `beta_med`, so the reported
+  value was wrong; the tested end is now chosen by the direction of the
+  hypothesis.
+* An equality hypothesis (`beta = bnd_eq(v)`) now breaks down at whichever
+  end of the identified set can reach the hypothesised value, rather than
+  always at the upper one.
+
+## Accuracy and speed
+
+* The global optimizer behind the finite-`rybar` identified set now
+  polishes its result with a local search. Bounds agree with a run twenty
+  times as long to within 3e-4, where the previous setting could be off
+  by 0.02.
+* A breakdown search evaluates only the end of the identified set its
+  hypothesis tests, and finds the crossing by root-finding rather than
+  fixed-iteration bisection. Together these make a breakdown point at
+  finite `rybar` several times faster despite the more accurate optimizer.
+
 # regsensitivity 0.1.2
 
 ## Plots
