@@ -49,9 +49,11 @@
   `n = 1000`. `z0` and `acceleration` are returned so the correction can
   be inspected, and an endpoint that falls on an extreme replicate is
   reported as such.
-* Bootstrap replicates are around seven times faster on the bundled data.
-  A replicate is now a row subset of model matrices built once, rather
-  than a fresh `model.frame()` call per draw.
+* Bootstrap replicates are about three times faster on the bundled data,
+  5 milliseconds against 14. A replicate is now a row subset of model
+  matrices built once, rather than a fresh `model.frame()` call per draw,
+  which is what makes the BCa jackknife -- one computation per row --
+  affordable.
 
 ## Bug fixes
 
