@@ -212,7 +212,8 @@ effect can overturn it at that
 fails</td>
 <td>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>δ</mi><mo stretchy="false" form="prefix">|</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">|\delta| = 1</annotation></semantics></math>
-is “as much selection on unobservables as on observables”</td>
+is “as much selection on unobservables as on observables”; the default
+sign-change value never exceeds 1 (Case 8)</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/regsen_boot.html">regsen_boot()</a></code></td>
@@ -583,27 +584,43 @@ and why a large one is not enough<a class="anchor" aria-label="anchor" href="#ca
 is the ratio of selection on unobservables to selection on observables,
 and the convention treats
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>δ</mi><mo stretchy="false" form="prefix">|</mo><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">|\delta| \ge 1</annotation></semantics></math>
-as implausible. Masten and Poirier (2026) show that the
+as implausible. Masten and Poirier (2026) show that “Oster’s
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>”
+names two different numbers, and give them names:</p>
+<ul>
+<li>the <strong>explain away</strong> breakdown point: the
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>
 at which
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-reaches <em>zero</em> and the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>
-at which its <em>sign</em> can flip are different numbers, and the
-second is often far smaller.</p>
+reaches <em>zero</em>. This is what <code>psacalc</code> computes and
+what published work reports.</li>
+<li>the <strong>sign change</strong> breakdown point: the smallest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>δ</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|\delta|</annotation></semantics></math>
+at which some value of the <em>opposite sign</em> enters the identified
+set.</li>
+</ul>
+<p>The second is often far smaller. In the example Masten and Poirier
+open with, the explain away value is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>32</mn></mrow><annotation encoding="application/x-tex">-32</annotation></semantics></math>
+and the sign change value is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.586</mn><annotation encoding="application/x-tex">0.586</annotation></semantics></math>;
+on the frontier data of this package it is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>23.3</mn></mrow><annotation encoding="application/x-tex">-23.3</annotation></semantics></math>
+against
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.974</mn><annotation encoding="application/x-tex">0.974</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">make_world</span><span class="op">(</span><span class="fl">12</span>, beta <span class="op">=</span> <span class="fl">0</span>, pi2 <span class="op">=</span> <span class="fl">0.8</span>, g2 <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
 <span><span class="va">d_eq</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
 <span>                           r2long <span class="op">=</span> <span class="fl">1</span>, beta <span class="op">=</span> <span class="fu"><a href="../reference/hypothesis_helpers.html">bnd_eq</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span></span>
 <span><span class="va">d_sign</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
 <span>                           r2long <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>delta_to_reach_zero <span class="op">=</span> <span class="va">d_eq</span>, delta_to_flip_sign <span class="op">=</span> <span class="va">d_sign</span><span class="op">)</span></span>
-<span><span class="co">#&gt; delta_to_reach_zero  delta_to_flip_sign </span></span>
-<span><span class="co">#&gt;           0.8897076           0.6775042</span></span></code></pre></div>
-<p>Both are on the fragile world of Case 2. The sign breakdown is the
-one that answers “could the conclusion be wrong?”, and it is the one to
-report; <code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code> computes it by default. The two
-coincide only when the identified set passes through zero as
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>explain_away <span class="op">=</span> <span class="va">d_eq</span>, sign_change <span class="op">=</span> <span class="va">d_sign</span><span class="op">)</span></span>
+<span><span class="co">#&gt; explain_away  sign_change </span></span>
+<span><span class="co">#&gt;    0.8897076    0.6775042</span></span></code></pre></div>
+<p>Both are on the fragile world of Case 2. The sign change breakdown is
+the one that answers “could the conclusion be wrong?”, and it is the one
+to report; <code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code> computes it by default. The
+two coincide only when the identified set passes through zero as
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>δ</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|\delta|</annotation></semantics></math>
 grows, which is not guaranteed – the set can jump across zero as a
 branch of Oster’s cubic diverges, which is exactly what happens near
@@ -613,6 +630,20 @@ branch of Oster’s cubic diverges, which is exactly what happens near
 <span>                   delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">0.02</span><span class="op">)</span>, r2long <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">o</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="interpreting-results_files/figure-html/oster-plot-1.png" class="r-plt" alt="" width="576"></p>
+<p>One consequence is a hard ceiling. Masten and Poirier’s Theorem 2
+proves that the sign change breakdown point can never exceed one, so a
+sign conclusion is never “robust” by the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>δ</mi><mo stretchy="false" form="prefix">|</mo><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">|\delta| &gt; 1</annotation></semantics></math>
+criterion, whatever the explain away number says.
+<code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code> reports the sign change value capped at
+one for that reason: a printed <code>1</code> means the sign survives
+every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>δ</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|\delta|</annotation></semantics></math>
+below the cutoff, not that a solution was found at exactly one. The only
+way past the ceiling is to add an assumption, which is what
+<code>maxovb</code> does (Section 3.2 of Masten and Poirier): a bound on
+how far the coefficient can move rules out the sign change the theorem
+otherwise guarantees, and the reported value can then exceed one.</p>
 <p>Two further conventions to state in the paper: the value of
 <code>r2long</code> (Oster’s
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi mathvariant="normal">max</mi></msub><annotation encoding="application/x-tex">R_{\max}</annotation></semantics></math>;
@@ -727,8 +758,10 @@ off.”</strong> Bounds that leave the panel are unbounded; the package
 draws them exiting the plot rather than flat along the edge for this
 reason.</li>
 <li>
-<strong>Mixing up the two Oster breakdown points.</strong> The one
-that reaches zero is not the one that flips the sign (Case 8).</li>
+<strong>Mixing up the two Oster breakdown points.</strong> The
+explain away value (reaches zero) is not the sign change value (flips
+the sign), and only the second bears on whether the sign could be wrong
+(Case 8).</li>
 <li>
 <strong>Treating <code>rybar</code> as free.</strong> A finite
 <code>rybar</code> is a substantive assumption about the outcome

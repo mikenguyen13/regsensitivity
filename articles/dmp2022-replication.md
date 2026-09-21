@@ -324,7 +324,7 @@ vapply(c(0.7, 0.6, 0.55, 0.5), function(ry) {
     regsen_breakdown(form, bfg2020, compare = w1,
                      cbar = 1, rybar = ry)$results$breakdown
 }, numeric(1))
-#> [1] 1.074537 1.395827      Inf      Inf
+#> [1] 1.074635 1.395827      Inf      Inf
 ```
 
 The identified set at those larger $`\bar r_X`$ is bounded, even though
@@ -336,7 +336,7 @@ what keeps it finite:
 regsen_bounds(form, bfg2020, compare = w1,
               cbar = 1, rxbar = c(2, 4, 10), rybar = 0.5)$results
 #>   rxbar rybar cbar      bmin     bmax
-#> 1     2   0.5    1 0.4241849 3.774923
+#> 1     2   0.5    1 0.4242180 3.774923
 #> 2     4   0.5    1 0.4239135 3.774923
 #> 3    10   0.5    1 0.4239135 3.774923
 ```

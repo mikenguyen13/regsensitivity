@@ -388,6 +388,6 @@ previously stopped:
 
 regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
                rxbar = 2, rybar = 0.5)$results
-#>   rxbar rybar cbar      bmin     bmax
-#> 1     2   0.5    1 0.4241849 3.774923
+#>   rxbar rybar cbar     bmin     bmax
+#> 1     2   0.5    1 0.424218 3.774923
 ```

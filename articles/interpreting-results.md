@@ -43,7 +43,7 @@ truth <- function(d) unname(coef(lm(update(form, . ~ . + u), d))["x"])
 | `$results` | identified set $`[\beta_{\min}, \beta_{\max}]`$ | every $`\beta_{\text{long}}`$ consistent with the data and the sensitivity parameters | the range of effects you cannot rule out at that level of selection |
 | `-Inf, +Inf` in `$results` | unbounded set | the sensitivity parameters no longer restrict $`\beta_{\text{long}}`$ | beyond this $`\bar r_X`$ the data say nothing; see `rmax` below |
 | `direction = "rybar"` | $`\bar r_Y^{bp}(\bar r_X)`$ | the largest effect of the unobservable on $`Y`$ the conclusion survives, given its effect on $`X`$ | the breakdown *frontier*; `Inf` means no outcome effect can overturn it at that $`\bar r_X`$ |
-| `analysis = "oster"` | $`\delta^{bp}`$ | Oster’s relative-selection coefficient at which the hypothesis fails | $`|\delta| = 1`$ is “as much selection on unobservables as on observables” |
+| `analysis = "oster"` | $`\delta^{bp}`$ | Oster’s relative-selection coefficient at which the hypothesis fails | $`|\delta| = 1`$ is “as much selection on unobservables as on observables”; the default sign-change value never exceeds 1 (Case 8) |
 | [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md) | confidence interval | sampling uncertainty in the breakdown point | the breakdown point is an estimate; report it with this |
 
 Two facts about the DMP scale that make reading easier:
@@ -338,9 +338,19 @@ referee will want it justified.
 
 Oster’s $`\delta`$ is the ratio of selection on unobservables to
 selection on observables, and the convention treats $`|\delta| \ge 1`$
-as implausible. Masten and Poirier (2026) show that the $`\delta`$ at
-which $`\beta`$ reaches *zero* and the $`\delta`$ at which its *sign*
-can flip are different numbers, and the second is often far smaller.
+as implausible. Masten and Poirier (2026) show that “Oster’s $`\delta`$”
+names two different numbers, and give them names:
+
+- the **explain away** breakdown point: the $`\delta`$ at which
+  $`\beta`$ reaches *zero*. This is what `psacalc` computes and what
+  published work reports.
+- the **sign change** breakdown point: the smallest $`|\delta|`$ at
+  which some value of the *opposite sign* enters the identified set.
+
+The second is often far smaller. In the example Masten and Poirier open
+with, the explain away value is $`-32`$ and the sign change value is
+$`0.586`$; on the frontier data of this package it is $`-23.3`$ against
+$`0.974`$.
 
 ``` r
 
@@ -349,14 +359,14 @@ d_eq   <- regsen_breakdown(form, d, compare = w1, analysis = "oster",
                            r2long = 1, beta = bnd_eq(0))$results$breakdown
 d_sign <- regsen_breakdown(form, d, compare = w1, analysis = "oster",
                            r2long = 1)$results$breakdown
-c(delta_to_reach_zero = d_eq, delta_to_flip_sign = d_sign)
-#> delta_to_reach_zero  delta_to_flip_sign 
-#>           0.8897076           0.6775042
+c(explain_away = d_eq, sign_change = d_sign)
+#> explain_away  sign_change 
+#>    0.8897076    0.6775042
 ```
 
-Both are on the fragile world of Case 2. The sign breakdown is the one
-that answers “could the conclusion be wrong?”, and it is the one to
-report;
+Both are on the fragile world of Case 2. The sign change breakdown is
+the one that answers “could the conclusion be wrong?”, and it is the one
+to report;
 [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
 computes it by default. The two coincide only when the identified set
 passes through zero as $`|\delta|`$ grows, which is not guaranteed – the
@@ -371,6 +381,19 @@ plot(o, ylim = c(-3, 3))
 ```
 
 ![](interpreting-results_files/figure-html/oster-plot-1.png)
+
+One consequence is a hard ceiling. Masten and Poirier’s Theorem 2 proves
+that the sign change breakdown point can never exceed one, so a sign
+conclusion is never “robust” by the $`|\delta| > 1`$ criterion, whatever
+the explain away number says.
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+reports the sign change value capped at one for that reason: a printed
+`1` means the sign survives every $`|\delta|`$ below the cutoff, not
+that a solution was found at exactly one. The only way past the ceiling
+is to add an assumption, which is what `maxovb` does (Section 3.2 of
+Masten and Poirier): a bound on how far the coefficient can move rules
+out the sign change the theorem otherwise guarantees, and the reported
+value can then exceed one.
 
 Two further conventions to state in the paper: the value of `r2long`
 (Oster’s $`R_{\max}`$; 1 is the conservative choice,
@@ -464,8 +487,9 @@ breakdown point is a coefficient whose sign the data do not establish.
 - **Reading a plateau in the plot as “the bound levels off.”** Bounds
   that leave the panel are unbounded; the package draws them exiting the
   plot rather than flat along the edge for this reason.
-- **Mixing up the two Oster breakdown points.** The one that reaches
-  zero is not the one that flips the sign (Case 8).
+- **Mixing up the two Oster breakdown points.** The explain away value
+  (reaches zero) is not the sign change value (flips the sign), and only
+  the second bears on whether the sign could be wrong (Case 8).
 - **Treating `rybar` as free.** A finite `rybar` is a substantive
   assumption about the outcome equation. State it.
 

@@ -181,6 +181,23 @@ identical for any number of cores.</p></dd>
     <p>A <code>regsensitivity</code> object. <code>results$index</code> holds the swept
 parameter and <code>results$breakdown</code> the breakdown point at each value.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>For <code>analysis = "oster"</code> the hypothesis selects between two quantities
+that Masten and Poirier (2026) distinguish. An equality hypothesis
+(<code>beta = bnd_eq(0)</code>) returns the <em>explain away</em> breakdown point: the
+signed delta at which beta_long equals the hypothesized value, the
+number <code>psacalc</code> reports. An inequality or sign hypothesis (the
+default) returns the <em>sign change</em> breakdown point: the smallest
+|delta| at which some value on the wrong side of the hypothesis enters
+the identified set. The two can differ by an order of magnitude and the
+second is the one that bears on whether the conclusion could be wrong.</p>
+<p>Their Theorem 2 shows the sign change breakdown point can never exceed
+one, so without <code>maxovb</code> the reported value is capped at 1: a printed
+<code>1</code> means the sign survives every |delta| below the conventional
+cutoff, not that a solution was found there. Supplying <code>maxovb</code> adds
+the assumption that lifts the cap.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
