@@ -2,31 +2,46 @@
 
 ## Test environments
 
-* local macOS 15 (Apple M4), R 4.5.2
-* GitHub Actions:
-  * macOS-latest (R-release)
-  * windows-latest (R-release)
-  * ubuntu-latest (R-devel, R-release, R-oldrel-1)
-* win-builder (R-devel, R-release)
+* local macOS 26.5.1 (Apple M4), R 4.5.2
+
+Before submitting, this package is also checked on win-builder (R-devel
+and R-release) and by GitHub Actions on macOS-latest (R-release),
+windows-latest (R-release), and ubuntu-latest under R-devel, R-release
+and R-oldrel-1.
 
 ## R CMD check results
 
+`R CMD check --as-cran --no-manual` on the built tarball:
+
 0 errors | 0 warnings | 2 notes
 
-* "New submission" — expected; this is the first submission of the
-  package to CRAN.
+* "New submission" — this is the first submission of the package to CRAN.
 
-* "checking HTML version of manual" reports that the local `tidy` binary
-  is too old to run HTML validation. This is a property of our machine,
-  not of the package, and does not reproduce on the CRAN check farm.
+* "checking top-level files: Files 'README.md' or 'NEWS.md' cannot be
+  checked without 'pandoc' being installed." There is no `pandoc` on this
+  machine's PATH, so that validation could not run here. It is a property
+  of the machine, not of the package, and does not reproduce where pandoc
+  is present.
+
+`--no-manual` was passed because the local `tidy` binary is too old to
+perform HTML validation, so the "checking HTML version of manual" step
+did not run here either.
 
 All URLs in DESCRIPTION and the README resolve (HTTP 200), including the
 pkgdown site at <https://mikenguyen13.github.io/regsensitivity/>.
 
-The package is also checked on every push by GitHub Actions across
-macOS-latest (R-release), windows-latest (R-release), and ubuntu-latest
-on R-devel, R-release and R-oldrel-1; all five pass with 0 errors and
-0 warnings.
+## Check time
+
+The full check takes about 7.5 minutes of wall-clock time and 4 minutes
+of CPU on the machine above, of which re-building the vignettes accounts
+for roughly 3.5 minutes and the test suite for 2.
+
+The test suite marks its slowest cases -- the bootstrap tests, and the
+Oster cases that require a global optimization over a nonconvex
+constraint set -- with `skip_on_cran()`, so the figure above is what a
+CRAN machine runs, not what a developer running the suite in full would
+see. The full suite, `skip_on_cran()` cases included, runs on every push
+under GitHub Actions.
 
 ## References
 

@@ -35,6 +35,8 @@ Suggests:
     generics,
     shiny,
     haven (>= 2.5.0),
+    AER,
+    sensemakr,
     testthat (>= 3.0.0),
     knitr (>= 1.40),
     rmarkdown (>= 2.20),

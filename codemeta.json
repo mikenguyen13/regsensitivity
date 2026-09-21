@@ -20,6 +20,7 @@
       "@type": "Person",
       "givenName": "Mike",
       "familyName": "Nguyen",
+      "email": "nguyennghia1301@gmail.com",
       "@id": "https://orcid.org/0000-0002-3432-8595"
     }
   ],
@@ -28,6 +29,7 @@
       "@type": "Person",
       "givenName": "Mike",
       "familyName": "Nguyen",
+      "email": "nguyennghia1301@gmail.com",
       "@id": "https://orcid.org/0000-0002-3432-8595"
     }
   ],
@@ -36,10 +38,35 @@
       "@type": "Person",
       "givenName": "Mike",
       "familyName": "Nguyen",
+      "email": "nguyennghia1301@gmail.com",
       "@id": "https://orcid.org/0000-0002-3432-8595"
     }
   ],
   "softwareSuggestions": [
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "generics",
+      "name": "generics",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=generics"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "shiny",
+      "name": "shiny",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=shiny"
+    },
     {
       "@type": "SoftwareApplication",
       "identifier": "haven",
@@ -52,6 +79,30 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=haven"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "AER",
+      "name": "AER",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=AER"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "sensemakr",
+      "name": "sensemakr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=sensemakr"
     },
     {
       "@type": "SoftwareApplication",
@@ -143,6 +194,16 @@
     },
     "3": {
       "@type": "SoftwareApplication",
+      "identifier": "grid",
+      "name": "grid"
+    },
+    "4": {
+      "@type": "SoftwareApplication",
+      "identifier": "parallel",
+      "name": "parallel"
+    },
+    "5": {
+      "@type": "SoftwareApplication",
       "identifier": "nloptr",
       "name": "nloptr",
       "version": ">= 2.0.0",
@@ -154,7 +215,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=nloptr"
     },
-    "4": {
+    "6": {
       "@type": "SoftwareApplication",
       "identifier": "ggplot2",
       "name": "ggplot2",
@@ -167,7 +228,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=ggplot2"
     },
-    "5": {
+    "7": {
       "@type": "SoftwareApplication",
       "identifier": "rlang",
       "name": "rlang",
@@ -180,9 +241,9 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=rlang"
     },
-    "SystemRequirements": {}
+    "SystemRequirements": null
   },
-  "fileSize": "263.054KB",
+  "fileSize": "507.116KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -191,13 +252,12 @@
         {
           "@type": "Person",
           "givenName": "Mike",
-          "familyName": "Nguyen",
-          "@id": "https://orcid.org/0000-0002-3432-8595"
+          "familyName": "Nguyen"
         }
       ],
       "name": "{regsensitivity}: Regression Sensitivity Analysis for Omitted Variable Bias",
       "url": "https://github.com/mikenguyen13/regsensitivity",
-      "description": "R package version 0.1.1"
+      "description": "R package version 0.2.0"
     },
     {
       "@type": "ScholarlyArticle",
@@ -225,10 +285,7 @@
         "@type": "PublicationIssue",
         "datePublished": "2026",
         "isPartOf": {
-          "@type": [
-            "PublicationVolume",
-            "Periodical"
-          ],
+          "@type": ["PublicationVolume", "Periodical"],
           "name": "arXiv preprint"
         }
       }
@@ -253,10 +310,7 @@
         "issueNumber": "2",
         "datePublished": "2019",
         "isPartOf": {
-          "@type": [
-            "PublicationVolume",
-            "Periodical"
-          ],
+          "@type": ["PublicationVolume", "Periodical"],
           "volumeNumber": "37",
           "name": "Journal of Business & Economic Statistics"
         }
@@ -283,10 +337,7 @@
         "@type": "PublicationIssue",
         "datePublished": "2026",
         "isPartOf": {
-          "@type": [
-            "PublicationVolume",
-            "Periodical"
-          ],
+          "@type": ["PublicationVolume", "Periodical"],
           "name": "arXiv preprint"
         }
       }
@@ -294,21 +345,7 @@
   ],
   "releaseNotes": "https://github.com/mikenguyen13/regsensitivity/blob/main/NEWS.md",
   "readme": "https://github.com/mikenguyen13/regsensitivity/blob/main/README.md",
-  "contIntegration": [
-    "https://github.com/mikenguyen13/regsensitivity/actions/workflows/R-CMD-check.yaml",
-    "https://app.codecov.io/gh/mikenguyen13/regsensitivity"
-  ],
-  "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental",
-  "keywords": [
-    "causal-inference",
-    "cran",
-    "econometrics",
-    "omitted-variable-bias",
-    "oster",
-    "r",
-    "r-package",
-    "regression",
-    "sensitivity-analysis",
-    "breakdown-point"
-  ]
+  "contIntegration": ["https://github.com/mikenguyen13/regsensitivity/actions/workflows/R-CMD-check.yaml", "https://github.com/mikenguyen13/regsensitivity/actions/workflows/test-coverage.yaml", "https://github.com/mikenguyen13/regsensitivity/actions/workflows/lint.yaml", "https://github.com/mikenguyen13/regsensitivity/actions/workflows/pkgdown.yaml", "https://app.codecov.io/gh/mikenguyen13/regsensitivity"],
+  "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#stable",
+  "keywords": ["breakdown-point", "causal-inference", "econometrics", "omitted-variable-bias", "partial-identification", "r", "r-package", "regression", "sensitivity-analysis", "statistics"]
 }
