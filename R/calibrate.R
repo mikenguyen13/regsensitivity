@@ -37,7 +37,13 @@ calibrate_rho <- function(formula, data, compare = NULL, nocompare = NULL,
              call. = FALSE)
     }
     x_res  <- project_residuals(matrix(inp$x, ncol = 1), inp$w0)[, 1]
-    w1_res <- project_residuals(inp$w1, inp$w0)
+    # The same comparison block the analysis uses: an aliased column would
+    # give an NA coefficient here and an NA rho for every variable.
+    w1_res <- drop_aliased(project_residuals(inp$w1, inp$w0), inp$w1)
+    if (ncol(w1_res) < 2) {
+        stop("rho calibration requires at least two linearly independent ",
+             "comparison controls", call. = FALSE)
+    }
 
     # pi_med = OLS coefficient of x_res on w1_res
     fit <- stats::lm(x_res ~ w1_res - 1)
@@ -75,10 +81,10 @@ calibrate_partial_r2 <- function(formula, data, compare = NULL,
                                   nocompare = NULL, subset = NULL) {
     inp <- build_dgp_inputs(formula, data, compare = compare,
                              nocompare = nocompare, subset = subset)
-    w1_res <- project_residuals(inp$w1, inp$w0)
+    w1_res <- drop_aliased(project_residuals(inp$w1, inp$w0), inp$w1)
     if (ncol(w1_res) < 2) {
-        stop("partial R^2 needs at least two comparison controls",
-             call. = FALSE)
+        stop("partial R^2 needs at least two linearly independent ",
+             "comparison controls", call. = FALSE)
     }
     out <- data.frame(
         variable = colnames(w1_res),

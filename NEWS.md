@@ -130,6 +130,25 @@
 * Masten and Poirier (2026) is cited as published, in the *American
   Economic Review* 116(7), rather than as an arXiv preprint.
 
+## Verification
+
+* The identified set is now checked against worlds in which the omitted
+  variable exists. Each test world simulates `W2`, reads the true
+  `beta_long`, `r_X`, `r_Y` and `c` off it by the projections DMP (2026)
+  define them through, and requires the package's set at exactly those
+  parameters to contain `beta_long` -- with `rybar` unrestricted, with
+  `rybar` finite (the optimizer), and with two-sided A6. A search over
+  constructed omitted variables on fixed observed data stays inside the
+  `rybar = Inf` set and reaches within 15% of its ends, so the set is
+  neither invalid nor loose.
+* Property tests pin what must hold on any data: sets nest as each
+  parameter is relaxed and collapse to `beta_med` at `rxbar = 0`; the
+  breakdown point is where the tested bound crosses the hypothesis;
+  `rmax` is where the set becomes unbounded; rescaling `Y` or `X` scales
+  the bounds as the model says, and rescaling, shifting or reordering the
+  covariates leaves bounds and breakdown points unchanged, for both DMP
+  and Oster.
+
 ## Accuracy and speed
 
 * The global optimizer behind the finite-`rybar` identified set now

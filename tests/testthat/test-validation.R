@@ -91,6 +91,19 @@ test_that("aliased comparison columns are dropped", {
     expect_equal(a$results$bmax, b$results$bmax)
 })
 
+test_that("calibration helpers drop an aliased comparison column too", {
+    d <- bfg(); d$lat2 <- 2 * d$lat
+    f <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+        log_area_2010 + lat + lat2 + lon + statea
+    f0 <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+        log_area_2010 + lat + lon + statea
+    w1 <- c("log_area_2010", "lat", "lon")
+    expect_equal(calibrate_rho(f, d, compare = c(w1, "lat2")),
+                 calibrate_rho(f0, d, compare = w1))
+    expect_equal(calibrate_partial_r2(f, d, compare = c(w1, "lat2")),
+                 calibrate_partial_r2(f0, d, compare = w1))
+})
+
 test_that("a logical subset with NA treats NA as FALSE", {
     n <- nrow(bfg())
     sub <- c(rep(TRUE, 1000), NA, rep(FALSE, n - 1001))
