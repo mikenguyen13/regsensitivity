@@ -245,6 +245,9 @@ oster_breakdown_bound_scalar <- function(beta, r_max, ovb_bound, lower_bound, s)
     }, numeric(1))
 
     delta_abs <- min(deltas_abs, na.rm = TRUE)
+    # Masten and Poirier (2026) Theorem 2: without a bias bound, the sign
+    # change breakdown point is at most 1. The cap is the theorem, not a
+    # convention -- do not remove it. A maxovb bound is what lifts it.
     if (is.na(ovb_bound) || ovb_bound < 0) {
         delta_abs <- min(delta_abs, 1)
     }

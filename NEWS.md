@@ -172,6 +172,15 @@
   sentence to write in the paper. It ends with a list of common mistakes
   and a reporting checklist.
 
+* The two Oster breakdown points now carry the names Masten and Poirier
+  (2026) give them, in `?regsen_breakdown`, the interpretation vignette
+  and the paper: the *explain away* point (`beta = bnd_eq(0)`; the
+  `psacalc` number) and the *sign change* point (the default). The
+  documentation also states that the sign change value is capped at one
+  by their Theorem 2, not by convention, and that only `maxovb` lifts the
+  cap. On the frontier data the two are -23.3 and 0.974, and a reader who
+  took one for the other reached the opposite verdict.
+
 ## Verification
 
 * The identified set is now checked against worlds in which the omitted

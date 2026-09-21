@@ -399,6 +399,23 @@ regsen_bounds <- function(formula, data,
 #' rybar as a function of (rxbar, cbar, beta). For Oster, this is |delta| as
 #' a function of R-squared(long), beta and (optionally) maxovb.
 #'
+#' @details
+#' For `analysis = "oster"` the hypothesis selects between two quantities
+#' that Masten and Poirier (2026) distinguish. An equality hypothesis
+#' (`beta = bnd_eq(0)`) returns the *explain away* breakdown point: the
+#' signed delta at which beta_long equals the hypothesized value, the
+#' number `psacalc` reports. An inequality or sign hypothesis (the
+#' default) returns the *sign change* breakdown point: the smallest
+#' |delta| at which some value on the wrong side of the hypothesis enters
+#' the identified set. The two can differ by an order of magnitude and the
+#' second is the one that bears on whether the conclusion could be wrong.
+#'
+#' Their Theorem 2 shows the sign change breakdown point can never exceed
+#' one, so without `maxovb` the reported value is capped at 1: a printed
+#' `1` means the sign survives every |delta| below the conventional
+#' cutoff, not that a solution was found there. Supplying `maxovb` adds
+#' the assumption that lifts the cap.
+#'
 #' @inheritParams regsen_bounds
 #' @param beta Hypothesis spec. One of:
 #'   * `"sign"` -- the hypothesis that sign(beta_long) = sign(beta_med).
