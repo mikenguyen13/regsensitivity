@@ -69,6 +69,53 @@ check_clow <- function(clow, cbar) {
     clow
 }
 
+# Validate the DMP sensitivity parameters before anything is computed from
+# them. cbar bounds a correlation and lives in [0, 1]; rxbar and rybar are
+# ratios of standard deviations and are non-negative, with rybar = +Inf
+# meaning no restriction. Out-of-range values used to pass straight through
+# to the closed forms and the optimizer, which then returned NA or nonsense
+# without saying why.
+check_dmp_sparams <- function(rxbar = NULL, rybar = NULL, cbar = NULL) {
+    chk <- function(v, name, hi, allow_inf) {
+        if (is.null(v)) return(invisible())
+        if (!is.numeric(v) || length(v) == 0 || anyNA(v)) {
+            stop("`", name, "` must be numeric with no missing values.",
+                 call. = FALSE)
+        }
+        if (!allow_inf && any(!is.finite(v))) {
+            stop("`", name, "` must be finite.", call. = FALSE)
+        }
+        bad <- v < 0 | v > hi
+        if (any(bad)) {
+            stop("`", name, "` must lie in [0, ", hi, "]; got ",
+                 paste(format(v[bad]), collapse = ", "), ".", call. = FALSE)
+        }
+    }
+    chk(rxbar, "rxbar", Inf, allow_inf = FALSE)
+    chk(rybar, "rybar", Inf, allow_inf = TRUE)
+    chk(cbar,  "cbar",  1,   allow_inf = FALSE)
+    invisible()
+}
+
+# The Oster counterpart: delta is any real number, r2long lies in [0, 1]
+# (before any `relative` rescaling), and maxovb is NA (no constraint) or a
+# non-negative number.
+check_oster_sparams <- function(delta = NULL, r2long = NULL, maxovb = NULL) {
+    if (!is.null(delta) && (!is.numeric(delta) || anyNA(delta))) {
+        stop("`delta` must be numeric with no missing values.", call. = FALSE)
+    }
+    if (!is.null(r2long) && (!is.numeric(r2long) || length(r2long) == 0 ||
+                             anyNA(r2long) || any(r2long < 0))) {
+        stop("`r2long` must be numeric, non-negative and without missing ",
+             "values.", call. = FALSE)
+    }
+    if (!is.null(maxovb) && !all(is.na(maxovb)) &&
+        (!is.numeric(maxovb) || any(maxovb < 0, na.rm = TRUE))) {
+        stop("`maxovb` must be NA or a non-negative number.", call. = FALSE)
+    }
+    invisible()
+}
+
 parse_beta <- function(beta, dgp) {
     # Defaults -- "sign" hypothesis at 0.
     if (is.null(beta) || identical(beta, "sign") ||
@@ -81,6 +128,15 @@ parse_beta <- function(beta, dgp) {
     if (is.list(beta)) {
         value <- beta$value
         sign  <- beta$sign
+        if (!is.numeric(value) || length(value) == 0 || anyNA(value)) {
+            stop("`beta$value` must be a numeric vector without missing ",
+                 "values.", call. = FALSE)
+        }
+        if (!is.character(sign) || length(sign) != 1 ||
+            !sign %in% c(">", "<", "=")) {
+            stop("`beta$sign` must be one of \">\", \"<\" or \"=\".",
+                 call. = FALSE)
+        }
         return(list(value = value, sign = sign, multiple = length(value) > 1))
     }
     # numeric scalar / vector + optional type via attr
@@ -158,7 +214,6 @@ new_regsen <- function(subcommand, analysis, dgp, inputs, sparams, results,
 #' @param product Logical. If `TRUE` (default), all combinations of the
 #'   sensitivity-parameter grids are evaluated; if `FALSE`, the inputs are
 #'   zipped element-wise. Maps to Stata's `noproduct` option (inverted).
-#' @param ngrid Resolution of the finer grid stored in the result. Default 200.
 #' @param subset Optional logical or integer vector indicating which rows
 #'   of `data` to include in the estimation.
 #'
@@ -199,7 +254,6 @@ regsen_bounds <- function(formula, data,
                           maxovb_type = c("bound", "relative"),
                           beta = "sign",
                           product = TRUE,
-                          ngrid = 200L,
                           subset = NULL) {
     cl <- match.call()
     analysis <- match_analysis(analysis)
@@ -213,6 +267,8 @@ regsen_bounds <- function(formula, data,
     hypo <- parse_beta(beta, dgp)
 
     if (analysis == "dmp") {
+        if (length(rybar) == 0) rybar <- Inf
+        check_dmp_sparams(rxbar, rybar, cbar)
         clow <- check_clow(clow, cbar)
         # rxbar defaults to a grid spanning [0, rmax(cbar)] when not specified.
         if (is.null(rxbar)) {
@@ -220,7 +276,6 @@ regsen_bounds <- function(formula, data,
             if (!is.finite(rmax)) rmax <- 1
             rxbar <- seq(0, rmax, length.out = 11)
         }
-        if (length(rybar) == 0) rybar <- Inf
         if (!is.null(rybar_expr)) {
             ry_vals <- vapply(rxbar, rybar_expr, numeric(1))
             stopifnot(length(ry_vals) == length(rxbar))
@@ -277,6 +332,7 @@ regsen_bounds <- function(formula, data,
     }
 
     ## ----- Oster branch ----------------------------------------------------
+    check_oster_sparams(delta, r2long, maxovb)
     if (is.null(delta)) {
         delta <- if (delta_type == "eq") seq(-1, 1, by = 0.1) else seq(0, 1, by = 0.01)
     }
@@ -381,7 +437,6 @@ regsen_breakdown <- function(formula, data,
                              r2long_type = c("eq", "relative"),
                              maxovb_type = c("bound", "relative"),
                              beta = "sign",
-                             ngrid = 200L,
                              subset = NULL) {
     cl <- match.call()
     analysis <- match_analysis(analysis)
@@ -428,6 +483,7 @@ breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
     hypo <- parse_beta(beta, dgp)
 
     if (analysis == "dmp") {
+        check_dmp_sparams(rxbar, rybar, cbar)
         clow <- check_clow(clow, cbar)
         if (direction == "rybar") {
             if (length(unique(cbar)) > 1) {
@@ -467,6 +523,7 @@ breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
     }
 
     ## ----- Oster branch ----------------------------------------------------
+    check_oster_sparams(r2long = r2long, maxovb = maxovb)
     if (r2long_type == "relative") {
         r2long <- r2long * dgp$r_med
     }
@@ -520,10 +577,12 @@ regsen_summary <- function(formula, data,
                           compare = compare, nocompare = nocompare,
                           subset = subset)
     r2rot <- min(dgp$r_med * 1.3, 1)
+    # The grid ends at 1 whether or not the step lands there; unique() keeps
+    # 1 from appearing twice when it does.
     breakdown <- regsen_breakdown(
         formula, data, analysis = "oster",
         compare = compare, nocompare = nocompare, subset = subset,
-        r2long = c(seq(r2rot, 1, by = 0.1), 1)
+        r2long = unique(c(seq(r2rot, 1, by = 0.1), 1))
     )
     structure(list(dmp_bounds = bnds, oster_breakdown = breakdown),
               class = c("regsensitivity_summary", "list"))

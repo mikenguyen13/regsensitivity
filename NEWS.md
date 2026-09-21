@@ -74,6 +74,61 @@
 * An equality hypothesis (`beta = bnd_eq(v)`) now breaks down at whichever
   end of the identified set can reach the hypothesised value, rather than
   always at the upper one.
+* A name in `compare` or `nocompare` that is not a control on the
+  right-hand side of the formula -- a typo, or the treatment itself -- is
+  now an error. It used to be dropped silently, so a misspelt covariate
+  quietly changed which variables calibrated the analysis.
+* The sensitivity parameters are validated: `cbar` must lie in `[0, 1]`,
+  `rxbar` and `rybar` must be non-negative, `r2long` non-negative and
+  `maxovb` non-negative or `NA`, and none may be missing. Out-of-range
+  values used to reach the closed forms and the optimizer and come back
+  as `NA` without explanation.
+* Under `analysis = "oster"` with `delta_type = "bound"`, a `maxovb` cap
+  is now applied at `delta >= 1` too. The raw set is the whole real line
+  there, and the cap was skipped, so the reported bounds were `-Inf` and
+  `+Inf` where the constraint says `beta_med - maxovb` and
+  `beta_med + maxovb`.
+* Comparison covariates that are collinear with one another are dropped,
+  as the documentation already said and as Stata does; only those
+  collinear with `W0` were. `Var(W1)` is singular otherwise, and the
+  analysis went through a regularised inverse of it. The test for
+  collinearity with `W0` is now relative to the covariate's own variance,
+  so a covariate measured in small units is no longer mistaken for a
+  constant.
+* `regsen_boot()` keeps replicates on which the breakdown point is `+Inf`
+  -- the hypothesis survived every value of the sensitivity parameter --
+  in both intervals, where they count as `+Inf`. They were dropped along
+  with failed replicates, so an interval whose upper tail is unbounded
+  was reported with a finite upper endpoint. The count is returned as
+  `$infinite` and printed.
+* `print()` of a `regsen_boot()` result reports the interval for the
+  magnitude of a signed (Oster) breakdown point correctly. Taking `abs()`
+  of each endpoint reversed a negative interval and, for one straddling
+  zero, hid that the magnitude may be as small as zero.
+* `regsen_table(label = ...)` warns when `caption` is not given, since
+  `knitr::kable()` emits a float only with a caption and the label had
+  nowhere to attach; it was dropped silently. The `r2long` column head
+  uses `\mathrm` rather than `\text`, so it no longer needs `amsmath`.
+* `scale_colour_regsen()` and `scale_fill_regsen()` recycle the palette
+  (with a warning) when a sweep has more than eight groups, instead of
+  erroring inside `plot()`.
+* The default y-range of an identified-set plot is read off both bounds.
+  It was read off the lower bound alone, which cropped the upper one
+  whenever the set is not symmetric about `beta_med` (finite `rybar`, or
+  Oster).
+* `plot()` of a result whose sensitivity parameters are all single values
+  says so, rather than failing with a subscript error.
+* A logical `subset` containing `NA` treats `NA` as `FALSE`, as
+  `subset()` does. The `NA` used to select a row of missing values and
+  leave an `NA` in the row bookkeeping that `regsen_boot()` uses to line
+  up a cluster column.
+* The `ngrid` argument of `regsen_bounds()` and `regsen_breakdown()` is
+  removed: it was documented but never used.
+* The explorer app no longer errors when the `rybar` box is left at its
+  default. A numeric input cannot carry `Inf`, so blank now means
+  unrestricted, and a cleared box greys the panel instead of raising.
+* Masten and Poirier (2026) is cited as published, in the *American
+  Economic Review* 116(7), rather than as an arXiv preprint.
 
 ## Accuracy and speed
 

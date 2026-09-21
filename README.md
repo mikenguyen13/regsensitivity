@@ -164,7 +164,7 @@ Methodology citations (the underlying papers, which are **separate works**) live
 
 -   Diegert, Masten, Poirier (2026). [Assessing Omitted Variable Bias when the Controls are Endogenous](https://arxiv.org/abs/2206.02303). arXiv:2206.02303.
 -   Oster (2019). [Unobservable Selection and Coefficient Stability](https://www.tandfonline.com/doi/abs/10.1080/07350015.2016.1227711). *JBES* 37(2), 187–204.
--   Masten, Poirier (2026). [The Effect of Omitted Variables on the Sign of Regression Coefficients](https://arxiv.org/abs/2208.00552). arXiv:2208.00552.
+-   Masten, Poirier (2026). [The Effect of Omitted Variables on the Sign of Regression Coefficients](https://doi.org/10.1257/aer.20230242). *AER* 116(7), 2685–2710.
 
 ## Code of conduct
 

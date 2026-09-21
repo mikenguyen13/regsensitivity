@@ -60,7 +60,11 @@
 #'
 #' @return An object of class `regsensitivity_boot` containing: `point`,
 #'   `replicates`, `ci` (the interval named by `type`), `ci_bca`, `ci_perc`,
-#'   `z0`, `acceleration`, `type`, `level`, `R`, `cluster`, `na`.
+#'   `z0`, `acceleration`, `type`, `level`, `R`, `cluster`, `na` (the
+#'   number of replicates that could not be computed) and `infinite` (the
+#'   number on which the hypothesis survived every value of the sensitivity
+#'   parameter; these count as `+Inf` in the intervals rather than being
+#'   dropped).
 #'
 #' @details
 #' For DMP analyses the breakdown point is computed exactly as in
@@ -103,7 +107,9 @@ regsen_boot <- function(formula, data,
                         seed = NULL,
                         ncores = 1L,
                         show_progress = interactive()) {
-    stopifnot(is.data.frame(data), R >= 1, level > 0, level < 1)
+    stopifnot(is.data.frame(data), length(R) == 1, R >= 1,
+              level > 0, level < 1)
+    R <- as.integer(R)
     type <- match.arg(type)
     ncores <- as.integer(ncores)
     if (is.na(ncores) || ncores < 1L) {
@@ -173,9 +179,15 @@ regsen_boot <- function(formula, data,
     reps <- run_replicates(boot_one, R, ncores, show_progress,
                            label = paste0("Bootstrap (R=", R, ")"))
 
+    # NA is a replicate that could not be computed and is dropped; +Inf is
+    # a replicate on which the hypothesis survived every value of the
+    # sensitivity parameter, which is a legitimate value of the breakdown
+    # point and stays in. Dropping it too would report a finite upper
+    # endpoint for an interval whose upper tail is unbounded.
     na_count <- sum(is.na(reps))
+    inf_count <- sum(is.infinite(reps))
     alpha <- (1 - level) / 2
-    ci_perc <- stats::quantile(reps[is.finite(reps)],
+    ci_perc <- stats::quantile(reps[!is.na(reps)],
                                probs = c(alpha, 1 - alpha),
                                names = FALSE, na.rm = TRUE)
 
@@ -220,6 +232,7 @@ regsen_boot <- function(formula, data,
             cluster = cluster,
             ncores = ncores,
             na = na_count,
+            infinite = inf_count,
             point_res = point_res
         ),
         class = "regsensitivity_boot"
@@ -250,16 +263,18 @@ resolve_boot_args <- function(...) {
 bca_interval <- function(point, reps, jack, level) {
     alpha <- (1 - level) / 2
     probs <- c(alpha, 1 - alpha)
-    finite_reps <- reps[is.finite(reps)]
+    # Infinite replicates are kept, as in the percentile interval; only
+    # the jackknife below needs finite values, for the acceleration.
+    valid_reps <- reps[!is.na(reps)]
     fallback <- list(
-        ci = stats::quantile(finite_reps, probs = probs, names = FALSE,
+        ci = stats::quantile(valid_reps, probs = probs, names = FALSE,
                              na.rm = TRUE),
         z0 = NA_real_, acceleration = NA_real_, fellback = TRUE,
         extreme = FALSE
     )
-    if (length(finite_reps) < 10 || !is.finite(point)) return(fallback)
+    if (length(valid_reps) < 10 || !is.finite(point)) return(fallback)
 
-    share <- mean(finite_reps < point)
+    share <- mean(valid_reps < point)
     if (share <= 0 || share >= 1) return(fallback)
     z0 <- stats::qnorm(share)
 
@@ -274,12 +289,12 @@ bca_interval <- function(point, reps, jack, level) {
     zq <- stats::qnorm(probs)
     adj <- stats::pnorm(z0 + (z0 + zq) / (1 - acc * (z0 + zq)))
     if (any(!is.finite(adj))) return(fallback)
-    ci <- stats::quantile(finite_reps, probs = adj, names = FALSE,
+    ci <- stats::quantile(valid_reps, probs = adj, names = FALSE,
                           na.rm = TRUE)
     # An adjusted quantile past the smallest or largest replicate makes the
     # endpoint an extreme order statistic, which is where BCa is least
     # reliable; the fix is more replicates, and the caller reports it.
-    nb <- length(finite_reps)
+    nb <- length(valid_reps)
     extreme <- any(adj < 1 / (nb + 1)) || any(adj > nb / (nb + 1))
     list(ci = ci, z0 = z0, acceleration = acc, fellback = FALSE,
          extreme = extreme)
@@ -307,6 +322,17 @@ run_replicates <- function(fn, n, ncores, show_progress, label) {
     out
 }
 
+# The magnitude of a signed interval. An Oster breakdown delta carries the
+# direction of selection in its sign, and what is quoted as "the breakdown
+# point" is its magnitude, so the interval is reported for that. Taking
+# abs() of the two endpoints separately reversed them for a negative
+# interval and, for one straddling zero, hid that the magnitude may be as
+# small as zero.
+abs_interval <- function(ci) {
+    if (any(is.na(ci))) return(abs(ci))
+    if (ci[1] <= 0 && ci[2] >= 0) c(0, max(abs(ci))) else sort(abs(ci))
+}
+
 #' @export
 print.regsensitivity_boot <- function(x, ...) {
     cat("Bootstrap confidence interval for the breakdown point\n")
@@ -327,18 +353,24 @@ print.regsensitivity_boot <- function(x, ...) {
     }
     cat(sprintf("  Confidence level   : %.0f%%\n", 100 * x$level))
     cat(sprintf("  Point estimate     : %.4f\n", abs(x$point)))
+    ci <- abs_interval(x$ci)
     cat(sprintf("  %s%% CI            : [%.4f, %.4f]\n",
-                round(100 * x$level), abs(x$ci[1]), abs(x$ci[2])))
+                round(100 * x$level), ci[1], ci[2]))
     if (isTRUE(x$extreme_endpoint)) {
         cat("  (An endpoint is an extreme replicate; raise R)\n")
     }
     if (!is.null(x$ci_perc) && identical(x$type, "bca")) {
+        cip <- abs_interval(x$ci_perc)
         cat(sprintf("  %s%% CI (percentile): [%.4f, %.4f]\n",
-                    round(100 * x$level), abs(x$ci_perc[1]),
-                    abs(x$ci_perc[2])))
+                    round(100 * x$level), cip[1], cip[2]))
     }
     if (x$na > 0) {
         cat(sprintf("  (Failed replicates : %d/%d)\n", x$na, x$R))
+    }
+    if (!is.null(x$infinite) && x$infinite > 0) {
+        cat(sprintf("  (Infinite replicates: %d/%d; the hypothesis ",
+                    x$infinite, x$R),
+            "survived every value there)\n", sep = "")
     }
     invisible(x)
 }

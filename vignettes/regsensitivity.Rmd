@@ -272,7 +272,7 @@ print(s)
 * Oster, E. (2019). Unobservable Selection and Coefficient Stability:
   Theory and Evidence. *JBES* 37(2), 187--204.
 * Masten, M., and Poirier, A. (2026). The Effect of Omitted Variables on
-  the Sign of Regression Coefficients. arXiv:2208.00552.
+  the Sign of Regression Coefficients. *AER* 116(7), 2685--2710.
 * Bazzi, S., Fiszbein, M., and Gebresilasse, M. (2020). Frontier
   Culture: The Roots and Persistence of "Rugged Individualism" in the
   United States. *Econometrica* 88(6), 2329--2368.

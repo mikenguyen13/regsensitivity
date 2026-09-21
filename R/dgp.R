@@ -30,6 +30,10 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
     # rows the analysis actually used (regsen_boot() does this for clusters).
     orig_rows <- seq_len(nrow(data))
     if (!is.null(subset)) {
+        # A logical subset with NAs would select rows of NA, which na.omit
+        # then drops silently; an NA in the row bookkeeping would later
+        # misalign a cluster column. Treat NA as FALSE, as subset() does.
+        if (is.logical(subset)) subset <- which(subset)
         data <- data[subset, , drop = FALSE]
         orig_rows <- orig_rows[subset]
     }
@@ -57,6 +61,28 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
     # Determine compare / nocompare partition.
     if (!is.null(compare) && !is.null(nocompare)) {
         stop("specify at most one of `compare` and `nocompare`", call. = FALSE)
+    }
+    # A name that is not a control term used to be dropped without a word,
+    # so a typo in `compare` silently changed which covariates calibrate
+    # the analysis. Naming the treatment is the same mistake: a variable
+    # cannot be its own yardstick.
+    for (arg in c("compare", "nocompare")) {
+        nms <- get(arg)
+        if (is.null(nms)) next
+        if (!is.character(nms)) {
+            stop("`", arg, "` must be a character vector of control names.",
+                 call. = FALSE)
+        }
+        unknown <- setdiff(nms, control_names)
+        if (length(unknown)) {
+            stop("`", arg, "` names ", if (length(unknown) == 1) "a term "
+                 else "terms ", "not among the controls on the right-hand ",
+                 "side of `formula`: ", paste(unknown, collapse = ", "),
+                 if (xname %in% unknown) paste0(
+                     ". (", xname, " is the treatment, the first ",
+                     "right-hand-side term, and cannot calibrate itself.)")
+                 else ".", call. = FALSE)
+        }
     }
     if (is.null(compare) && is.null(nocompare)) {
         w1_names <- control_names
@@ -109,8 +135,8 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
 # `rows` may repeat indices, which is what a bootstrap resample needs. The
 # model matrices are reused rather than rebuilt, so a factor level missing
 # from the resample leaves an all-zero column behind rather than dropping
-# one: `get_dgp()` removes zero-variance comparison columns, and the QR it
-# runs on the control block handles a rank deficiency there.
+# one: `get_dgp()` removes aliased comparison columns, and the QR it runs
+# on the control block handles a rank deficiency there.
 subset_dgp_inputs <- function(inputs, rows) {
     inputs$y  <- inputs$y[rows]
     inputs$x  <- inputs$x[rows]
@@ -140,13 +166,31 @@ project_residuals <- function(mat, w0) {
     mat - fit
 }
 
-# Drop any columns of `w` that have zero variance after projection (these are
-# columns that became collinear with W0 once we partialled it out).
-drop_zero_variance <- function(w) {
-    if (ncol(w) == 0) return(w)
-    v <- apply(w, 2, stats::var)
-    keep <- v > 1e-12
-    w[, keep, drop = FALSE]
+# Drop the columns of the residualized comparison block that carry no
+# information about the omitted variable's yardstick:
+#
+#   - columns collinear with W0, whose variance vanishes once W0 is
+#     partialled out. This is judged relative to the column's variance
+#     before partialling, so a covariate measured in small units is not
+#     mistaken for a constant (an absolute 1e-12 cut-off used to do that);
+#   - columns collinear with the other comparison columns, found as a rank
+#     deficiency by pivoted QR. Var(W1) is singular in that case and the
+#     Cholesky inverse the analysis rests on does not exist.
+#
+# Stata's regsensitivity drops both kinds the same way.
+drop_aliased <- function(w_res, w_orig) {
+    if (ncol(w_res) == 0) return(w_res)
+    v_res  <- apply(w_res,  2, stats::var)
+    v_orig <- apply(w_orig, 2, stats::var)
+    keep <- v_res > 1e-10 * pmax(v_orig, .Machine$double.eps)
+    w_res <- w_res[, keep, drop = FALSE]
+    if (ncol(w_res) > 1) {
+        q <- qr(w_res)
+        if (q$rank < ncol(w_res)) {
+            w_res <- w_res[, sort(q$pivot[seq_len(q$rank)]), drop = FALSE]
+        }
+    }
+    w_res
 }
 
 # Compute Var(Y, X, W1) and all the derived quantities used by the analyses.
@@ -183,7 +227,7 @@ get_dgp <- function(inputs) {
     } else {
         w1r <- matrix(numeric(0), nrow = length(yr), ncol = 0)
     }
-    w1r <- drop_zero_variance(w1r)
+    w1r <- drop_aliased(w1r, w1)
 
     # Variance matrix V = Var((Y, X, W1)) after residualizing.
     data_block <- cbind(yr, xr, w1r)

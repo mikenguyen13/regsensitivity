@@ -73,6 +73,12 @@ oster_delta <- function(beta, r_max, s) {
 # of feasible beta_long values, capped by maxovb when supplied.
 oster_idset_bound_scalar <- function(delta, r_max, maxovb, s) {
     if (delta >= 1) {
+        # The cubic's leading coefficient is proportional to (delta - 1), so
+        # one root escapes to infinity here and the set is the whole line --
+        # unless maxovb caps the bias, in which case it is the cap.
+        if (!is.na(maxovb) && maxovb >= 0) {
+            return(c(s$beta_med - maxovb, s$beta_med + maxovb))
+        }
         return(c(NEG_INF, POS_INF))
     }
     sols1 <- oster_idset_scalar(delta, r_max, s)
@@ -137,22 +143,37 @@ oster_idset_bound <- function(deltas, r2long, maxovb, s) {
 ## Breakdown frontier
 ## ---------------------------------------------------------------------------
 
+# Recycle the three sweep arguments of a breakdown frontier to a common
+# length. Only length-one arguments recycle; two vectors of different
+# lengths have no element-wise meaning and are refused rather than indexed
+# past their end. Also picks the index column: whichever vector varies.
+oster_recycle <- function(beta, r2max, maxovb) {
+    lens <- c(length(beta), length(r2max), length(maxovb))
+    n <- max(lens)
+    if (any(lens != 1L & lens != n)) {
+        stop("`beta`, `r2long` and `maxovb` must each have length one or ",
+             "a common length; got ", paste(lens, collapse = ", "), ".",
+             call. = FALSE)
+    }
+    beta   <- rep_len(beta,   n)
+    r2max  <- rep_len(r2max,  n)
+    maxovb <- rep_len(maxovb, n)
+    index <- if (length(unique(maxovb)) > 1) {
+        maxovb
+    } else if (length(unique(r2max)) > 1) {
+        r2max
+    } else {
+        beta
+    }
+    list(beta = beta, r2max = r2max, maxovb = maxovb, index = index, n = n)
+}
+
 # Breakdown delta for an equality hypothesis Beta = beta(value).
 # Returns +Inf when no finite delta makes the hypothesis fail.
 oster_breakdown_eq <- function(r2max, beta, maxovb, s) {
-    n <- max(length(beta), length(r2max), length(maxovb))
-    if (length(beta)   == 1) beta   <- rep(beta,   n)
-    if (length(r2max)  == 1) r2max  <- rep(r2max,  n)
-    if (length(maxovb) == 1) maxovb <- rep(maxovb, n)
-
-    # The index column is whichever vector actually varies.
-    if (length(unique(maxovb)) > 1) {
-        index <- maxovb
-    } else if (length(unique(r2max)) > 1) {
-        index <- r2max
-    } else {
-        index <- beta
-    }
+    a <- oster_recycle(beta, r2max, maxovb)
+    beta <- a$beta; r2max <- a$r2max; maxovb <- a$maxovb
+    index <- a$index; n <- a$n
 
     delta <- rep(NA_real_, n)
     for (i in seq_len(n)) {
@@ -231,18 +252,9 @@ oster_breakdown_bound_scalar <- function(beta, r_max, ovb_bound, lower_bound, s)
 }
 
 oster_breakdown_bound <- function(r2max, beta, maxovb, hyposign, s) {
-    n <- max(length(beta), length(r2max), length(maxovb))
-    if (length(beta)   == 1) beta   <- rep(beta,   n)
-    if (length(r2max)  == 1) r2max  <- rep(r2max,  n)
-    if (length(maxovb) == 1) maxovb <- rep(maxovb, n)
-
-    if (length(unique(maxovb)) > 1) {
-        index <- maxovb
-    } else if (length(unique(r2max)) > 1) {
-        index <- r2max
-    } else {
-        index <- beta
-    }
+    a <- oster_recycle(beta, r2max, maxovb)
+    beta <- a$beta; r2max <- a$r2max; maxovb <- a$maxovb
+    index <- a$index; n <- a$n
 
     lower_bound <- hyposign == ">"
     delta <- vapply(seq_len(n), function(i) {

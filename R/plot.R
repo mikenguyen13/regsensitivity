@@ -85,13 +85,15 @@ plot.regsensitivity <- function(x, ywidth = NULL, ylim = NULL,
 
 # Pick a reasonable y-range for an identified-set plot.
 default_ylim <- function(x, ywidth = NULL) {
-    bmin <- x$results$bmin
-    bmax <- x$results$bmax
-    fin <- bmin[is.finite(bmin)]
+    # Both ends of the set: with rybar finite, or under Oster, the set is
+    # not symmetric about beta_med, and a range read off the lower bound
+    # alone cropped the upper one.
+    bnds <- c(x$results$bmin, x$results$bmax)
+    fin <- bnds[is.finite(bnds)]
     bmed <- x$dgp$beta_med
     sdx <- sqrt(x$dgp$var_x)
     if (is.null(ywidth)) {
-        # Stata: 95th percentile of |bmin - beta_med|/sd(X), plus 0.1.
+        # Stata: 95th percentile of |bound - beta_med|/sd(X), plus 0.1.
         if (length(fin) == 0) {
             ywidth <- 1
         } else {
@@ -114,6 +116,18 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
     # DMP analysis -- find which sparam varies and which is the grouping.
     if (x$analysis == "DMP (2026)") {
         nonscalar <- x$sparams$nonscalar
+        if (length(nonscalar) == 0) {
+            stop("nothing to plot: every sensitivity parameter is a single ",
+                 "value, so the result is one identified set rather than a ",
+                 "curve. Sweep `rxbar`, `rybar` or `cbar` over a grid.",
+                 call. = FALSE)
+        }
+        if (length(nonscalar) > 2) {
+            warning("all three of rxbar, rybar and cbar vary; the plot ",
+                    "shows ", nonscalar[1], " on the x-axis and groups by ",
+                    nonscalar[2], ", with ", nonscalar[3], " unmarked. ",
+                    "Fix one of them for a readable figure.", call. = FALSE)
+        }
         primary <- nonscalar[1]
         secondary <- if (length(nonscalar) > 1) nonscalar[2] else NULL
         df <- res
@@ -329,9 +343,6 @@ offscreen_by <- function(v, group, ylim, side) {
     }
     out
 }
-
-# Small helper since R has no null-coalescing operator.
-`%||%` <- function(a, b) if (is.null(a) || (length(a) == 1 && is.na(a))) b else a
 
 # Annotations default to absent. A user-supplied string wins; NA is an
 # explicit "no annotation", which matters for journal figures whose caption

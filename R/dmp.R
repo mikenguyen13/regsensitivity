@@ -523,16 +523,6 @@ breakdown_zbar <- function(beta, s) {
     safe_sqrt(dev_sq * s$k0 / denom)
 }
 
-# Breakdown point when cbar does not bind -- that is, the interior branch of
-# `rxbar_at_zbar()`, which is also the breakdown point under cbar = 1.
-breakdown_point_max <- function(beta, s) {
-    dev_sq <- (beta - s$beta_med)^2
-    bp_sq <- dev_sq * s$k0
-    denom <- bp_sq + s$covwx_norm_sq *
-        (s$k2 / s$k0 - 2 * beta * s$beta_med + beta^2)
-    safe_sqrt(bp_sq / denom)
-}
-
 # Breakdown point for fixed [clow, cbar] -- closed form when rybar = +Inf.
 #
 # The `bfmax` argument earlier versions took was the cbar = 1 breakdown point,

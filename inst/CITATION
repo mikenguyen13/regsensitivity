@@ -49,8 +49,10 @@ bibentry(
     author  = c(person("Matthew A.", "Masten"),
                 person("Alexandre", "Poirier")),
     year    = "2026",
-    journal = "arXiv preprint",
-    eprint  = "2208.00552",
-    url     = "https://arxiv.org/abs/2208.00552",
+    journal = "American Economic Review",
+    volume  = "116",
+    number  = "7",
+    pages   = "2685--2710",
+    doi     = "10.1257/aer.20230242",
     header  = "For the Masten-Poirier (2026) extensions:"
 )

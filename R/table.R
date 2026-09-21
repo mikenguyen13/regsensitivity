@@ -272,7 +272,9 @@ pretty_colnames <- function(nms, format) {
         rybar     = if (latex) "$\\bar{r}_y$"      else "rybar",
         cbar      = if (latex) "$\\bar{c}$"        else "cbar",
         delta     = if (latex) "$\\delta$"         else "delta",
-        r2long    = if (latex) "$R^2_{\\text{long}}$" else "R2(long)",
+        # \mathrm rather than \text: the latter needs amsmath, which a
+        # document using kable output need not load.
+        r2long    = if (latex) "$R^2_{\\mathrm{long}}$" else "R2(long)",
         maxovb    = "Max OVB",
         bmin      = if (latex) "$\\beta_{\\min}$"  else "Lower",
         bmax      = if (latex) "$\\beta_{\\max}$"  else "Upper",
@@ -363,8 +365,17 @@ add_latex_label <- function(kbl, label) {
 
     # After the caption if there is one, otherwise straight after the float
     # opens. Either position lets \ref{} resolve to the table number.
-    anchor <- if (any(startsWith(lines, "\\caption{"))) "\\caption{" else
-                                                        "\\begin{table}"
+    has_caption <- any(startsWith(trimws(lines), "\\caption{"))
+    has_float   <- any(startsWith(trimws(lines), "\\begin{table}"))
+    if (!has_caption && !has_float) {
+        # kable() emits a bare tabular when there is no caption, and a
+        # \label outside a float has no table number to refer to.
+        warning("`label` was dropped: knitr::kable() wraps the table in a ",
+                "float only when `caption` is given, and a label has ",
+                "nothing to attach to without one.", call. = FALSE)
+        return(kbl)
+    }
+    anchor <- if (has_caption) "\\caption{" else "\\begin{table}"
     lines <- insert_after(lines, anchor, lab, prefix = TRUE)
     structure(paste(lines, collapse = "\n"), format = "latex",
               class = "knitr_kable")

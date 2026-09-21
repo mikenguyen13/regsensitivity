@@ -22,8 +22,10 @@ ui <- shiny::fluidPage(
                                    min = 0, max = 1, value = c(0.1, 1), step = 0.05),
                 shiny::numericInput("ncbar", "Number of c&#772; values",
                                     value = 3, min = 1, max = 10, step = 1),
-                shiny::numericInput("rybar", shiny::HTML("r&#772;<sub>y</sub> (Inf = unrestricted)"),
-                                    value = Inf)
+                # A numeric input cannot hold Inf (the browser rejects it
+                # and hands back NA), so blank stands for "unrestricted".
+                shiny::numericInput("rybar", shiny::HTML("r&#772;<sub>y</sub> (blank = unrestricted)"),
+                                    value = NA, min = 0, step = 0.1)
             ),
             shiny::conditionalPanel(
                 condition = "input.analysis == 'oster'",
@@ -57,29 +59,35 @@ ui <- shiny::fluidPage(
 server <- function(input, output, session) {
 
     result <- shiny::reactive({
-        beta <- if (identical(input$hyp, "eq0")) {
-            regsensitivity::bnd_eq(0)
-        } else {
-            "sign"
-        }
+        # A slider combination with no solution -- or a cleared numeric
+        # box, which arrives as NA -- should grey the panel, not crash the
+        # session, so the argument assembly sits inside the tryCatch too.
+        tryCatch({
+            beta <- if (identical(input$hyp, "eq0")) {
+                regsensitivity::bnd_eq(0)
+            } else {
+                "sign"
+            }
 
-        args <- list(formula = env$formula, data = env$data,
-                     compare = env$compare, beta = beta)
+            args <- list(formula = env$formula, data = env$data,
+                         compare = env$compare, beta = beta)
 
-        if (identical(input$analysis, "dmp")) {
-            n <- max(1L, as.integer(input$ncbar))
-            args$cbar <- seq(input$cbar[1], input$cbar[2], length.out = n)
-            if (is.finite(input$rybar)) args$rybar <- input$rybar
-        } else {
-            args$analysis <- "oster"
-            args$delta <- seq(input$delta[1], input$delta[2], length.out = 50)
-            args$delta_type <- "eq"
-        }
+            if (identical(input$analysis, "dmp")) {
+                n <- suppressWarnings(as.integer(input$ncbar))
+                if (length(n) != 1 || is.na(n)) n <- 1L
+                n <- max(1L, n)
+                args$cbar <- seq(input$cbar[1], input$cbar[2], length.out = n)
+                ry <- input$rybar
+                if (length(ry) == 1 && isTRUE(is.finite(ry))) args$rybar <- ry
+            } else {
+                args$analysis <- "oster"
+                args$delta <- seq(input$delta[1], input$delta[2],
+                                  length.out = 50)
+                args$delta_type <- "eq"
+            }
 
-        # A slider combination with no solution should grey the panel, not
-        # crash the session.
-        tryCatch(do.call(regsensitivity::regsen_bounds, args),
-                 error = function(e) e)
+            do.call(regsensitivity::regsen_bounds, args)
+        }, error = function(e) e)
     })
 
     output$plot <- shiny::renderPlot({

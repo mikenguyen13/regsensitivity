@@ -105,7 +105,7 @@ okabe_ito <- c("#0072B2", "#D55E00", "#009E73", "#CC79A7",
 #' @return A \pkg{ggplot2} scale.
 #' @export
 scale_colour_regsen <- function(...) {
-    ggplot2::scale_colour_manual(values = okabe_ito, ...)
+    ggplot2::discrete_scale("colour", palette = okabe_ito_palette, ...)
 }
 
 #' @rdname scale_colour_regsen
@@ -115,7 +115,19 @@ scale_color_regsen <- scale_colour_regsen
 #' @rdname scale_colour_regsen
 #' @export
 scale_fill_regsen <- function(...) {
-    ggplot2::scale_fill_manual(values = okabe_ito, ...)
+    ggplot2::discrete_scale("fill", palette = okabe_ito_palette, ...)
+}
+
+# A manual scale errors outright once a sweep has more groups than the
+# palette has colours (nine values of cbar, say). Recycling keeps the plot
+# drawable; the warning says that two groups now share a colour, and the
+# linetype mapping the plot methods add still tells them apart.
+okabe_ito_palette <- function(n) {
+    if (n > length(okabe_ito)) {
+        warning(n, " groups but the palette has ", length(okabe_ito),
+                " colours; colours are recycled.", call. = FALSE)
+    }
+    rep_len(okabe_ito, n)
 }
 
 # Plotmath labels for the sensitivity parameters. Falls back to the raw

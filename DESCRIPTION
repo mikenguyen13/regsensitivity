@@ -11,7 +11,7 @@ Description: Sensitivity analysis for linear regression coefficients in the
     breakdown-point analyses of 'Diegert', 'Masten' and 'Poirier' (2026)
     <doi:10.48550/arXiv.2206.02303>, 'Oster' (2019)
     <doi:10.1080/07350015.2016.1227711> and 'Masten' and 'Poirier' (2026)
-    <doi:10.48550/arXiv.2208.00552>. Provides bounds on regression
+    <doi:10.1257/aer.20230242>. Provides bounds on regression
     coefficients under relaxations of the no-omitted-variables
     assumption indexed by interpretable sensitivity parameters, the
     breakdown point of a hypothesis about the long-regression
@@ -29,7 +29,7 @@ Imports:
     grid,
     parallel,
     nloptr (>= 2.0.0),
-    ggplot2 (>= 3.4.0),
+    ggplot2 (>= 3.5.0),
     rlang (>= 1.0.0)
 Suggests:
     generics,

@@ -23,7 +23,6 @@ regsen_bounds(
   maxovb_type = c("bound", "relative"),
   beta = "sign",
   product = TRUE,
-  ngrid = 200L,
   subset = NULL
 )
 }
@@ -73,8 +72,6 @@ is \code{rybar = rxbar}, i.e. \code{function(rxbar) rxbar}).}
 \item{product}{Logical. If \code{TRUE} (default), all combinations of the
 sensitivity-parameter grids are evaluated; if \code{FALSE}, the inputs are
 zipped element-wise. Maps to Stata's \code{noproduct} option (inverted).}
-
-\item{ngrid}{Resolution of the finer grid stored in the result. Default 200.}
 
 \item{subset}{Optional logical or integer vector indicating which rows
 of \code{data} to include in the estimation.}

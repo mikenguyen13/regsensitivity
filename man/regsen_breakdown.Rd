@@ -21,7 +21,6 @@ regsen_breakdown(
   r2long_type = c("eq", "relative"),
   maxovb_type = c("bound", "relative"),
   beta = "sign",
-  ngrid = 200L,
   subset = NULL
 )
 }
@@ -71,8 +70,6 @@ at which to evaluate the frontier. Defaults to an 11-point grid over
 \code{\link[=bnd_eq]{bnd_eq()}} to set the direction, e.g. \code{beta = bnd_lb(0)} for the
 hypothesis \code{beta > 0}.
 }}
-
-\item{ngrid}{Resolution of the finer grid stored in the result. Default 200.}
 
 \item{subset}{Optional logical or integer vector indicating which rows
 of \code{data} to include in the estimation.}

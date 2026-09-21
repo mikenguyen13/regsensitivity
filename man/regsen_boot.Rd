@@ -59,7 +59,11 @@ depend on the cap.}
 \value{
 An object of class \code{regsensitivity_boot} containing: \code{point},
 \code{replicates}, \code{ci} (the interval named by \code{type}), \code{ci_bca}, \code{ci_perc},
-\code{z0}, \code{acceleration}, \code{type}, \code{level}, \code{R}, \code{cluster}, \code{na}.
+\code{z0}, \code{acceleration}, \code{type}, \code{level}, \code{R}, \code{cluster}, \code{na} (the
+number of replicates that could not be computed) and \code{infinite} (the
+number on which the hypothesis survived every value of the sensitivity
+parameter; these count as \code{+Inf} in the intervals rather than being
+dropped).
 }
 \description{
 Computes a non-parametric (or cluster) bootstrap confidence interval for

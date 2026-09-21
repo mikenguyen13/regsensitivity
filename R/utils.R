@@ -108,11 +108,6 @@ cummax_neg_inf <- function(x) {
     out
 }
 
-# Indices for `length(p)` evenly spaced quantiles in a length-n vector.
-quantile_indices <- function(n, p) {
-    pmin(floor(p * n) + 1L, n)
-}
-
 # Expand a Stata-style "numlist" string into an explicit numeric vector.
 #
 # Supports:
@@ -147,10 +142,4 @@ expand_numlist <- function(x) {
     }
     v <- suppressWarnings(as.numeric(strsplit(s, "\\s+")[[1]]))
     v[!is.na(v)]
-}
-
-# Returns TRUE if a number is non-finite (matches Stata's .a / .b semantics in
-# the original code, which used special missing codes for -Inf / +Inf).
-is_inf <- function(x) {
-    is.infinite(x) || (is.numeric(x) && !is.finite(x))
 }
