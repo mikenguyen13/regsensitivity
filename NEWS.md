@@ -130,6 +130,20 @@
 * Masten and Poirier (2026) is cited as published, in the *American
   Economic Review* 116(7), rather than as an arXiv preprint.
 
+## Documentation
+
+* New vignette, *Reading the output: interpretation, edge cases and
+  decisions* (`vignette("interpreting-results")`). It says what each
+  number means, gives a decision path from breakdown point and `rho_k` to
+  a verdict, and walks through the cases that confuse readers -- a robust
+  and a fragile conclusion on worlds where the omitted variable exists, a
+  breakdown point of zero, a set that is unbounded early because the
+  calibration set is weak, what goes in `compare`, when `cbar` matters,
+  an infinite breakdown point under finite `rybar`, the two Oster
+  breakdown points, and how to read the bootstrap print -- each with the
+  sentence to write in the paper. It ends with a list of common mistakes
+  and a reporting checklist.
+
 ## Verification
 
 * The identified set is now checked against worlds in which the omitted

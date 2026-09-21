@@ -17,7 +17,10 @@ knitr::opts_chunk$set(
 
 This vignette replicates the BFG2020 empirical application used in the Stata
 `regsensitivity` vignette, walking through the **Diegert-Masten-Poirier
-(2026)** and **Oster (2019) / Masten-Poirier (2026)** analyses.
+(2026)** and **Oster (2019) / Masten-Poirier (2026)** analyses. It shows
+how to call the package; for what the numbers mean, what to conclude from
+them and what to write in a paper, see
+`vignette("interpreting-results")`.
 
 ## The setup
 

@@ -82,7 +82,7 @@ boot <- regsen_boot(form, bfg2020, compare = compare,
 print(boot)
 ```
 
-See `vignette("regsensitivity")` for a full tour, and `vignette("dmp2022-replication")` for the paper-exact replication.
+See `vignette("regsensitivity")` for a full tour, `vignette("interpreting-results")` for what the numbers mean and what to write in a paper, and `vignette("dmp2022-replication")` for the paper-exact replication.
 
 ## Crosswalk: Stata → R
 

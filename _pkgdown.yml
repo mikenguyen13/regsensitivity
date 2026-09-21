@@ -61,6 +61,7 @@ articles:
   - title: "Using the package"
     navbar: "Guides"
     contents:
+      - interpreting-results
       - plots-and-tables
       - stata-migration
   - title: "Verification"
