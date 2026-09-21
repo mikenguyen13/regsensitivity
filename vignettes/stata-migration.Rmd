@@ -55,6 +55,15 @@ regsensitivity `y' `x' `w1' `w0', compare(`w1')
 In R the same information is a formula plus `compare`. The first term on
 the right-hand side is the treatment; everything else is a control.
 
+```{r compare-map, echo = FALSE, out.width = "100%", fig.alt = "A regsen_summary call with braces under its parts: y is the outcome Y, x is the treatment X, the terms named by compare are the calibration covariates W1, and the remaining right-hand-side terms are the control covariates W0, which are partialled out. A dashed circle stands for the unobserved W2, which appears in no formula."}
+knitr::include_graphics("figures/covariates.png")
+```
+
+`compare` and `nocompare` are two ways of drawing the same line, and you may
+give at most one of them: `compare` names the calibration set $W_1$,
+`nocompare` names its complement $W_0$. Give neither and every control
+enters $W_1$.
+
 ## Command map
 
 | Stata | R |
@@ -64,7 +73,7 @@ the right-hand side is the treatment; everything else is a control.
 | `regsensitivity breakdown ...` | `regsen_breakdown(form, data, ...)` |
 | `regsensitivity plot` | `plot(result)` |
 | `compare(w1)` | `compare = w1` |
-| `nocompare` | `nocompare = TRUE` |
+| `nocompare(w0)` | `nocompare = w0` |
 | `cbar(0(.2)1)` | `cbar = seq(0, 1, 0.2)` |
 | `rxbar(0 2)` | `rxbar = c(0, 2)` |
 | `rybar(2)` | `rybar = 2` |

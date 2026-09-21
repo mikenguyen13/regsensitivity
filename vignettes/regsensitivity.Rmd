@@ -19,6 +19,34 @@ This vignette replicates the BFG2020 empirical application used in the Stata
 `regsensitivity` vignette, walking through the **Diegert-Masten-Poirier
 (2026)** and **Oster (2019) / Masten-Poirier (2026)** analyses.
 
+## The setup
+
+Every analysis in this package concerns the same picture.
+
+```{r model-fig, echo = FALSE, out.width = "100%", fig.alt = "A diagram of the model. Boxes mark the observed variables W1, X and Y; a dashed circle marks the unobserved W2. Solid arrows pi-1 and gamma-1 run from W1 into X and Y, dashed arrows pi-2 and gamma-2 run from W2 into X and Y, and a heavy arrow labelled beta-long runs from X to Y. A dotted double-headed arrow between W1 and W2 is labelled association left unrestricted."}
+knitr::include_graphics("figures/model.png")
+```
+
+You want $\beta_{\text{long}}$, the coefficient on the treatment $X$ in a
+regression that adjusts for *everything* relevant, observed or not. You can
+only run the *medium* regression, which adjusts for the observed covariates
+and returns $\beta_{\text{med}}$. The two agree exactly when $\pi_2 = 0$: no
+selection on unobservables, the dashed arrow into $X$ erased. Sensitivity
+analysis asks how far that can fail before your conclusion does.
+
+Note what the baseline does *not* assume. It leaves $\gamma_2$ free -- the
+unobservable may matter arbitrarily much for the outcome -- and it leaves the
+$W_1$--$W_2$ association free. That is why the observed controls being
+endogenous is not, on its own, fatal.
+
+The observed covariates split in two. The ones you name in `compare` are the
+**calibration** covariates $W_1$: the yardstick the unobservable is measured
+against. Everything else is a **control** covariate $W_0$, adjusted for but
+never used as a yardstick -- fixed effects and nuisance controls belong here.
+(Stata's `regsensitivity` and this package's argument names call $W_1$ the
+*comparison set*, which is where `compare` gets its name; the DMP paper calls
+it the calibration set. They are the same thing.)
+
 ```{r}
 library(regsensitivity)
 library(ggplot2)
@@ -31,6 +59,40 @@ form <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
 compare <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
              "elev_mean", "d_coa", "d_riv", "d_lak", "ave_gyi")
 ```
+
+So here the geographic and climate variables are $W_1$ and the state fixed
+effects `statea` are $W_0$: the omitted variable's importance is judged
+against geography and climate, never against state dummies. In general:
+
+```{r compare-fig, echo = FALSE, out.width = "100%", fig.alt = "A regsen_summary call with braces under its parts: y is the outcome Y, x is the treatment X, the terms named by compare are the calibration covariates W1, and the remaining right-hand-side terms are the control covariates W0, which are partialled out. A dashed circle stands for the unobserved W2, which appears in no formula."}
+knitr::include_graphics("figures/covariates.png")
+```
+
+`nocompare` draws the same line from the other side, naming $W_0$ instead;
+give at most one of the two. If you give neither, every control enters $W_1$.
+
+## The three sensitivity parameters
+
+Rather than assume $\pi_2 = 0$, DMP bound how large the unobservable's role
+can be. Three parameters do the work, and each caps one feature of the
+picture above:
+
+```{r sens-fig, echo = FALSE, out.width = "100%", fig.alt = "The same model diagram, with the dashed arrow from W2 into X tagged A3, the dashed arrow from W2 into Y tagged A5, and the dotted W1-W2 edge tagged A6. A key gives r-X as the ratio of the standard deviations of the two indices entering X, bounded by rxbar; r-Y likewise for Y, bounded by rybar; and the partial correlation of W2 with W1 given W0 lying in the interval from clow to cbar."}
+knitr::include_graphics("figures/sensparams.png")
+```
+
+* `rxbar` bounds $r_X$: how much the unobservable moves the **treatment**,
+  as a multiple of how much the calibration covariates do. `rxbar = 1` says
+  the unobservable is at most as important as $W_1$ taken together.
+* `rybar` bounds $r_Y$: the same ratio for the **outcome**. Left at `Inf`
+  by default, which assumes nothing about $\gamma_2$.
+* `cbar` and `clow` bound how much of the unobservable the calibration
+  covariates already explain. The default `cbar = 1` imposes nothing, and is
+  the case in which the controls may be arbitrarily endogenous.
+
+Because $r_X$ and $r_Y$ are *relative*, their scale only means something
+against a reference; `calibrate_rho()` and `calibrate_partial_r2()` supply
+the point-identified reference values DMP propose.
 
 The "short" regression coefficient (with no controls) and the "medium"
 regression coefficient (with state FE and the comparison controls) give a

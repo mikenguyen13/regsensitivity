@@ -12,6 +12,7 @@
 ^paper$
 ^release\.sh$
 ^paper-jss$
+^tools$
 ^paper-rj$
 ^MORNING_CHECKLIST\.md$
 ^CONTRIBUTING\.md$
