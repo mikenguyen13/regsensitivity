@@ -77,7 +77,7 @@ chooses which one <code>$ci</code> reports.</p>
 <span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ncores <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  ncores <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_progress <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -132,12 +132,14 @@ depends on how the work was divided.</p></dd>
 
 
 <dt id="arg-ncores">ncores<a class="anchor" aria-label="anchor" href="#arg-ncores"></a></dt>
-<dd><p>Number of cores for the replications. <code>1</code> (default) runs
-serially. Above 1 the package forks on macOS and Linux and falls back
-to a PSOCK cluster on Windows, which has no fork. A progress bar is
-not shown when running in parallel. Capped at <code>R</code>, and at 2 while
-<code>R CMD check --as-cran</code> is running, which forbids more; results do not
-depend on the cap.</p></dd>
+<dd><p>Number of cores for the replications and the jackknife.
+<code>NULL</code> (default) uses the session setting of <code><a href="regsen_cores.html">regsen_cores()</a></code>, which
+is 1 unless changed; <code>"auto"</code> uses all but two of the machine's
+cores. A progress bar is not shown when running in parallel. Capped
+at <code>R</code>, and at 2 while <code>R CMD check --as-cran</code> is running, which
+forbids more; results do not depend on the cap. The breakdown
+computation inside each replicate always runs serially, so cores are
+not oversubscribed.</p></dd>
 
 
 <dt id="arg-show-progress">show_progress<a class="anchor" aria-label="anchor" href="#arg-show-progress"></a></dt>

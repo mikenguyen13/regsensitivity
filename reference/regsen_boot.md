@@ -20,7 +20,7 @@ regsen_boot(
   cluster = NULL,
   level = 0.95,
   seed = NULL,
-  ncores = 1L,
+  ncores = NULL,
   show_progress = interactive()
 )
 ```
@@ -71,12 +71,15 @@ regsen_boot(
 
 - ncores:
 
-  Number of cores for the replications. `1` (default) runs serially.
-  Above 1 the package forks on macOS and Linux and falls back to a PSOCK
-  cluster on Windows, which has no fork. A progress bar is not shown
-  when running in parallel. Capped at `R`, and at 2 while
-  `R CMD check --as-cran` is running, which forbids more; results do not
-  depend on the cap.
+  Number of cores for the replications and the jackknife. `NULL`
+  (default) uses the session setting of
+  [`regsen_cores()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_cores.md),
+  which is 1 unless changed; `"auto"` uses all but two of the machine's
+  cores. A progress bar is not shown when running in parallel. Capped at
+  `R`, and at 2 while `R CMD check --as-cran` is running, which forbids
+  more; results do not depend on the cap. The breakdown computation
+  inside each replicate always runs serially, so cores are not
+  oversubscribed.
 
 - show_progress:
 

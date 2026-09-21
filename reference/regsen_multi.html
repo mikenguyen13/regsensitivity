@@ -71,7 +71,8 @@ and which would not?", answered in a single call.</p>
 <span>  <span class="va">treatments</span>,</span>
 <span>  compare <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fun <span class="op">=</span> <span class="va">regsen_breakdown</span>,</span>
-<span>  <span class="va">...</span></span>
+<span>  <span class="va">...</span>,</span>
+<span>  ncores <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'regsensitivity_multi'</span></span>
@@ -110,6 +111,13 @@ a variable cannot calibrate against itself.</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Passed to <code>fun</code>, e.g. <code>cbar</code>, <code>analysis</code>, <code>beta</code>.</p></dd>
+
+
+<dt id="arg-ncores">ncores<a class="anchor" aria-label="anchor" href="#arg-ncores"></a></dt>
+<dd><p>Number of cores to spread the treatments over. <code>NULL</code>
+(default) uses the session setting of <code><a href="regsen_cores.html">regsen_cores()</a></code>; <code>"auto"</code> uses
+all but two of the machine's cores. Each treatment's analysis then
+runs serially inside, so cores are not oversubscribed.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>

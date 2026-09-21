@@ -18,7 +18,8 @@ regsen_multi(
   treatments,
   compare = NULL,
   fun = regsen_breakdown,
-  ...
+  ...,
+  ncores = NULL
 )
 
 # S3 method for class 'regsensitivity_multi'
@@ -57,6 +58,14 @@ plot(x, base_size = 11, ...)
 - ...:
 
   Passed to `fun`, e.g. `cbar`, `analysis`, `beta`.
+
+- ncores:
+
+  Number of cores to spread the treatments over. `NULL` (default) uses
+  the session setting of
+  [`regsen_cores()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_cores.md);
+  `"auto"` uses all but two of the machine's cores. Each treatment's
+  analysis then runs serially inside, so cores are not oversubscribed.
 
 - x:
 

@@ -27,7 +27,8 @@ regsen_breakdown(
   r2long_type = c("eq", "relative"),
   maxovb_type = c("bound", "relative"),
   beta = "sign",
-  subset = NULL
+  subset = NULL,
+  ncores = NULL
 )
 ```
 
@@ -110,6 +111,16 @@ regsen_breakdown(
 
   Optional logical or integer vector indicating which rows of `data` to
   include in the estimation.
+
+- ncores:
+
+  Number of cores to spread the frontier's values over. `NULL` (default)
+  uses the session setting of
+  [`regsen_cores()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_cores.md);
+  `"auto"` uses all but two of the machine's cores. Only frontiers that
+  need the optimizer (finite `rybar`, `rybar_expr`, or
+  `direction = "rybar"`) are costly enough to benefit. Results are
+  identical for any number of cores.
 
 ## Value
 

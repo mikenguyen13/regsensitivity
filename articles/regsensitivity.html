@@ -499,13 +499,30 @@ x-axis and beta on the y-axis):</p>
 <p><img src="regsensitivity_files/figure-html/unnamed-chunk-15-2.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level2">
+<h2 id="using-several-cores">Using several cores<a class="anchor" aria-label="anchor" href="#using-several-cores"></a>
+</h2>
+<p>Everything above runs on one core by default. The
+finite-<code>rybar</code> sweeps and the breakdown frontiers are the
+slow parts – each grid point or frontier value is a global optimization
+– and they are independent, so they can be spread across cores. Set the
+session default once:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/regsen_cores.html">regsen_cores</a></span><span class="op">(</span><span class="st">"auto"</span><span class="op">)</span>   <span class="co"># all but two of the machine's cores</span></span>
+<span><span class="fu"><a href="../reference/regsen_cores.html">regsen_cores</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span>        <span class="co"># or a number</span></span></code></pre></div>
+<p>or pass <code>ncores</code> to a single call of
+<code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code>, <code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code>,
+<code><a href="../reference/regsen_multi.html">regsen_multi()</a></code> or <code><a href="../reference/regsen_boot.html">regsen_boot()</a></code>. Results are
+identical whatever the number of cores; the bootstrap seeds each
+replicate itself, and nothing else draws random numbers.</p>
+</div>
+<div class="section level2">
 <h2 id="summary-call">Summary call<a class="anchor" aria-label="anchor" href="#summary-call"></a>
 </h2>
 <p>When you don’t know where to start, <code><a href="../reference/regsen_summary.html">regsen_summary()</a></code>
 runs the default DMP bounds analysis plus an Oster breakdown sweep at a
 few standard <code>r2long</code> values, matching the behaviour of
 Stata’s <code>regsensitivity</code> with no subcommand.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_summary.html">regsen_summary</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">compare</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>

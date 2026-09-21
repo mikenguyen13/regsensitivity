@@ -84,7 +84,8 @@ parameters. Implements the analyses of Diegert, Masten &amp; Poirier (2026)
 <span>  maxovb_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bound"</span>, <span class="st">"relative"</span><span class="op">)</span>,</span>
 <span>  beta <span class="op">=</span> <span class="st">"sign"</span>,</span>
 <span>  product <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  subset <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ncores <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -169,6 +170,14 @@ zipped element-wise. Maps to Stata's <code>noproduct</code> option (inverted).</
 <dt id="arg-subset">subset<a class="anchor" aria-label="anchor" href="#arg-subset"></a></dt>
 <dd><p>Optional logical or integer vector indicating which rows
 of <code>data</code> to include in the estimation.</p></dd>
+
+
+<dt id="arg-ncores">ncores<a class="anchor" aria-label="anchor" href="#arg-ncores"></a></dt>
+<dd><p>Number of cores to spread the grid over. <code>NULL</code> (default)
+uses the session setting of <code><a href="regsen_cores.html">regsen_cores()</a></code>, which is 1 unless
+changed; <code>"auto"</code> uses all but two of the machine's cores. Only the
+finite-<code>rybar</code> regime is costly enough to benefit. Results are
+identical for any number of cores.</p></dd>
 
 </dl></div>
     <div class="section level2">

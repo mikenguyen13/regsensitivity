@@ -16,6 +16,11 @@
 - [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md)
   : Bootstrap confidence interval for the breakdown point
 
+## Parallel computation
+
+- [`regsen_cores()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_cores.md)
+  : Cores used by the package
+
 ## Several treatments
 
 - [`regsen_multi()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)

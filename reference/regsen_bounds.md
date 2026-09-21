@@ -28,7 +28,8 @@ regsen_bounds(
   maxovb_type = c("bound", "relative"),
   beta = "sign",
   product = TRUE,
-  subset = NULL
+  subset = NULL,
+  ncores = NULL
 )
 ```
 
@@ -110,6 +111,15 @@ regsen_bounds(
 
   Optional logical or integer vector indicating which rows of `data` to
   include in the estimation.
+
+- ncores:
+
+  Number of cores to spread the grid over. `NULL` (default) uses the
+  session setting of
+  [`regsen_cores()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_cores.md),
+  which is 1 unless changed; `"auto"` uses all but two of the machine's
+  cores. Only the finite-`rybar` regime is costly enough to benefit.
+  Results are identical for any number of cores.
 
 ## Value
 

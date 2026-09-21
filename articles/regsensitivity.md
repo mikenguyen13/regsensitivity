@@ -447,6 +447,28 @@ plot(obd_sign)
 
 ![](regsensitivity_files/figure-html/unnamed-chunk-15-2.png)
 
+## Using several cores
+
+Everything above runs on one core by default. The finite-`rybar` sweeps
+and the breakdown frontiers are the slow parts – each grid point or
+frontier value is a global optimization – and they are independent, so
+they can be spread across cores. Set the session default once:
+
+``` r
+
+regsen_cores("auto")   # all but two of the machine's cores
+regsen_cores(4)        # or a number
+```
+
+or pass `ncores` to a single call of
+[`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md),
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md),
+[`regsen_multi()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
+or
+[`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md).
+Results are identical whatever the number of cores; the bootstrap seeds
+each replicate itself, and nothing else draws random numbers.
+
 ## Summary call
 
 When you don’t know where to start,
