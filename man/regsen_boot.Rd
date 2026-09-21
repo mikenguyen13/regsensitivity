@@ -13,7 +13,7 @@ regsen_boot(
   cluster = NULL,
   level = 0.95,
   seed = NULL,
-  ncores = 1L,
+  ncores = NULL,
   show_progress = interactive()
 )
 }
@@ -47,12 +47,14 @@ identical for a given \code{seed} regardless of \code{ncores}: each replicate
 draws its own seed from a vector generated once up front, so nothing
 depends on how the work was divided.}
 
-\item{ncores}{Number of cores for the replications. \code{1} (default) runs
-serially. Above 1 the package forks on macOS and Linux and falls back
-to a PSOCK cluster on Windows, which has no fork. A progress bar is
-not shown when running in parallel. Capped at \code{R}, and at 2 while
-\verb{R CMD check --as-cran} is running, which forbids more; results do not
-depend on the cap.}
+\item{ncores}{Number of cores for the replications and the jackknife.
+\code{NULL} (default) uses the session setting of \code{\link[=regsen_cores]{regsen_cores()}}, which
+is 1 unless changed; \code{"auto"} uses all but two of the machine's
+cores. A progress bar is not shown when running in parallel. Capped
+at \code{R}, and at 2 while \verb{R CMD check --as-cran} is running, which
+forbids more; results do not depend on the cap. The breakdown
+computation inside each replicate always runs serially, so cores are
+not oversubscribed.}
 
 \item{show_progress}{Logical; print progress bar.}
 }

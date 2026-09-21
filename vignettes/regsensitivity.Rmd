@@ -256,6 +256,23 @@ obd_sign <- regsen_breakdown(form, bfg2020, compare = compare,
 plot(obd_sign)
 ```
 
+## Using several cores
+
+Everything above runs on one core by default. The finite-`rybar`
+sweeps and the breakdown frontiers are the slow parts -- each grid point
+or frontier value is a global optimization -- and they are independent,
+so they can be spread across cores. Set the session default once:
+
+```{r cores, eval = FALSE}
+regsen_cores("auto")   # all but two of the machine's cores
+regsen_cores(4)        # or a number
+```
+
+or pass `ncores` to a single call of `regsen_bounds()`,
+`regsen_breakdown()`, `regsen_multi()` or `regsen_boot()`. Results are
+identical whatever the number of cores; the bootstrap seeds each
+replicate itself, and nothing else draws random numbers.
+
 ## Summary call
 
 When you don't know where to start, `regsen_summary()` runs the default

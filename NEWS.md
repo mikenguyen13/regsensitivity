@@ -37,6 +37,27 @@
   identified set and raises the breakdown point. `clow = 0`, the default,
   is the previous behaviour.
 
+## Parallel computation
+
+* `regsen_bounds()`, `regsen_breakdown()` and `regsen_multi()` gain an
+  `ncores` argument, joining `regsen_boot()`, and all four default to the
+  session setting of the new `regsen_cores()`. The grid points of an
+  identified set, the values of a breakdown frontier and the treatments
+  of a multi-treatment sweep are independent and are spread across the
+  cores; on the bundled data a finite-`rybar` frontier runs about three
+  times faster on six cores. Results are identical for any number of
+  cores: nothing but the bootstrap draws random numbers, and it seeds
+  each replicate itself.
+* The default stays serial, as CRAN policy requires of a package that has
+  not been asked. `regsen_cores("auto")` sets the session to all but two
+  of the machine's cores; `regsen_cores(n)` sets a number. Work inside a
+  bootstrap replicate or a treatment always runs serially, so cores are
+  not oversubscribed by nesting.
+* A replicate or grid point that errors is now confined to its own slot.
+  `mclapply()` preschedules jobs onto cores and marks every job on a core
+  as failed when one errors, so a single bad bootstrap resample used to
+  take a whole core's worth of replicates down with it.
+
 ## Inference
 
 * `regsen_boot()` now reports a bias-corrected and accelerated (BCa)

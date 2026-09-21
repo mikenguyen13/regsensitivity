@@ -216,6 +216,11 @@ new_regsen <- function(subcommand, analysis, dgp, inputs, sparams, results,
 #'   zipped element-wise. Maps to Stata's `noproduct` option (inverted).
 #' @param subset Optional logical or integer vector indicating which rows
 #'   of `data` to include in the estimation.
+#' @param ncores Number of cores to spread the grid over. `NULL` (default)
+#'   uses the session setting of [regsen_cores()], which is 1 unless
+#'   changed; `"auto"` uses all but two of the machine's cores. Only the
+#'   finite-`rybar` regime is costly enough to benefit. Results are
+#'   identical for any number of cores.
 #'
 #' @return A `regsensitivity` object. The `results` field holds a data.frame
 #'   with one row per sensitivity-parameter point.
@@ -254,12 +259,14 @@ regsen_bounds <- function(formula, data,
                           maxovb_type = c("bound", "relative"),
                           beta = "sign",
                           product = TRUE,
-                          subset = NULL) {
+                          subset = NULL,
+                          ncores = NULL) {
     cl <- match.call()
     analysis <- match_analysis(analysis)
     delta_type  <- match.arg(delta_type)
     r2long_type <- match.arg(r2long_type)
     maxovb_type <- match.arg(maxovb_type)
+    ncores <- resolve_ncores(ncores)
 
     inputs <- build_dgp_inputs(formula, data, compare = compare,
                                 nocompare = nocompare, subset = subset)
@@ -286,7 +293,7 @@ regsen_bounds <- function(formula, data,
             rxbar = rxbar,
             rybar = if (!is.null(rybar_expr)) ry_vals else rybar,
             cbar  = cbar,
-            s = dgp, product = product, clow = clow
+            s = dgp, product = product, clow = clow, ncores = ncores
         )
 
         # Decide which sparams are scalar vs varying, for downstream display.
@@ -306,7 +313,7 @@ regsen_bounds <- function(formula, data,
                 beta = hypo$value, cs = unique(cbar),
                 ry = if (!is.null(rybar_expr)) Inf else unique(rybar),
                 hyposign = hypo$sign, s = dgp,
-                ry_expr = rybar_expr, clow = clow
+                ry_expr = rybar_expr, clow = clow, ncores = ncores
             )
             breakdown <- bf$breakdown[1]
         }
@@ -410,6 +417,12 @@ regsen_bounds <- function(formula, data,
 #'   at which to evaluate the frontier. Defaults to an 11-point grid over
 #'   `[0, 2 * rmax(cbar)]`.
 #' @param r2long,maxovb (Oster) Same as in [regsen_bounds()].
+#' @param ncores Number of cores to spread the frontier's values over.
+#'   `NULL` (default) uses the session setting of [regsen_cores()];
+#'   `"auto"` uses all but two of the machine's cores. Only frontiers that
+#'   need the optimizer (finite `rybar`, `rybar_expr`, or
+#'   `direction = "rybar"`) are costly enough to benefit. Results are
+#'   identical for any number of cores.
 #'
 #' @return A `regsensitivity` object. `results$index` holds the swept
 #'   parameter and `results$breakdown` the breakdown point at each value.
@@ -437,12 +450,14 @@ regsen_breakdown <- function(formula, data,
                              r2long_type = c("eq", "relative"),
                              maxovb_type = c("bound", "relative"),
                              beta = "sign",
-                             subset = NULL) {
+                             subset = NULL,
+                             ncores = NULL) {
     cl <- match.call()
     analysis <- match_analysis(analysis)
     direction <- match.arg(direction)
     r2long_type <- match.arg(r2long_type)
     maxovb_type <- match.arg(maxovb_type)
+    ncores <- resolve_ncores(ncores)
 
     inputs <- build_dgp_inputs(formula, data, compare = compare,
                                 nocompare = nocompare, subset = subset)
@@ -452,7 +467,8 @@ regsen_breakdown <- function(formula, data,
         cbar = cbar, clow = clow, rybar = rybar, rybar_expr = rybar_expr,
         direction = direction, rxbar = rxbar,
         r2long = r2long, maxovb = maxovb,
-        r2long_type = r2long_type, maxovb_type = maxovb_type
+        r2long_type = r2long_type, maxovb_type = maxovb_type,
+        ncores = ncores
     )
     new_regsen(
         subcommand = "breakdown",
@@ -479,7 +495,8 @@ breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
                                rybar_expr = NULL,
                                direction = "rxbar", rxbar = NULL,
                                r2long = 1, maxovb = NA,
-                               r2long_type = "eq", maxovb_type = "bound") {
+                               r2long_type = "eq", maxovb_type = "bound",
+                               ncores = 1L) {
     hypo <- parse_beta(beta, dgp)
 
     if (analysis == "dmp") {
@@ -497,14 +514,14 @@ breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
             }
             bf <- dmp_breakdown_frontier_ry(
                 beta = hypo$value[1], cbar = cbar[1], rxbar = rxbar,
-                hyposign = hypo$sign, s = dgp, clow = clow
+                hyposign = hypo$sign, s = dgp, clow = clow, ncores = ncores
             )
         } else {
             bf <- dmp_breakdown_frontier(
                 beta = hypo$value, cs = cbar,
                 ry = if (is.null(rybar_expr)) rybar[1] else Inf,
                 hyposign = hypo$sign, s = dgp,
-                ry_expr = rybar_expr, clow = clow
+                ry_expr = rybar_expr, clow = clow, ncores = ncores
             )
         }
         return(list(

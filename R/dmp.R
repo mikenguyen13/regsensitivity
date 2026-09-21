@@ -469,15 +469,21 @@ beta_bounds_ryfinite_cbar_neq0 <- function(sp, s, maxiter = 1000L,
 # Compute the identified set for every combination (or zipped triple, if
 # product = FALSE) of (rxbar, rybar, cbar). Returns a data.frame with one
 # row per combination and columns: rxbar, rybar, cbar, bmin, bmax.
+#
+# The grid points are independent, so with `ncores > 1` they are spread
+# across workers. Only the finite-rybar points cost anything (each is a
+# global optimization); the closed-form points are cheaper than a fork,
+# so the parallel path is taken only when at least one point needs the
+# optimizer.
 dmp_identified_set <- function(rxbar, rybar, cbar, s, product = TRUE,
-                                clow = 0) {
+                                clow = 0, ncores = 1L) {
     sp <- format_dmp_sparams(rxbar, rybar, cbar, product)
     n <- length(sp$rxbar)
     out <- data.frame(
         rxbar = sp$rxbar, rybar = sp$rybar, cbar = sp$cbar,
         bmin = rep(NA_real_, n), bmax = rep(NA_real_, n)
     )
-    for (i in seq_len(n)) {
+    one <- function(i) {
         spi <- list(rxbar = sp$rxbar[i], rybar = sp$rybar[i],
                     cbar = sp$cbar[i], clow = min(clow, sp$cbar[i]))
         finite_threshold <- max_beta_bound(spi$cbar, s, clow = spi$clow)
@@ -488,16 +494,22 @@ dmp_identified_set <- function(rxbar, rybar, cbar, s, product = TRUE,
         infinite <- isTRUE(spi$rxbar > ft - 1e-7) &&
                     isTRUE(spi$rybar > ft - 1e-7)
         if (infinite) {
-            bnd <- c(NEG_INF, POS_INF)
+            c(NEG_INF, POS_INF)
         } else if (is.finite(spi$rybar) && isTRUE(spi$cbar == 0)) {
-            bnd <- beta_bounds_ryfinite_cbar_eq0(spi, s)
+            beta_bounds_ryfinite_cbar_eq0(spi, s)
         } else if (is.finite(spi$rybar)) {
-            bnd <- beta_bounds_ryfinite_cbar_neq0(spi, s)
+            beta_bounds_ryfinite_cbar_neq0(spi, s)
         } else {
-            bnd <- beta_bounds_ryinf(spi, s)
+            beta_bounds_ryinf(spi, s)
         }
-        out$bmin[i] <- bnd[1]
-        out$bmax[i] <- bnd[2]
+    }
+    use_cores <- if (any(is.finite(sp$rybar))) ncores else 1L
+    bnds <- par_lapply(n, one, use_cores)
+    for (i in seq_len(n)) {
+        b <- bnds[[i]]
+        if (inherits(b, "try-error")) stop(attr(b, "condition"))
+        out$bmin[i] <- b[1]
+        out$bmax[i] <- b[2]
     }
     out
 }
@@ -663,8 +675,12 @@ breakdown_point_ry_idx <- function(beta, c, rx, lower_bound, s, clow = 0,
 
 # Breakdown frontier across one varying parameter (beta or cbar). Returns a
 # data.frame with columns `index` (the varying value) and `breakdown` (rxbar).
+# The values are independent and are spread across `ncores` workers when
+# the frontier needs the optimizer (finite rybar); the closed form is not
+# worth a fork.
 dmp_breakdown_frontier <- function(beta, cs, ry = POS_INF, hyposign = ">",
-                                    s, ry_expr = NULL, clow = 0) {
+                                    s, ry_expr = NULL, clow = 0,
+                                    ncores = 1L) {
     if (length(beta) > 1) {
         cs <- rep(cs[1], length(beta))
         index <- beta
@@ -682,20 +698,19 @@ dmp_breakdown_frontier <- function(beta, cs, ry = POS_INF, hyposign = ">",
     } else {
         rep(TRUE, length(beta))
     }
-    rx <- rep(NA_real_, length(beta))
     if (is.null(ry_expr) && is.infinite(ry)) {
-        for (i in seq_along(beta)) {
-            rx[i] <- breakdown_point_dmp(beta[i], cs[i], lower_bound[i], s,
-                                          clow = clow)
-        }
+        rx <- vapply(seq_along(beta), function(i) {
+            breakdown_point_dmp(beta[i], cs[i], lower_bound[i], s,
+                                clow = clow)
+        }, numeric(1))
     } else {
-        for (i in seq_along(beta)) {
-            rx[i] <- breakdown_point_rx_idx(
+        rx <- par_numeric_strict(length(beta), function(i) {
+            breakdown_point_rx_idx(
                 beta[i], cs[i], ry, lower_bound[i], s,
                 ry_expr = ry_expr, clow = clow,
                 start_hi = max_beta_bound(cs[i], s, clow = clow)
             )
-        }
+        }, ncores)
     }
     data.frame(index = index, breakdown = rx)
 }
@@ -704,7 +719,7 @@ dmp_breakdown_frontier <- function(beta, cs, ry = POS_INF, hyposign = ">",
 # Returns a data.frame with columns `index` (the rxbar value) and `breakdown`
 # (the rybar at which the hypothesis fails, possibly +Inf).
 dmp_breakdown_frontier_ry <- function(beta, cbar, rxbar, hyposign = ">", s,
-                                       clow = 0) {
+                                       clow = 0, ncores = 1L) {
     lower_bound <- if (identical(hyposign, "<")) {
         FALSE
     } else if (identical(hyposign, "=")) {
@@ -712,8 +727,9 @@ dmp_breakdown_frontier_ry <- function(beta, cbar, rxbar, hyposign = ">", s,
     } else {
         TRUE
     }
-    ry <- vapply(rxbar, function(rx) {
-        breakdown_point_ry_idx(beta, cbar, rx, lower_bound, s, clow = clow)
-    }, numeric(1))
+    ry <- par_numeric_strict(length(rxbar), function(i) {
+        breakdown_point_ry_idx(beta, cbar, rxbar[i], lower_bound, s,
+                               clow = clow)
+    }, ncores)
     data.frame(index = rxbar, breakdown = ry)
 }

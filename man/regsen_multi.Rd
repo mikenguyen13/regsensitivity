@@ -11,7 +11,8 @@ regsen_multi(
   treatments,
   compare = NULL,
   fun = regsen_breakdown,
-  ...
+  ...,
+  ncores = NULL
 )
 
 \method{plot}{regsensitivity_multi}(x, base_size = 11, ...)
@@ -34,6 +35,11 @@ a variable cannot calibrate against itself.}
 \code{\link[=regsen_bounds]{regsen_bounds()}}.}
 
 \item{...}{Passed to \code{fun}, e.g. \code{cbar}, \code{analysis}, \code{beta}.}
+
+\item{ncores}{Number of cores to spread the treatments over. \code{NULL}
+(default) uses the session setting of \code{\link[=regsen_cores]{regsen_cores()}}; \code{"auto"} uses
+all but two of the machine's cores. Each treatment's analysis then
+runs serially inside, so cores are not oversubscribed.}
 
 \item{x}{A \code{regsensitivity_multi} object.}
 

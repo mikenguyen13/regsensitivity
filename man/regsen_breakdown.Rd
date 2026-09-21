@@ -21,7 +21,8 @@ regsen_breakdown(
   r2long_type = c("eq", "relative"),
   maxovb_type = c("bound", "relative"),
   beta = "sign",
-  subset = NULL
+  subset = NULL,
+  ncores = NULL
 )
 }
 \arguments{
@@ -73,6 +74,13 @@ hypothesis \code{beta > 0}.
 
 \item{subset}{Optional logical or integer vector indicating which rows
 of \code{data} to include in the estimation.}
+
+\item{ncores}{Number of cores to spread the frontier's values over.
+\code{NULL} (default) uses the session setting of \code{\link[=regsen_cores]{regsen_cores()}};
+\code{"auto"} uses all but two of the machine's cores. Only frontiers that
+need the optimizer (finite \code{rybar}, \code{rybar_expr}, or
+\code{direction = "rybar"}) are costly enough to benefit. Results are
+identical for any number of cores.}
 }
 \value{
 A \code{regsensitivity} object. \code{results$index} holds the swept

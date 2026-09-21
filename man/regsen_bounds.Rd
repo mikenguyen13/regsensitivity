@@ -23,7 +23,8 @@ regsen_bounds(
   maxovb_type = c("bound", "relative"),
   beta = "sign",
   product = TRUE,
-  subset = NULL
+  subset = NULL,
+  ncores = NULL
 )
 }
 \arguments{
@@ -75,6 +76,12 @@ zipped element-wise. Maps to Stata's \code{noproduct} option (inverted).}
 
 \item{subset}{Optional logical or integer vector indicating which rows
 of \code{data} to include in the estimation.}
+
+\item{ncores}{Number of cores to spread the grid over. \code{NULL} (default)
+uses the session setting of \code{\link[=regsen_cores]{regsen_cores()}}, which is 1 unless
+changed; \code{"auto"} uses all but two of the machine's cores. Only the
+finite-\code{rybar} regime is costly enough to benefit. Results are
+identical for any number of cores.}
 }
 \value{
 A \code{regsensitivity} object. The \code{results} field holds a data.frame

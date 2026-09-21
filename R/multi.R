@@ -25,6 +25,10 @@
 #' @param fun The analysis to run: [regsen_breakdown()] (default) or
 #'   [regsen_bounds()].
 #' @param ... Passed to `fun`, e.g. `cbar`, `analysis`, `beta`.
+#' @param ncores Number of cores to spread the treatments over. `NULL`
+#'   (default) uses the session setting of [regsen_cores()]; `"auto"` uses
+#'   all but two of the machine's cores. Each treatment's analysis then
+#'   runs serially inside, so cores are not oversubscribed.
 #'
 #' @return A `data.frame` of class `regsensitivity_multi`, one row per
 #'   treatment, with columns `treatment`, `estimate` (the medium-regression
@@ -45,13 +49,15 @@
 #' }
 #' @export
 regsen_multi <- function(formula, data, treatments,
-                         compare = NULL, fun = regsen_breakdown, ...) {
+                         compare = NULL, fun = regsen_breakdown, ...,
+                         ncores = NULL) {
     stopifnot(is.data.frame(data))
     if (!is.character(treatments) || length(treatments) == 0) {
         stop("`treatments` must be a non-empty character vector.",
              call. = FALSE)
     }
     fun <- match.fun(fun)
+    ncores <- resolve_ncores(ncores)
 
     rhs <- attr(stats::terms(formula), "term.labels")
     lhs <- all.vars(formula)[1]
@@ -61,14 +67,20 @@ regsen_multi <- function(formula, data, treatments,
              paste(missing_terms, collapse = ", "), call. = FALSE)
     }
 
-    rows <- lapply(treatments, function(tr) {
+    # Treatments run across the cores; the analysis of each runs serially
+    # inside, when `fun` knows how to be told so.
+    inner <- if ("ncores" %in% names(formals(fun))) list(ncores = 1L) else list()
+    dots <- list(...)
+
+    one <- function(i) {
+        tr <- treatments[i]
         # Promote this treatment; everything else stays a control so the
         # specification is identical across rows.
         f_tr <- stats::reformulate(c(tr, setdiff(rhs, tr)), response = lhs)
         cmp <- if (is.null(compare)) NULL else setdiff(compare, tr)
 
         res <- tryCatch(
-            fun(f_tr, data, compare = cmp, ...),
+            do.call(fun, c(list(f_tr, data, compare = cmp), dots, inner)),
             error = function(e) e
         )
         if (inherits(res, "error")) {
@@ -95,6 +107,17 @@ regsen_multi <- function(formula, data, treatments,
             error     = NA_character_,
             stringsAsFactors = FALSE
         )
+    }
+    rows <- par_lapply(length(treatments), one, ncores)
+    # A worker that died (rather than an analysis that errored, which
+    # `one` already catches) is reported the same way, in its row.
+    rows <- lapply(seq_along(rows), function(i) {
+        r <- rows[[i]]
+        if (!inherits(r, "try-error")) return(r)
+        data.frame(treatment = treatments[i], estimate = NA_real_,
+                   breakdown = NA_real_, n = NA_integer_,
+                   error = conditionMessage(attr(r, "condition")),
+                   stringsAsFactors = FALSE)
     })
 
     out <- do.call(rbind, rows)

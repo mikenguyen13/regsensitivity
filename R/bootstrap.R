@@ -50,12 +50,14 @@
 #'   identical for a given `seed` regardless of `ncores`: each replicate
 #'   draws its own seed from a vector generated once up front, so nothing
 #'   depends on how the work was divided.
-#' @param ncores Number of cores for the replications. `1` (default) runs
-#'   serially. Above 1 the package forks on macOS and Linux and falls back
-#'   to a PSOCK cluster on Windows, which has no fork. A progress bar is
-#'   not shown when running in parallel. Capped at `R`, and at 2 while
-#'   `R CMD check --as-cran` is running, which forbids more; results do not
-#'   depend on the cap.
+#' @param ncores Number of cores for the replications and the jackknife.
+#'   `NULL` (default) uses the session setting of [regsen_cores()], which
+#'   is 1 unless changed; `"auto"` uses all but two of the machine's
+#'   cores. A progress bar is not shown when running in parallel. Capped
+#'   at `R`, and at 2 while `R CMD check --as-cran` is running, which
+#'   forbids more; results do not depend on the cap. The breakdown
+#'   computation inside each replicate always runs serially, so cores are
+#'   not oversubscribed.
 #' @param show_progress Logical; print progress bar.
 #'
 #' @return An object of class `regsensitivity_boot` containing: `point`,
@@ -105,21 +107,19 @@ regsen_boot <- function(formula, data,
                         cluster = NULL,
                         level = 0.95,
                         seed = NULL,
-                        ncores = 1L,
+                        ncores = NULL,
                         show_progress = interactive()) {
     stopifnot(is.data.frame(data), length(R) == 1, R >= 1,
               level > 0, level < 1)
     R <- as.integer(R)
     type <- match.arg(type)
-    ncores <- as.integer(ncores)
-    if (is.na(ncores) || ncores < 1L) {
-        stop("`ncores` must be a positive integer.", call. = FALSE)
-    }
-    ncores <- min(ncores, R, max_allowed_cores())
+    ncores <- min(resolve_ncores(ncores), R)
 
     if (!is.null(seed)) set.seed(seed)
 
-    point_res <- regsen_breakdown(formula, data, ...)
+    # The point estimate may use the cores itself: nothing else is running
+    # yet. Replicates below run serially inside, in parallel across.
+    point_res <- regsen_breakdown(formula, data, ..., ncores = ncores)
     point <- point_res$results$breakdown[1]
 
     # Build the model matrices once; every replicate is a row subset of
@@ -135,7 +135,7 @@ regsen_boot <- function(formula, data,
         res <- tryCatch(
             do.call(breakdown_from_dgp,
                     c(list(get_dgp(subset_dgp_inputs(inputs, rows))),
-                      boot_args)),
+                      boot_args, list(ncores = 1L))),
             error = function(e) NULL
         )
         if (is.null(res) || nrow(res$results) == 0) {
@@ -247,7 +247,7 @@ resolve_boot_args <- function(...) {
     keep <- c("analysis", "beta", "cbar", "clow", "rybar", "rybar_expr",
               "direction", "rxbar", "r2long", "maxovb", "r2long_type",
               "maxovb_type")
-    args <- args[intersect(names(args), keep)]
+    args <- args[intersect(names(args), keep)]   # drops ncores too
     if (!is.null(args$analysis)) args$analysis <- match_analysis(args$analysis)
     args
 }
@@ -307,7 +307,7 @@ run_replicates <- function(fn, n, ncores, show_progress, label) {
     if (ncores > 1L) {
         # A progress bar cannot report meaningfully from several workers,
         # so it is suppressed rather than printed wrongly.
-        return(boot_parallel(fn, n, ncores))
+        return(par_numeric(n, fn, ncores))
     }
     out <- numeric(n)
     if (show_progress) {
@@ -373,53 +373,4 @@ print.regsensitivity_boot <- function(x, ...) {
             "survived every value there)\n", sep = "")
     }
     invisible(x)
-}
-
-# R CMD check --as-cran sets _R_CHECK_LIMIT_CORES_, and parallel then
-# refuses to spawn more than two processes. Without this cap a user
-# running check() on their own package -- with a vignette or example that
-# calls regsen_boot(ncores = 4) -- would get a hard error out of
-# parallel:::.check_ncores rather than a slower run. Silently honouring
-# the limit is the behaviour that keeps their check green.
-max_allowed_cores <- function() {
-    chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
-    if (nzchar(chk) && !identical(tolower(chk), "false")) 2L else Inf
-}
-
-# Run `fn` R times across `ncores` workers.
-#
-# Forking (mclapply) is used where the OS provides it: workers inherit the
-# whole session, so the data and the closure need no explicit export and
-# nothing is copied until written to. Windows has no fork, so it gets a
-# PSOCK cluster instead, which does need the closure's environment shipped
-# to each worker -- slower to start, and the reason forking is preferred
-# where available.
-boot_parallel <- function(fn, R, ncores) {
-    if (.Platform$OS.type != "windows") {
-        # mc.set.seed = FALSE: each replicate seeds itself from the
-        # pre-drawn vector, so letting the fork reseed would only add
-        # core-count dependence back in.
-        out <- parallel::mclapply(seq_len(R), fn,
-                                  mc.cores = ncores,
-                                  mc.set.seed = FALSE)
-    } else {
-        cl <- parallel::makeCluster(ncores)
-        on.exit(parallel::stopCluster(cl), add = TRUE)
-        parallel::clusterEvalQ(cl, {
-            suppressMessages(requireNamespace("regsensitivity", quietly = TRUE))
-        })
-        parallel::clusterExport(cl, varlist = "fn", envir = environment())
-        out <- parallel::parLapply(cl, seq_len(R), fn)
-    }
-
-    # mclapply signals a worker failure by returning a try-error in that
-    # slot rather than throwing, so a crashed replicate must be mapped to NA
-    # here or it would propagate as a list element into a numeric vector.
-    vapply(out, function(z) {
-        if (inherits(z, "try-error") || is.null(z) || length(z) != 1) {
-            NA_real_
-        } else {
-            as.numeric(z)
-        }
-    }, numeric(1))
 }
