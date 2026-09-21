@@ -12,14 +12,14 @@ Source:
 [`inst/CITATION`](https://github.com/mikenguyen13/regsensitivity/blob/main/inst/CITATION)
 
 Nguyen M (2026). *regsensitivity: Regression Sensitivity Analysis for
-Omitted Variable Bias*. R package version 0.1.2,
+Omitted Variable Bias*. R package version 0.2.0,
 <https://github.com/mikenguyen13/regsensitivity>.
 
     @Manual{,
       title = {{regsensitivity}: Regression Sensitivity Analysis for Omitted Variable Bias},
       author = {Mike Nguyen},
       year = {2026},
-      note = {R package version 0.1.2},
+      note = {R package version 0.2.0},
       url = {https://github.com/mikenguyen13/regsensitivity},
     }
 
@@ -53,14 +53,17 @@ Theory and Evidence.” *Journal of Business & Economic Statistics*,
     }
 
 Masten M, Poirier A (2026). “The Effect of Omitted Variables on the Sign
-of Regression Coefficients.” *arXiv preprint*. 2208.00552,
-<https://arxiv.org/abs/2208.00552>.
+of Regression Coefficients.” *American Economic Review*, **116**(7),
+2685–2710.
+[doi:10.1257/aer.20230242](https://doi.org/10.1257/aer.20230242).
 
     @Article{,
       title = {The Effect of Omitted Variables on the Sign of Regression Coefficients},
       author = {Matthew A. Masten and Alexandre Poirier},
       year = {2026},
-      journal = {arXiv preprint},
-      eprint = {2208.00552},
-      url = {https://arxiv.org/abs/2208.00552},
+      journal = {American Economic Review},
+      volume = {116},
+      number = {7},
+      pages = {2685--2710},
+      doi = {10.1257/aer.20230242},
     }

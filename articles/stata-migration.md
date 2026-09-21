@@ -37,6 +37,17 @@ regsensitivity `y' `x' `w1' `w0', compare(`w1')
 In R the same information is a formula plus `compare`. The first term on
 the right-hand side is the treatment; everything else is a control.
 
+![A regsen_summary call with braces under its parts: y is the outcome Y,
+x is the treatment X, the terms named by compare are the calibration
+covariates W1, and the remaining right-hand-side terms are the control
+covariates W0, which are partialled out. A dashed circle stands for the
+unobserved W2, which appears in no formula.](figures/covariates.png)
+
+`compare` and `nocompare` are two ways of drawing the same line, and you
+may give at most one of them: `compare` names the calibration set
+$`W_1`$, `nocompare` names its complement $`W_0`$. Give neither and
+every control enters $`W_1`$.
+
 ## Command map
 
 | Stata | R |
@@ -46,7 +57,7 @@ the right-hand side is the treatment; everything else is a control.
 | `regsensitivity breakdown ...` | `regsen_breakdown(form, data, ...)` |
 | `regsensitivity plot` | `plot(result)` |
 | `compare(w1)` | `compare = w1` |
-| `nocompare` | `nocompare = TRUE` |
+| `nocompare(w0)` | `nocompare = w0` |
 | `cbar(0(.2)1)` | `cbar = seq(0, 1, 0.2)` |
 | `rxbar(0 2)` | `rxbar = c(0, 2)` |
 | `rybar(2)` | `rybar = 2` |
@@ -272,7 +283,7 @@ b_eq  <- regsen_bounds(form, bfg2020, compare = w1,
                         rybar_expr = function(rx) rx)
 c(rybar_2 = b_ry$breakdown, rybar_eq = b_eq$breakdown)
 #>   rybar_2  rybar_eq 
-#> 0.8035905 0.9583522
+#> 0.8035475 0.9583504
 ```
 
 ### Oster (2019)
@@ -334,3 +345,49 @@ with no arguments replots whatever ran last. Here each function returns
 its result and [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
 takes it explicitly, which is what lets you keep several analyses side
 by side in one session.
+
+## Beyond the Stata package
+
+Three things here have no Stata counterpart, so nothing in the table
+above maps onto them.
+
+`direction = "rybar"` reports the breakdown point in `rybar` at a given
+`rxbar` rather than the other way round – the frontier of DMP Theorem 4,
+and the only direction that can describe the part of it where no `rxbar`
+overturns the conclusion.
+
+``` r
+
+regsen_breakdown(form, bfg2020, compare = w1, cbar = 1,
+                  direction = "rybar",
+                  rxbar = c(0.5, 1, 2, 4))$results
+#>   index breakdown
+#> 1   0.5       Inf
+#> 2   1.0 0.8632973
+#> 3   2.0 0.5901671
+#> 4   4.0 0.5901671
+```
+
+`clow` is the lower end of Assumption A6, asserting that the controls
+are *at least* that endogenous, which narrows the identified set.
+
+``` r
+
+regsen_bounds(form, bfg2020, compare = w1, cbar = 1, clow = 0.99,
+               rxbar = c(0.5, 0.9))$results
+#>   rxbar rybar cbar      bmin     bmax
+#> 1   0.5   Inf    1 1.8463561 2.263163
+#> 2   0.9   Inf    1 0.2911616 3.818357
+```
+
+And the identified set is computed for every triple of sensitivity
+parameters, including `rxbar > rmax(cbar) > rybar`, where both packages
+previously stopped:
+
+``` r
+
+regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
+               rxbar = 2, rybar = 0.5)$results
+#>   rxbar rybar cbar     bmin     bmax
+#> 1     2   0.5    1 0.424218 3.774923
+```

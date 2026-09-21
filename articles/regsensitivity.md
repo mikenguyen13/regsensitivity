@@ -3,7 +3,43 @@
 This vignette replicates the BFG2020 empirical application used in the
 Stata `regsensitivity` vignette, walking through the
 **Diegert-Masten-Poirier (2026)** and **Oster (2019) / Masten-Poirier
-(2026)** analyses.
+(2026)** analyses. It shows how to call the package; for what the
+numbers mean, what to conclude from them and what to write in a paper,
+see
+[`vignette("interpreting-results")`](https://mikenguyen13.github.io/regsensitivity/articles/interpreting-results.md).
+
+## The setup
+
+Every analysis in this package concerns the same picture.
+
+![A diagram of the model. Boxes mark the observed variables W1, X and Y;
+a dashed circle marks the unobserved W2. Solid arrows pi-1 and gamma-1
+run from W1 into X and Y, dashed arrows pi-2 and gamma-2 run from W2
+into X and Y, and a heavy arrow labelled beta-long runs from X to Y. A
+dotted double-headed arrow between W1 and W2 is labelled association
+left unrestricted.](figures/model.png)
+
+You want $`\beta_{\text{long}}`$, the coefficient on the treatment $`X`$
+in a regression that adjusts for *everything* relevant, observed or not.
+You can only run the *medium* regression, which adjusts for the observed
+covariates and returns $`\beta_{\text{med}}`$. The two agree exactly
+when $`\pi_2 = 0`$: no selection on unobservables, the dashed arrow into
+$`X`$ erased. Sensitivity analysis asks how far that can fail before
+your conclusion does.
+
+Note what the baseline does *not* assume. It leaves $`\gamma_2`$ free –
+the unobservable may matter arbitrarily much for the outcome – and it
+leaves the $`W_1`$–$`W_2`$ association free. That is why the observed
+controls being endogenous is not, on its own, fatal.
+
+The observed covariates split in two. The ones you name in `compare` are
+the **calibration** covariates $`W_1`$: the yardstick the unobservable
+is measured against. Everything else is a **control** covariate $`W_0`$,
+adjusted for but never used as a yardstick – fixed effects and nuisance
+controls belong here. (Stata’s `regsensitivity` and this package’s
+argument names call $`W_1`$ the *comparison set*, which is where
+`compare` gets its name; the DMP paper calls it the calibration set.
+They are the same thing.)
 
 ``` r
 
@@ -18,6 +54,51 @@ form <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
 compare <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
              "elev_mean", "d_coa", "d_riv", "d_lak", "ave_gyi")
 ```
+
+So here the geographic and climate variables are $`W_1`$ and the state
+fixed effects `statea` are $`W_0`$: the omitted variable’s importance is
+judged against geography and climate, never against state dummies. In
+general:
+
+![A regsen_summary call with braces under its parts: y is the outcome Y,
+x is the treatment X, the terms named by compare are the calibration
+covariates W1, and the remaining right-hand-side terms are the control
+covariates W0, which are partialled out. A dashed circle stands for the
+unobserved W2, which appears in no formula.](figures/covariates.png)
+
+`nocompare` draws the same line from the other side, naming $`W_0`$
+instead; give at most one of the two. If you give neither, every control
+enters $`W_1`$.
+
+## The three sensitivity parameters
+
+Rather than assume $`\pi_2 = 0`$, DMP bound how large the unobservable’s
+role can be. Three parameters do the work, and each caps one feature of
+the picture above:
+
+![The same model diagram, with the dashed arrow from W2 into X tagged
+A3, the dashed arrow from W2 into Y tagged A5, and the dotted W1-W2 edge
+tagged A6. A key gives r-X as the ratio of the standard deviations of
+the two indices entering X, bounded by rxbar; r-Y likewise for Y,
+bounded by rybar; and the partial correlation of W2 with W1 given W0
+lying in the interval from clow to cbar.](figures/sensparams.png)
+
+- `rxbar` bounds $`r_X`$: how much the unobservable moves the
+  **treatment**, as a multiple of how much the calibration covariates
+  do. `rxbar = 1` says the unobservable is at most as important as
+  $`W_1`$ taken together.
+- `rybar` bounds $`r_Y`$: the same ratio for the **outcome**. Left at
+  `Inf` by default, which assumes nothing about $`\gamma_2`$.
+- `cbar` and `clow` bound how much of the unobservable the calibration
+  covariates already explain. The default `cbar = 1` imposes nothing,
+  and is the case in which the controls may be arbitrarily endogenous.
+
+Because $`r_X`$ and $`r_Y`$ are *relative*, their scale only means
+something against a reference;
+[`calibrate_rho()`](https://mikenguyen13.github.io/regsensitivity/reference/calibrate_rho.md)
+and
+[`calibrate_partial_r2()`](https://mikenguyen13.github.io/regsensitivity/reference/calibrate_partial_r2.md)
+supply the point-identified reference values DMP propose.
 
 The “short” regression coefficient (with no controls) and the “medium”
 regression coefficient (with state FE and the comparison controls) give
@@ -66,18 +147,18 @@ print(bnds)
 #>   Var(X_Residual)               0.8823
 #> 
 #> --- Results ---------------------------------------------
-#>    rxbar rybar   cbar      bmin   bmax
-#>        0  +Inf    0.1    2.0548 2.0548
-#>  0.40807  +Inf    0.1    1.4221 2.6875
-#>  0.81613  +Inf    0.1   0.72444 3.3851
-#>   1.2242  +Inf    0.1 -0.060227 4.1697
-#>   1.6323  +Inf    0.1  -0.96596 5.0755
-#>   2.0403  +Inf    0.1   -2.0488 6.1583
-#>   2.4484  +Inf    0.1   -3.4099 7.5195
-#>   2.8565  +Inf    0.1   -5.2589 9.3684
-#>   3.2645  +Inf    0.1   -8.1355 12.245
-#>   3.6726  +Inf    0.1   -14.208 18.317
-#>   4.0807  +Inf    0.1      -Inf   +Inf
+#>   rxbar rybar   cbar     bmin   bmax
+#>       0  +Inf    0.1   2.0548 2.0548
+#>  0.4063  +Inf    0.1   1.4249 2.6846
+#>  0.8126  +Inf    0.1  0.73082 3.3787
+#>  1.2189  +Inf    0.1 -0.04935 4.1589
+#>  1.6252  +Inf    0.1 -0.94897 5.0585
+#>  2.0315  +Inf    0.1  -2.0229 6.1324
+#>  2.4378  +Inf    0.1  -3.3697 7.4792
+#>  2.8441  +Inf    0.1   -5.192 9.3015
+#>  3.2504  +Inf    0.1  -8.0056 12.115
+#>  3.6567  +Inf    0.1  -13.822 17.932
+#>   4.063  +Inf    0.1     -Inf   +Inf
 ```
 
 The bounds widen monotonically as `rxbar` (the strength of the
@@ -128,7 +209,7 @@ print(fin)
 #> Outcome:           avgrep2000to2016
 #> N (obs):           2036
 #> Hypothesis:        Beta > 0
-#> Breakdown point:   0.8036
+#> Breakdown point:   0.8035
 #> 
 #> --- Summary statistics ----------------------------------
 #>   Beta (short)                  1.9246
@@ -142,15 +223,15 @@ print(fin)
 #> --- Results ---------------------------------------------
 #>     rxbar  rybar   cbar     bmin   bmax
 #>         0      2      1   2.0548 2.0548
-#>  0.098939      2      1    1.912 2.1986
-#>   0.19788      2      1   1.7623 2.3522
-#>   0.29682      2      1   1.5985 2.5182
-#>   0.39576      2      1    1.416 2.6989
-#>   0.49469      2      1   1.2031 2.9068
-#>   0.59363      2      1   0.9512 3.1616
-#>   0.69257      2      1  0.60818 3.5013
-#>   0.79151      2      1 0.087004 4.0225
-#>   0.89045      2      1 -0.99231 5.1018
+#>  0.098939      2      1   1.9107 2.2007
+#>   0.19788      2      1   1.7612 2.3539
+#>   0.29682      2      1   1.5983 2.5185
+#>   0.39576      2      1   1.4149 2.6989
+#>   0.49469      2      1   1.2027 2.9069
+#>   0.59363      2      1  0.94779 3.1617
+#>   0.69257      2      1  0.60803 3.5015
+#>   0.79151      2      1 0.086812 4.0227
+#>   0.89045      2      1 -0.99272 5.1022
 #>   0.98939      2      1     -Inf   +Inf
 ```
 
@@ -165,15 +246,15 @@ expr <- regsen_bounds(form, bfg2020, compare = compare,
 expr$results
 #>    rxbar rybar cbar     bmin     bmax
 #> 1    0.0   0.0    1 2.054759 2.054759
-#> 2    0.1   0.1    1 2.050500 2.059032
-#> 3    0.2   0.2    1 2.037543 2.072209
-#> 4    0.3   0.3    1 2.015280 2.095471
-#> 5    0.4   0.4    1 1.982468 2.131282
-#> 6    0.5   0.5    1 1.936656 2.184482
-#> 7    0.6   0.6    1 1.872609 2.265132
-#> 8    0.7   0.7    1 1.778092 2.397429
-#> 9    0.8   0.8    1 1.616690 2.656058
-#> 10   0.9   0.9    1 1.189357 3.438213
+#> 2    0.1   0.1    1 2.050500 2.059033
+#> 3    0.2   0.2    1 2.037541 2.072210
+#> 4    0.3   0.3    1 2.015278 2.095477
+#> 5    0.4   0.4    1 1.982458 2.131293
+#> 6    0.5   0.5    1 1.936611 2.184491
+#> 7    0.6   0.6    1 1.872585 2.265157
+#> 8    0.7   0.7    1 1.778058 2.397467
+#> 9    0.8   0.8    1 1.615327 2.656118
+#> 10   0.9   0.9    1 1.189271 3.438830
 #> 11   1.0   1.0    1     -Inf      Inf
 ```
 
@@ -232,6 +313,47 @@ print(hyp)
 #>       1   0.57525
 ```
 
+### The frontier in the other direction
+
+`direction = "rybar"` reports the breakdown point in `rybar` at each
+`rxbar` instead: how much the unobservable may matter for the *outcome*
+before the conclusion fails, given how much it may matter for the
+treatment. This is the frontier of DMP Theorem 4, and the two directions
+trace the same curve in the $`(\bar r_X, \bar r_Y)`$ plane.
+
+``` r
+
+fr <- regsen_breakdown(form, bfg2020, compare = compare, cbar = 1,
+                        direction = "rybar",
+                        rxbar = c(0.5, 1, 2, 4))
+fr$results
+#>   index breakdown
+#> 1   0.5       Inf
+#> 2   1.0 0.8632973
+#> 3   2.0 0.5901671
+#> 4   4.0 0.5901671
+```
+
+An `Inf` says the conclusion survives every `rybar` at that `rxbar`; the
+mirror image, an `Inf` from the default direction, says it survives
+every `rxbar` at that `rybar`.
+
+### Asserting endogenous controls
+
+`cbar` caps how much of the unobservable the comparison controls can
+explain. `clow` is the other end of DMP Assumption A6: setting it above
+zero asserts that the controls are *at least* that endogenous, which
+narrows the identified set rather than widening it.
+
+``` r
+
+vapply(c(0, 0.9, 0.99), function(cl) {
+    regsen_breakdown(form, bfg2020, compare = compare,
+                      cbar = 1, clow = cl)$results$breakdown
+}, numeric(1))
+#> [1] 0.8035643 0.8177462 0.9136661
+```
+
 ## Oster (2019) bounds
 
 Switching to the Oster analysis with `analysis = "oster"`:
@@ -286,7 +408,7 @@ o2 <- regsen_bounds(form, bfg2020, compare = compare,
 plot(o2, ylim = c(-5, 8))
 ```
 
-![](regsensitivity_files/figure-html/unnamed-chunk-11-1.png)
+![](regsensitivity_files/figure-html/unnamed-chunk-13-1.png)
 
 ### Oster, \|delta\| \<= d (bound)
 
@@ -299,7 +421,7 @@ ob <- regsen_bounds(form, bfg2020, compare = compare,
 plot(ob, ylim = c(-50, 50))
 ```
 
-![](regsensitivity_files/figure-html/unnamed-chunk-12-1.png)
+![](regsensitivity_files/figure-html/unnamed-chunk-14-1.png)
 
 ## Oster breakdown
 
@@ -312,7 +434,7 @@ obd_eq <- regsen_breakdown(form, bfg2020, compare = compare,
 plot(obd_eq)
 ```
 
-![](regsensitivity_files/figure-html/unnamed-chunk-13-1.png)
+![](regsensitivity_files/figure-html/unnamed-chunk-15-1.png)
 
 ``` r
 
@@ -323,7 +445,7 @@ obd_sign <- regsen_breakdown(form, bfg2020, compare = compare,
 plot(obd_sign)
 ```
 
-![](regsensitivity_files/figure-html/unnamed-chunk-13-2.png)
+![](regsensitivity_files/figure-html/unnamed-chunk-15-2.png)
 
 ## Summary call
 
@@ -412,7 +534,7 @@ print(s)
 - Oster, E. (2019). Unobservable Selection and Coefficient Stability:
   Theory and Evidence. *JBES* 37(2), 187–204.
 - Masten, M., and Poirier, A. (2026). The Effect of Omitted Variables on
-  the Sign of Regression Coefficients. arXiv:2208.00552.
+  the Sign of Regression Coefficients. *AER* 116(7), 2685–2710.
 - Bazzi, S., Fiszbein, M., and Gebresilasse, M. (2020). Frontier
   Culture: The Roots and Persistence of “Rugged Individualism” in the
   United States. *Econometrica* 88(6), 2329–2368.

@@ -2,9 +2,10 @@
 
 Find the smallest sensitivity-parameter value at which a given
 hypothesis about the long-regression coefficient first fails. For DMP,
-this is rxbar as a function of (cbar, rybar, beta). For Oster, this is
-\|delta\| as a function of R-squared(long), beta and (optionally)
-maxovb.
+this is rxbar as a function of (cbar, rybar, beta) or – with
+`direction = "rybar"` – rybar as a function of (rxbar, cbar, beta). For
+Oster, this is \|delta\| as a function of R-squared(long), beta and
+(optionally) maxovb.
 
 ## Usage
 
@@ -16,14 +17,16 @@ regsen_breakdown(
   compare = NULL,
   nocompare = NULL,
   cbar = 1,
+  clow = 0,
   rybar = Inf,
   rybar_expr = NULL,
+  direction = c("rxbar", "rybar"),
+  rxbar = NULL,
   r2long = 1,
   maxovb = NA,
   r2long_type = c("eq", "relative"),
   maxovb_type = c("bound", "relative"),
   beta = "sign",
-  ngrid = 200L,
   subset = NULL
 )
 ```
@@ -54,10 +57,26 @@ regsen_breakdown(
   Optional character vector of controls to *exclude* from the comparison
   set.
 
-- cbar, rybar, rybar_expr:
+- cbar, clow, rybar, rybar_expr:
 
   (DMP) Same as in
   [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md).
+
+- direction:
+
+  (DMP) Which sensitivity parameter the breakdown point is reported in:
+  `"rxbar"` (default) sweeps `cbar` or `beta` and solves for rxbar;
+  `"rybar"` sweeps `rxbar` and solves for rybar, the frontier
+  `rybar_bf(rxbar)` of DMP (2026) Theorem 4. The two trace the same
+  frontier, but only the rybar direction can describe its horizontal
+  arm, where the conclusion survives every rxbar and the rxbar breakdown
+  point is `+Inf`.
+
+- rxbar:
+
+  (DMP, `direction = "rybar"`) Numeric vector of rxbar values at which
+  to evaluate the frontier. Defaults to an 11-point grid over
+  `[0, 2 * rmax(cbar)]`.
 
 - r2long, maxovb:
 
@@ -87,10 +106,6 @@ regsen_breakdown(
     to set the direction, e.g. `beta = bnd_lb(0)` for the hypothesis
     `beta > 0`.
 
-- ngrid:
-
-  Resolution of the finer grid stored in the result. Default 200.
-
 - subset:
 
   Optional logical or integer vector indicating which rows of `data` to
@@ -98,7 +113,8 @@ regsen_breakdown(
 
 ## Value
 
-A `regsensitivity` object.
+A `regsensitivity` object. `results$index` holds the swept parameter and
+`results$breakdown` the breakdown point at each value.
 
 ## Examples
 

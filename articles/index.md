@@ -7,6 +7,8 @@
 
 ### Using the package
 
+- [Reading the output: interpretation, edge cases and
+  decisions](https://mikenguyen13.github.io/regsensitivity/articles/interpreting-results.md):
 - [Publication-ready plots and
   tables](https://mikenguyen13.github.io/regsensitivity/articles/plots-and-tables.md):
 - [Coming from the Stata

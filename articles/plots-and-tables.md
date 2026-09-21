@@ -129,11 +129,11 @@ than tying the package to one of them.
 head(as.data.frame(res, digits = 3))
 #>   rxbar rybar cbar    bmin bmax
 #> 1 0.000   Inf  0.1  2.0500 2.05
-#> 2 0.408   Inf  0.1  1.4200 2.69
-#> 3 0.816   Inf  0.1  0.7240 3.39
-#> 4 1.220   Inf  0.1 -0.0602 4.17
-#> 5 1.630   Inf  0.1 -0.9660 5.08
-#> 6 2.040   Inf  0.1 -2.0500 6.16
+#> 2 0.406   Inf  0.1  1.4200 2.68
+#> 3 0.813   Inf  0.1  0.7310 3.38
+#> 4 1.220   Inf  0.1 -0.0494 4.16
+#> 5 1.630   Inf  0.1 -0.9490 5.06
+#> 6 2.030   Inf  0.1 -2.0200 6.13
 ```
 
 From here `kableExtra`, `gt`, `modelsummary`, `huxtable`, `tinytable`
@@ -154,11 +154,11 @@ regsen_table(res, format = "markdown", digits = 3, max_rows = 6)
 | rxbar | rybar |  cbar | Lower | Upper |
 |------:|------:|------:|------:|------:|
 |     0 |  +Inf | 0.100 |  2.05 |  2.05 |
-|  2.45 |  +Inf | 0.100 | -3.41 |  7.52 |
-| 0.816 |  +Inf | 0.500 | 0.245 |  3.86 |
-|  3.26 |  +Inf | 0.500 |  -Inf |  +Inf |
+|  2.44 |  +Inf | 0.100 | -3.37 |  7.48 |
+| 0.813 |  +Inf | 0.500 | 0.259 |  3.85 |
+|  3.25 |  +Inf | 0.500 |  -Inf |  +Inf |
 |  1.63 |  +Inf |  1.00 |  -Inf |  +Inf |
-|  4.08 |  +Inf |  1.00 |  -Inf |  +Inf |
+|  4.06 |  +Inf |  1.00 |  -Inf |  +Inf |
 
 ### LaTeX for a journal
 
@@ -202,13 +202,13 @@ regsen_table(res, format = "markdown", digits = 3, max_rows = 8)
 | rxbar | rybar |  cbar | Lower | Upper |
 |------:|------:|------:|------:|------:|
 |     0 |  +Inf | 0.100 |  2.05 |  2.05 |
-|  2.04 |  +Inf | 0.100 | -2.05 |  6.16 |
-|  3.67 |  +Inf | 0.100 | -14.2 |  18.3 |
-|  1.22 |  +Inf | 0.500 | -2.40 |  6.51 |
-|  2.86 |  +Inf | 0.500 |  -Inf |  +Inf |
-| 0.408 |  +Inf |  1.00 |  1.39 |  2.72 |
-|  2.04 |  +Inf |  1.00 |  -Inf |  +Inf |
-|  4.08 |  +Inf |  1.00 |  -Inf |  +Inf |
+|  2.03 |  +Inf | 0.100 | -2.02 |  6.13 |
+|  3.66 |  +Inf | 0.100 | -13.8 |  17.9 |
+|  1.22 |  +Inf | 0.500 | -2.34 |  6.45 |
+|  2.84 |  +Inf | 0.500 |  -Inf |  +Inf |
+| 0.406 |  +Inf |  1.00 |  1.39 |  2.72 |
+|  2.03 |  +Inf |  1.00 |  -Inf |  +Inf |
+|  4.06 |  +Inf |  1.00 |  -Inf |  +Inf |
 
 ### Feeding modelsummary
 
@@ -224,9 +224,9 @@ reachable as `tidy()` and `glance()`.
 head(regsen_tidy(res), 4)
 #>                       term estimate    conf.low conf.high     rxbar rybar cbar
 #> 1 tye_tfe890_500kNI_100_l6 2.054759  2.05475946  2.054759 0.0000000   Inf  0.1
-#> 2 tye_tfe890_500kNI_100_l6 2.054759  1.42206743  2.687451 0.4080674   Inf  0.1
-#> 3 tye_tfe890_500kNI_100_l6 2.054759  0.72444299  3.385076 0.8161347   Inf  0.1
-#> 4 tye_tfe890_500kNI_100_l6 2.054759 -0.06022714  4.169746 1.2242021   Inf  0.1
+#> 2 tye_tfe890_500kNI_100_l6 2.054759  1.42493384  2.684585 0.4063005   Inf  0.1
+#> 3 tye_tfe890_500kNI_100_l6 2.054759  0.73081914  3.378700 0.8126010   Inf  0.1
+#> 4 tye_tfe890_500kNI_100_l6 2.054759 -0.04935003  4.158869 1.2189016   Inf  0.1
 regsen_glance(res)
 #>     analysis subcommand          outcome                treatment nobs
 #> 1 DMP (2026)     bounds avgrep2000to2016 tye_tfe890_500kNI_100_l6 2036

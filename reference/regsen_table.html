@@ -13,7 +13,7 @@ Markdown target such as GitHub or Typst."><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,6 +27,7 @@ Markdown target such as GitHub or Typst."><meta property="og:image" content="htt
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/interpreting-results.html">Reading the output: interpretation, edge cases and decisions</a></li>
     <li><a class="dropdown-item" href="../articles/plots-and-tables.html">Publication-ready plots and tables</a></li>
     <li><a class="dropdown-item" href="../articles/stata-migration.html">Coming from the Stata package</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -181,38 +182,38 @@ your choice; nothing here is a dead end.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> | rxbar| rybar|  cbar|  Lower| Upper|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |-----:|-----:|-----:|------:|-----:|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |     0|  +Inf| 0.100|   1.39|  1.39|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.253|  +Inf| 0.100|  0.505|  2.27|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.506|  +Inf| 0.100| -0.443|  3.21|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.759|  +Inf| 0.100|  -1.49|  4.26|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.01|  +Inf| 0.100|  -2.70|  5.47|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.27|  +Inf| 0.100|  -4.14|  6.91|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.52|  +Inf| 0.100|  -6.01|  8.78|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.77|  +Inf| 0.100|  -8.67|  11.4|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.02|  +Inf| 0.100|  -13.4|  16.2|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.28|  +Inf| 0.100|  -29.3|  32.1|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.53|  +Inf| 0.100|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.238|  +Inf| 0.100|  0.560|  2.21|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.475|  +Inf| 0.100| -0.324|  3.09|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.713|  +Inf| 0.100|  -1.29|  4.06|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.951|  +Inf| 0.100|  -2.39|  5.16|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.19|  +Inf| 0.100|  -3.67|  6.44|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.43|  +Inf| 0.100|  -5.26|  8.03|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.66|  +Inf| 0.100|  -7.40|  10.2|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.90|  +Inf| 0.100|  -10.7|  13.4|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.14|  +Inf| 0.100|  -17.5|  20.2|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.38|  +Inf| 0.100|   -Inf|  +Inf|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |     0|  +Inf| 0.500|   1.39|  1.39|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.253|  +Inf| 0.500|  0.494|  2.28|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.506|  +Inf| 0.500| -0.645|  3.42|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.759|  +Inf| 0.500|  -2.45|  5.22|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.01|  +Inf| 0.500|  -5.97|  8.74|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.27|  +Inf| 0.500|  -35.7|  38.4|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.52|  +Inf| 0.500|   -Inf|  +Inf|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.77|  +Inf| 0.500|   -Inf|  +Inf|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.02|  +Inf| 0.500|   -Inf|  +Inf|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.28|  +Inf| 0.500|   -Inf|  +Inf|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.53|  +Inf| 0.500|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.238|  +Inf| 0.500|  0.552|  2.22|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.475|  +Inf| 0.500| -0.479|  3.25|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.713|  +Inf| 0.500|  -2.04|  4.81|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.951|  +Inf| 0.500|  -4.80|  7.57|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.19|  +Inf| 0.500|  -13.6|  16.4|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.43|  +Inf| 0.500|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.66|  +Inf| 0.500|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.90|  +Inf| 0.500|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.14|  +Inf| 0.500|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.38|  +Inf| 0.500|   -Inf|  +Inf|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |     0|  +Inf|  1.00|   1.39|  1.39|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.253|  +Inf|  1.00|  0.494|  2.28|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.506|  +Inf|  1.00| -0.645|  3.42|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.759|  +Inf|  1.00|  -2.89|  5.66|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.01|  +Inf|  1.00|   -Inf|  +Inf|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.27|  +Inf|  1.00|   -Inf|  +Inf|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.52|  +Inf|  1.00|   -Inf|  +Inf|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.77|  +Inf|  1.00|   -Inf|  +Inf|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.02|  +Inf|  1.00|   -Inf|  +Inf|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.28|  +Inf|  1.00|   -Inf|  +Inf|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.53|  +Inf|  1.00|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.238|  +Inf|  1.00|  0.552|  2.22|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.475|  +Inf|  1.00| -0.479|  3.25|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.713|  +Inf|  1.00|  -2.27|  5.04|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> | 0.951|  +Inf|  1.00|  -74.8|  77.5|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.19|  +Inf|  1.00|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.43|  +Inf|  1.00|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.66|  +Inf|  1.00|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  1.90|  +Inf|  1.00|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.14|  +Inf|  1.00|   -Inf|  +Inf|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |  2.38|  +Inf|  1.00|   -Inf|  +Inf|</span>
 <span class="r-in"><span><span class="fu">regsen_table</span><span class="op">(</span><span class="va">res</span>, format <span class="op">=</span> <span class="st">"latex"</span>, notes <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>             caption <span class="op">=</span> <span class="st">"Identified sets"</span>, label <span class="op">=</span> <span class="st">"idset"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \begin{table}</span>
@@ -226,44 +227,44 @@ your choice; nothing here is a dead end.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $\bar{r}_x$ &amp; $\bar{r}_y$ &amp; $\bar{c}$ &amp; $\beta_{\min}$ &amp; $\beta_{\max}$\\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \midrule</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0 &amp; $+\infty$ &amp; 0.100 &amp; 1.39 &amp; 1.39\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.253 &amp; $+\infty$ &amp; 0.100 &amp; 0.505 &amp; 2.27\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.506 &amp; $+\infty$ &amp; 0.100 &amp; -0.443 &amp; 3.21\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.759 &amp; $+\infty$ &amp; 0.100 &amp; -1.49 &amp; 4.26\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.01 &amp; $+\infty$ &amp; 0.100 &amp; -2.70 &amp; 5.47\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.238 &amp; $+\infty$ &amp; 0.100 &amp; 0.560 &amp; 2.21\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.475 &amp; $+\infty$ &amp; 0.100 &amp; -0.324 &amp; 3.09\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.713 &amp; $+\infty$ &amp; 0.100 &amp; -1.29 &amp; 4.06\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.951 &amp; $+\infty$ &amp; 0.100 &amp; -2.39 &amp; 5.16\\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \addlinespace</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.27 &amp; $+\infty$ &amp; 0.100 &amp; -4.14 &amp; 6.91\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.52 &amp; $+\infty$ &amp; 0.100 &amp; -6.01 &amp; 8.78\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.77 &amp; $+\infty$ &amp; 0.100 &amp; -8.67 &amp; 11.4\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.02 &amp; $+\infty$ &amp; 0.100 &amp; -13.4 &amp; 16.2\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.28 &amp; $+\infty$ &amp; 0.100 &amp; -29.3 &amp; 32.1\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.19 &amp; $+\infty$ &amp; 0.100 &amp; -3.67 &amp; 6.44\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.43 &amp; $+\infty$ &amp; 0.100 &amp; -5.26 &amp; 8.03\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.66 &amp; $+\infty$ &amp; 0.100 &amp; -7.40 &amp; 10.2\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.90 &amp; $+\infty$ &amp; 0.100 &amp; -10.7 &amp; 13.4\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.14 &amp; $+\infty$ &amp; 0.100 &amp; -17.5 &amp; 20.2\\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \addlinespace</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.53 &amp; $+\infty$ &amp; 0.100 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.38 &amp; $+\infty$ &amp; 0.100 &amp; $-\infty$ &amp; $+\infty$\\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0 &amp; $+\infty$ &amp; 0.500 &amp; 1.39 &amp; 1.39\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.253 &amp; $+\infty$ &amp; 0.500 &amp; 0.494 &amp; 2.28\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.506 &amp; $+\infty$ &amp; 0.500 &amp; -0.645 &amp; 3.42\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.759 &amp; $+\infty$ &amp; 0.500 &amp; -2.45 &amp; 5.22\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.238 &amp; $+\infty$ &amp; 0.500 &amp; 0.552 &amp; 2.22\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.475 &amp; $+\infty$ &amp; 0.500 &amp; -0.479 &amp; 3.25\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.713 &amp; $+\infty$ &amp; 0.500 &amp; -2.04 &amp; 4.81\\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \addlinespace</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.01 &amp; $+\infty$ &amp; 0.500 &amp; -5.97 &amp; 8.74\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.27 &amp; $+\infty$ &amp; 0.500 &amp; -35.7 &amp; 38.4\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.52 &amp; $+\infty$ &amp; 0.500 &amp; $-\infty$ &amp; $+\infty$\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.77 &amp; $+\infty$ &amp; 0.500 &amp; $-\infty$ &amp; $+\infty$\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.02 &amp; $+\infty$ &amp; 0.500 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.951 &amp; $+\infty$ &amp; 0.500 &amp; -4.80 &amp; 7.57\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.19 &amp; $+\infty$ &amp; 0.500 &amp; -13.6 &amp; 16.4\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.43 &amp; $+\infty$ &amp; 0.500 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.66 &amp; $+\infty$ &amp; 0.500 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.90 &amp; $+\infty$ &amp; 0.500 &amp; $-\infty$ &amp; $+\infty$\\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \addlinespace</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.28 &amp; $+\infty$ &amp; 0.500 &amp; $-\infty$ &amp; $+\infty$\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.53 &amp; $+\infty$ &amp; 0.500 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.14 &amp; $+\infty$ &amp; 0.500 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.38 &amp; $+\infty$ &amp; 0.500 &amp; $-\infty$ &amp; $+\infty$\\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0 &amp; $+\infty$ &amp; 1.00 &amp; 1.39 &amp; 1.39\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.253 &amp; $+\infty$ &amp; 1.00 &amp; 0.494 &amp; 2.28\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.506 &amp; $+\infty$ &amp; 1.00 &amp; -0.645 &amp; 3.42\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.238 &amp; $+\infty$ &amp; 1.00 &amp; 0.552 &amp; 2.22\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.475 &amp; $+\infty$ &amp; 1.00 &amp; -0.479 &amp; 3.25\\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \addlinespace</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.759 &amp; $+\infty$ &amp; 1.00 &amp; -2.89 &amp; 5.66\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.01 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.27 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.52 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.77 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.713 &amp; $+\infty$ &amp; 1.00 &amp; -2.27 &amp; 5.04\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.951 &amp; $+\infty$ &amp; 1.00 &amp; -74.8 &amp; 77.5\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.19 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.43 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.66 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \addlinespace</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.02 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.28 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.53 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.90 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.14 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.38 &amp; $+\infty$ &amp; 1.00 &amp; $-\infty$ &amp; $+\infty$\\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \bottomrule</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \end{tabular}</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \begin{tablenotes}[flushleft]</span>

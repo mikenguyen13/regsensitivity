@@ -1,10 +1,12 @@
 # Bootstrap confidence interval for the breakdown point
 
-Computes a non-parametric (or cluster) bootstrap percentile confidence
-interval for the breakdown point returned by
+Computes a non-parametric (or cluster) bootstrap confidence interval for
+the breakdown point returned by
 [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
 or the scalar `$breakdown` field of
 [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md).
+Both a bias-corrected and accelerated (BCa) interval and a percentile
+interval are returned; `type` chooses which one `$ci` reports.
 
 ## Usage
 
@@ -13,6 +15,7 @@ regsen_boot(
   formula,
   data,
   ...,
+  type = c("bca", "perc"),
   R = 999L,
   cluster = NULL,
   level = 0.95,
@@ -38,6 +41,12 @@ regsen_boot(
   Additional arguments forwarded to
   [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
   (the analysis to bootstrap).
+
+- type:
+
+  Interval type reported in `$ci`: `"bca"` (default) or `"perc"`. Under
+  `"bca"` both intervals are computed and stored; under `"perc"` the
+  jackknife BCa needs is skipped and `$ci_bca` is `NA`. See Details.
 
 - R:
 
@@ -76,7 +85,11 @@ regsen_boot(
 ## Value
 
 An object of class `regsensitivity_boot` containing: `point`,
-`replicates`, `ci`, `level`, `R`, `cluster`, `na`.
+`replicates`, `ci` (the interval named by `type`), `ci_bca`, `ci_perc`,
+`z0`, `acceleration`, `type`, `level`, `R`, `cluster`, `na` (the number
+of replicates that could not be computed) and `infinite` (the number on
+which the hypothesis survived every value of the sensitivity parameter;
+these count as `+Inf` in the intervals rather than being dropped).
 
 ## Details
 
@@ -86,6 +99,18 @@ when `rxbar`, `rybar` and `cbar` are all scalar the returned breakdown
 is the rxbar breakdown for the (scalar) hypothesis on beta. For Oster
 analyses the breakdown is the \|delta\| value at which the hypothesis
 first fails.
+
+The BCa interval takes the percentile interval and shifts the quantiles
+it reads by two constants: `z0`, a median-bias correction equal to the
+normal quantile of the share of replicates below the point estimate, and
+`acceleration`, computed from the delete-one jackknife over sampling
+units – rows, or clusters when `cluster` is given. The jackknife costs
+one breakdown computation per unit, which under an i.i.d. bootstrap
+means one per row and usually dominates the run; both it and the
+replicates honour `ncores`, and `type = "perc"` skips it. When the
+jackknife is degenerate (every unit gives the same estimate, so the
+acceleration is undefined) the BCa interval falls back to the percentile
+interval and `acceleration` is `NA`.
 
 ## Examples
 
@@ -105,8 +130,13 @@ print(bb)
 #> ------------------------------------------------------------
 #>   R                  : 199
 #>   Cluster bootstrap  : km_grid_cel_code
+#>   Interval           : BCa
+#>   Bias corr. (z0)    : 1.1233
+#>   Acceleration       : -0.0008
 #>   Confidence level   : 95%
 #>   Point estimate     : 0.8036
-#>   95% CI            : [0.4997, 0.8612]
+#>   95% CI            : [0.7465, 0.9025]
+#>   (An endpoint is an extreme replicate; raise R)
+#>   95% CI (percentile): [0.4997, 0.8612]
 # }
 ```

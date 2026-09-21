@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/interpreting-results.html">Reading the output: interpretation, edge cases and decisions</a></li>
     <li><a class="dropdown-item" href="../articles/plots-and-tables.html">Publication-ready plots and tables</a></li>
     <li><a class="dropdown-item" href="../articles/stata-migration.html">Coming from the Stata package</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -110,6 +111,15 @@ comparison set is named separately:</p>
 <p>In R the same information is a formula plus <code>compare</code>. The
 first term on the right-hand side is the treatment; everything else is a
 control.</p>
+<p><img src="figures/covariates.png" class="r-plt" alt="A regsen_summary call with braces under its parts: y is the outcome Y, x is the treatment X, the terms named by compare are the calibration covariates W1, and the remaining right-hand-side terms are the control covariates W0, which are partialled out. A dashed circle stands for the unobserved W2, which appears in no formula." width="100%"></p>
+<p><code>compare</code> and <code>nocompare</code> are two ways of
+drawing the same line, and you may give at most one of them:
+<code>compare</code> names the calibration set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mn>1</mn></msub><annotation encoding="application/x-tex">W_1</annotation></semantics></math>,
+<code>nocompare</code> names its complement
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mn>0</mn></msub><annotation encoding="application/x-tex">W_0</annotation></semantics></math>.
+Give neither and every control enters
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mn>1</mn></msub><annotation encoding="application/x-tex">W_1</annotation></semantics></math>.</p>
 <div class="section level2">
 <h2 id="command-map">Command map<a class="anchor" aria-label="anchor" href="#command-map"></a>
 </h2>
@@ -144,8 +154,8 @@ control.</p>
 <td><code>compare = w1</code></td>
 </tr>
 <tr class="even">
-<td><code>nocompare</code></td>
-<td><code>nocompare = TRUE</code></td>
+<td><code>nocompare(w0)</code></td>
+<td><code>nocompare = w0</code></td>
 </tr>
 <tr class="odd">
 <td><code>cbar(0(.2)1)</code></td>
@@ -405,7 +415,7 @@ subscripts; here the results are already a data frame, so
 <span>                        rybar_expr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">rx</span><span class="op">)</span> <span class="va">rx</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rybar_2 <span class="op">=</span> <span class="va">b_ry</span><span class="op">$</span><span class="va">breakdown</span>, rybar_eq <span class="op">=</span> <span class="va">b_eq</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   rybar_2  rybar_eq </span></span>
-<span><span class="co">#&gt; 0.8035905 0.9583522</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.8035475 0.9583504</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="oster-2019">Oster (2019)<a class="anchor" aria-label="anchor" href="#oster-2019"></a>
@@ -459,6 +469,43 @@ leaving results in <code>e()</code> for the next command to pick up:
 last. Here each function returns its result and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
 takes it explicitly, which is what lets you keep several analyses side
 by side in one session.</p>
+</div>
+<div class="section level2">
+<h2 id="beyond-the-stata-package">Beyond the Stata package<a class="anchor" aria-label="anchor" href="#beyond-the-stata-package"></a>
+</h2>
+<p>Three things here have no Stata counterpart, so nothing in the table
+above maps onto them.</p>
+<p><code>direction = "rybar"</code> reports the breakdown point in
+<code>rybar</code> at a given <code>rxbar</code> rather than the other
+way round – the frontier of DMP Theorem 4, and the only direction that
+can describe the part of it where no <code>rxbar</code> overturns the
+conclusion.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                  direction <span class="op">=</span> <span class="st">"rybar"</span>,</span>
+<span>                  rxbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">results</span></span>
+<span><span class="co">#&gt;   index breakdown</span></span>
+<span><span class="co">#&gt; 1   0.5       Inf</span></span>
+<span><span class="co">#&gt; 2   1.0 0.8632973</span></span>
+<span><span class="co">#&gt; 3   2.0 0.5901671</span></span>
+<span><span class="co">#&gt; 4   4.0 0.5901671</span></span></code></pre></div>
+<p><code>clow</code> is the lower end of Assumption A6, asserting that
+the controls are <em>at least</em> that endogenous, which narrows the
+identified set.</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>, clow <span class="op">=</span> <span class="fl">0.99</span>,</span>
+<span>               rxbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">results</span></span>
+<span><span class="co">#&gt;   rxbar rybar cbar      bmin     bmax</span></span>
+<span><span class="co">#&gt; 1   0.5   Inf    1 1.8463561 2.263163</span></span>
+<span><span class="co">#&gt; 2   0.9   Inf    1 0.2911616 3.818357</span></span></code></pre></div>
+<p>And the identified set is computed for every triple of sensitivity
+parameters, including <code>rxbar &gt; rmax(cbar) &gt; rybar</code>,
+where both packages previously stopped:</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>               rxbar <span class="op">=</span> <span class="fl">2</span>, rybar <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">$</span><span class="va">results</span></span>
+<span><span class="co">#&gt;   rxbar rybar cbar     bmin     bmax</span></span>
+<span><span class="co">#&gt; 1     2   0.5    1 0.424218 3.774923</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

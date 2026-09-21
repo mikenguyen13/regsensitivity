@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,6 +21,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/interpreting-results.html">Reading the output: interpretation, edge cases and decisions</a></li>
     <li><a class="dropdown-item" href="../articles/plots-and-tables.html">Publication-ready plots and tables</a></li>
     <li><a class="dropdown-item" href="../articles/stata-migration.html">Coming from the Stata package</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -48,6 +49,69 @@
       <small>Source: <a href="https://github.com/mikenguyen13/regsensitivity/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="regsensitivity-020">regsensitivity 0.2.0<a class="anchor" aria-label="anchor" href="#regsensitivity-020"></a></h2>
+<div class="section level3">
+<h3 id="the-identified-set-is-now-computed-everywhere-0-2-0">The identified set is now computed everywhere<a class="anchor" aria-label="anchor" href="#the-identified-set-is-now-computed-everywhere-0-2-0"></a></h3>
+<ul><li>
+<p>The region <code>rxbar &gt; rmax(cbar) &gt; rybar</code> no longer raises an error. <code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code> and <code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code> compute it like any other, and the numbers agree with an independent search over the constraint set of DMP (2026) Theorem 5 to within 0.01, continuously across <code>rmax</code>.</p>
+<p>What stood in the way was the solver for the constraint Assumption A3 places on <code>z</code>. That constraint is a quadratic inequality whose leading coefficient turns negative exactly when <code>rxbar * ||c|| &gt; 1</code>; its solution set is then the complement of an interval, not an interval, and the solver returned the hull of the two pieces. Sampling that hull hands the optimizer selection equations that violate A3, so the region was refused rather than reported. The feasible set is now represented as the list of intervals it is, and sampled in proportion to their lengths.</p>
+</li>
+<li><p>The breakdown point in <code>rxbar</code> is no longer capped at <code>rmax(cbar)</code>. That ceiling binds only when <code>rybar</code> is unrestricted; with <code>rybar</code> finite the breakdown point can lie well past it. Where no <code>rxbar</code> overturns the conclusion – the horizontal arm of the breakdown frontier – the reported value is now <code>+Inf</code> instead of the ceiling.</p></li>
+<li><p><code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code> gains <code>direction = "rybar"</code>, giving the frontier <code>rybar_bf(rxbar)</code> of DMP (2026) Theorem 4 over a grid of <code>rxbar</code>. This is the form the paper’s Figure 1 plots, and the only one that can describe the frontier’s horizontal arm.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="assumption-a6-in-its-general-form-0-2-0">Assumption A6 in its general form<a class="anchor" aria-label="anchor" href="#assumption-a6-in-its-general-form-0-2-0"></a></h3>
+<ul><li>
+<code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code> and <code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code> gain <code>clow</code>, the lower end of DMP Assumption A6, <code>R(W2 ~ W1 . W0)</code> in <code>[clow, cbar]</code>. Asserting that the controls are <em>at least</em> somewhat endogenous tightens the identified set and raises the breakdown point. <code>clow = 0</code>, the default, is the previous behaviour.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="inference-0-2-0">Inference<a class="anchor" aria-label="anchor" href="#inference-0-2-0"></a></h3>
+<ul><li>
+<code><a href="../reference/regsen_boot.html">regsen_boot()</a></code> now reports a bias-corrected and accelerated (BCa) interval alongside the percentile interval, and returns it by default; <code>type = "perc"</code> restores the old choice. The acceleration comes from a delete-one jackknife over the units the bootstrap resamples – rows, or clusters under a cluster bootstrap. In the simulation design of the package’s paper at <code>n = 500</code>, coverage improves from 92.0% to 94.0% against a nominal 95% at the same interval width; the two agree by <code>n = 1000</code>. <code>z0</code> and <code>acceleration</code> are returned so the correction can be inspected, and an endpoint that falls on an extreme replicate is reported as such.</li>
+<li>Bootstrap replicates are about three times faster on the bundled data, 5 milliseconds against 14. A replicate is now a row subset of model matrices built once, rather than a fresh <code><a href="https://rdrr.io/r/stats/model.frame.html" class="external-link">model.frame()</a></code> call per draw, which is what makes the BCa jackknife – one computation per row – affordable.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-2-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-0"></a></h3>
+<ul><li>
+<code>rmax</code>, the <code>rxbar</code> at which the identified set becomes unbounded, was wrong for <code>cbar &lt; 1</code>. It solved the <code>cbar</code> branch of DMP appendix equation (S18) unconditionally, when the maximising <code>||c||</code> is <code>rxbar</code> itself wherever A6 allows it. With <code>cbar = 0.5</code> on the bundled data, calibrating against the ten geographic and climate covariates, it reported 1.48 where the set is in fact unbounded from 1.19, so <code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code> printed a large finite number in place of an infinite one across that range, and the default <code>rxbar</code> grid ran past the point where the analysis says anything.</li>
+<li>A breakdown point for an upper-bound hypothesis (<code>beta = bnd_ub(v)</code>) was computed from the lower end of the identified set. With <code>rybar</code> finite the set is not symmetric around <code>beta_med</code>, so the reported value was wrong; the tested end is now chosen by the direction of the hypothesis.</li>
+<li>An equality hypothesis (<code>beta = bnd_eq(v)</code>) now breaks down at whichever end of the identified set can reach the hypothesised value, rather than always at the upper one.</li>
+<li>A name in <code>compare</code> or <code>nocompare</code> that is not a control on the right-hand side of the formula – a typo, or the treatment itself – is now an error. It used to be dropped silently, so a misspelt covariate quietly changed which variables calibrated the analysis.</li>
+<li>The sensitivity parameters are validated: <code>cbar</code> must lie in <code>[0, 1]</code>, <code>rxbar</code> and <code>rybar</code> must be non-negative, <code>r2long</code> non-negative and <code>maxovb</code> non-negative or <code>NA</code>, and none may be missing. Out-of-range values used to reach the closed forms and the optimizer and come back as <code>NA</code> without explanation.</li>
+<li>Under <code>analysis = "oster"</code> with <code>delta_type = "bound"</code>, a <code>maxovb</code> cap is now applied at <code>delta &gt;= 1</code> too. The raw set is the whole real line there, and the cap was skipped, so the reported bounds were <code>-Inf</code> and <code>+Inf</code> where the constraint says <code>beta_med - maxovb</code> and <code>beta_med + maxovb</code>.</li>
+<li>Comparison covariates that are collinear with one another are dropped, as the documentation already said and as Stata does; only those collinear with <code>W0</code> were. <code>Var(W1)</code> is singular otherwise, and the analysis went through a regularised inverse of it. The test for collinearity with <code>W0</code> is now relative to the covariate’s own variance, so a covariate measured in small units is no longer mistaken for a constant.</li>
+<li>
+<code><a href="../reference/regsen_boot.html">regsen_boot()</a></code> keeps replicates on which the breakdown point is <code>+Inf</code> – the hypothesis survived every value of the sensitivity parameter – in both intervals, where they count as <code>+Inf</code>. They were dropped along with failed replicates, so an interval whose upper tail is unbounded was reported with a finite upper endpoint. The count is returned as <code>$infinite</code> and printed.</li>
+<li>
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> of a <code><a href="../reference/regsen_boot.html">regsen_boot()</a></code> result reports the interval for the magnitude of a signed (Oster) breakdown point correctly. Taking <code><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs()</a></code> of each endpoint reversed a negative interval and, for one straddling zero, hid that the magnitude may be as small as zero.</li>
+<li>
+<code>regsen_table(label = ...)</code> warns when <code>caption</code> is not given, since <code><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">knitr::kable()</a></code> emits a float only with a caption and the label had nowhere to attach; it was dropped silently. The <code>r2long</code> column head uses <code>\mathrm</code> rather than <code>\text</code>, so it no longer needs <code>amsmath</code>.</li>
+<li>
+<code><a href="../reference/scale_colour_regsen.html">scale_colour_regsen()</a></code> and <code><a href="../reference/scale_colour_regsen.html">scale_fill_regsen()</a></code> recycle the palette (with a warning) when a sweep has more than eight groups, instead of erroring inside <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</li>
+<li>The default y-range of an identified-set plot is read off both bounds. It was read off the lower bound alone, which cropped the upper one whenever the set is not symmetric about <code>beta_med</code> (finite <code>rybar</code>, or Oster).</li>
+<li>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> of a result whose sensitivity parameters are all single values says so, rather than failing with a subscript error.</li>
+<li>A logical <code>subset</code> containing <code>NA</code> treats <code>NA</code> as <code>FALSE</code>, as <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code> does. The <code>NA</code> used to select a row of missing values and leave an <code>NA</code> in the row bookkeeping that <code><a href="../reference/regsen_boot.html">regsen_boot()</a></code> uses to line up a cluster column.</li>
+<li>The <code>ngrid</code> argument of <code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code> and <code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code> is removed: it was documented but never used.</li>
+<li>The explorer app no longer errors when the <code>rybar</code> box is left at its default. A numeric input cannot carry <code>Inf</code>, so blank now means unrestricted, and a cleared box greys the panel instead of raising.</li>
+<li>Masten and Poirier (2026) is cited as published, in the <em>American Economic Review</em> 116(7), rather than as an arXiv preprint.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-2-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-2-0"></a></h3>
+<ul><li>New vignette, <em>Reading the output: interpretation, edge cases and decisions</em> (<code><a href="../articles/interpreting-results.html">vignette("interpreting-results")</a></code>). It says what each number means, gives a decision path from breakdown point and <code>rho_k</code> to a verdict, and walks through the cases that confuse readers – a robust and a fragile conclusion on worlds where the omitted variable exists, a breakdown point of zero, a set that is unbounded early because the calibration set is weak, what goes in <code>compare</code>, when <code>cbar</code> matters, an infinite breakdown point under finite <code>rybar</code>, the two Oster breakdown points, and how to read the bootstrap print – each with the sentence to write in the paper. It ends with a list of common mistakes and a reporting checklist.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="verification-0-2-0">Verification<a class="anchor" aria-label="anchor" href="#verification-0-2-0"></a></h3>
+<ul><li>The identified set is now checked against worlds in which the omitted variable exists. Each test world simulates <code>W2</code>, reads the true <code>beta_long</code>, <code>r_X</code>, <code>r_Y</code> and <code>c</code> off it by the projections DMP (2026) define them through, and requires the package’s set at exactly those parameters to contain <code>beta_long</code> – with <code>rybar</code> unrestricted, with <code>rybar</code> finite (the optimizer), and with two-sided A6. A search over constructed omitted variables on fixed observed data stays inside the <code>rybar = Inf</code> set and reaches within 15% of its ends, so the set is neither invalid nor loose.</li>
+<li>Property tests pin what must hold on any data: sets nest as each parameter is relaxed and collapse to <code>beta_med</code> at <code>rxbar = 0</code>; the breakdown point is where the tested bound crosses the hypothesis; <code>rmax</code> is where the set becomes unbounded; rescaling <code>Y</code> or <code>X</code> scales the bounds as the model says, and rescaling, shifting or reordering the covariates leaves bounds and breakdown points unchanged, for both DMP and Oster.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="accuracy-and-speed-0-2-0">Accuracy and speed<a class="anchor" aria-label="anchor" href="#accuracy-and-speed-0-2-0"></a></h3>
+<ul><li>The global optimizer behind the finite-<code>rybar</code> identified set now polishes its result with a local search. Bounds agree with a run twenty times as long to within 3e-4, where the previous setting could be off by 0.02.</li>
+<li>A breakdown search evaluates only the end of the identified set its hypothesis tests, and finds the crossing by root-finding rather than fixed-iteration bisection. Together these make a breakdown point at finite <code>rybar</code> several times faster despite the more accurate optimizer.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.2" id="regsensitivity-012">regsensitivity 0.1.2<a class="anchor" aria-label="anchor" href="#regsensitivity-012"></a></h2>
 <div class="section level3">

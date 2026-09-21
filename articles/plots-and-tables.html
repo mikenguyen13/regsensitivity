@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/interpreting-results.html">Reading the output: interpretation, edge cases and decisions</a></li>
     <li><a class="dropdown-item" href="../articles/plots-and-tables.html">Publication-ready plots and tables</a></li>
     <li><a class="dropdown-item" href="../articles/stata-migration.html">Coming from the Stata package</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -187,11 +188,11 @@ them.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">res</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   rxbar rybar cbar    bmin bmax</span></span>
 <span><span class="co">#&gt; 1 0.000   Inf  0.1  2.0500 2.05</span></span>
-<span><span class="co">#&gt; 2 0.408   Inf  0.1  1.4200 2.69</span></span>
-<span><span class="co">#&gt; 3 0.816   Inf  0.1  0.7240 3.39</span></span>
-<span><span class="co">#&gt; 4 1.220   Inf  0.1 -0.0602 4.17</span></span>
-<span><span class="co">#&gt; 5 1.630   Inf  0.1 -0.9660 5.08</span></span>
-<span><span class="co">#&gt; 6 2.040   Inf  0.1 -2.0500 6.16</span></span></code></pre></div>
+<span><span class="co">#&gt; 2 0.406   Inf  0.1  1.4200 2.68</span></span>
+<span><span class="co">#&gt; 3 0.813   Inf  0.1  0.7310 3.38</span></span>
+<span><span class="co">#&gt; 4 1.220   Inf  0.1 -0.0494 4.16</span></span>
+<span><span class="co">#&gt; 5 1.630   Inf  0.1 -0.9490 5.06</span></span>
+<span><span class="co">#&gt; 6 2.030   Inf  0.1 -2.0200 6.13</span></span></code></pre></div>
 <p>From here <code>kableExtra</code>, <code>gt</code>,
 <code>modelsummary</code>, <code>huxtable</code>, <code>tinytable</code>
 and <code>xtable</code> all work as usual.</p>
@@ -221,21 +222,21 @@ so the same chunk works whether the target is PDF, HTML or Markdown.</p>
 <td align="right">2.05</td>
 </tr>
 <tr class="even">
-<td align="right">2.45</td>
+<td align="right">2.44</td>
 <td align="right">+Inf</td>
 <td align="right">0.100</td>
-<td align="right">-3.41</td>
-<td align="right">7.52</td>
+<td align="right">-3.37</td>
+<td align="right">7.48</td>
 </tr>
 <tr class="odd">
-<td align="right">0.816</td>
+<td align="right">0.813</td>
 <td align="right">+Inf</td>
 <td align="right">0.500</td>
-<td align="right">0.245</td>
-<td align="right">3.86</td>
+<td align="right">0.259</td>
+<td align="right">3.85</td>
 </tr>
 <tr class="even">
-<td align="right">3.26</td>
+<td align="right">3.25</td>
 <td align="right">+Inf</td>
 <td align="right">0.500</td>
 <td align="right">-Inf</td>
@@ -249,7 +250,7 @@ so the same chunk works whether the target is PDF, HTML or Markdown.</p>
 <td align="right">+Inf</td>
 </tr>
 <tr class="even">
-<td align="right">4.08</td>
+<td align="right">4.06</td>
 <td align="right">+Inf</td>
 <td align="right">1.00</td>
 <td align="right">-Inf</td>
@@ -304,49 +305,49 @@ infinity character in HTML, <code>+Inf</code> in Markdown.</p>
 <td align="right">2.05</td>
 </tr>
 <tr class="even">
-<td align="right">2.04</td>
+<td align="right">2.03</td>
 <td align="right">+Inf</td>
 <td align="right">0.100</td>
-<td align="right">-2.05</td>
-<td align="right">6.16</td>
+<td align="right">-2.02</td>
+<td align="right">6.13</td>
 </tr>
 <tr class="odd">
-<td align="right">3.67</td>
+<td align="right">3.66</td>
 <td align="right">+Inf</td>
 <td align="right">0.100</td>
-<td align="right">-14.2</td>
-<td align="right">18.3</td>
+<td align="right">-13.8</td>
+<td align="right">17.9</td>
 </tr>
 <tr class="even">
 <td align="right">1.22</td>
 <td align="right">+Inf</td>
 <td align="right">0.500</td>
-<td align="right">-2.40</td>
-<td align="right">6.51</td>
+<td align="right">-2.34</td>
+<td align="right">6.45</td>
 </tr>
 <tr class="odd">
-<td align="right">2.86</td>
+<td align="right">2.84</td>
 <td align="right">+Inf</td>
 <td align="right">0.500</td>
 <td align="right">-Inf</td>
 <td align="right">+Inf</td>
 </tr>
 <tr class="even">
-<td align="right">0.408</td>
+<td align="right">0.406</td>
 <td align="right">+Inf</td>
 <td align="right">1.00</td>
 <td align="right">1.39</td>
 <td align="right">2.72</td>
 </tr>
 <tr class="odd">
-<td align="right">2.04</td>
+<td align="right">2.03</td>
 <td align="right">+Inf</td>
 <td align="right">1.00</td>
 <td align="right">-Inf</td>
 <td align="right">+Inf</td>
 </tr>
 <tr class="even">
-<td align="right">4.08</td>
+<td align="right">4.06</td>
 <td align="right">+Inf</td>
 <td align="right">1.00</td>
 <td align="right">-Inf</td>
@@ -366,9 +367,9 @@ are also reachable as <code>tidy()</code> and <code>glance()</code>.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_tidy.html">regsen_tidy</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                       term estimate    conf.low conf.high     rxbar rybar cbar</span></span>
 <span><span class="co">#&gt; 1 tye_tfe890_500kNI_100_l6 2.054759  2.05475946  2.054759 0.0000000   Inf  0.1</span></span>
-<span><span class="co">#&gt; 2 tye_tfe890_500kNI_100_l6 2.054759  1.42206743  2.687451 0.4080674   Inf  0.1</span></span>
-<span><span class="co">#&gt; 3 tye_tfe890_500kNI_100_l6 2.054759  0.72444299  3.385076 0.8161347   Inf  0.1</span></span>
-<span><span class="co">#&gt; 4 tye_tfe890_500kNI_100_l6 2.054759 -0.06022714  4.169746 1.2242021   Inf  0.1</span></span>
+<span><span class="co">#&gt; 2 tye_tfe890_500kNI_100_l6 2.054759  1.42493384  2.684585 0.4063005   Inf  0.1</span></span>
+<span><span class="co">#&gt; 3 tye_tfe890_500kNI_100_l6 2.054759  0.73081914  3.378700 0.8126010   Inf  0.1</span></span>
+<span><span class="co">#&gt; 4 tye_tfe890_500kNI_100_l6 2.054759 -0.04935003  4.158869 1.2189016   Inf  0.1</span></span>
 <span><span class="fu"><a href="../reference/regsen_tidy.html">regsen_glance</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     analysis subcommand          outcome                treatment nobs</span></span>
 <span><span class="co">#&gt; 1 DMP (2026)     bounds avgrep2000to2016 tye_tfe890_500kNI_100_l6 2036</span></span>

@@ -16,8 +16,8 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Regression Sensitivity Analysis for Omitted Variable Bias">
-<meta name="description" content="Sensitivity analysis for linear regression coefficients in the presence of omitted variables. Implements the identified-set and breakdown-point analyses of Diegert, Masten and Poirier (2026) &lt;doi:10.48550/arXiv.2206.02303&gt;, Oster (2019) &lt;doi:10.1080/07350015.2016.1227711&gt; and Masten and Poirier (2026) &lt;doi:10.48550/arXiv.2208.00552&gt;. Provides bounds on regression coefficients under relaxations of the no-omitted-variables assumption indexed by interpretable sensitivity parameters, the breakdown point of a hypothesis about the long-regression coefficient, and plotting helpers.">
-<meta property="og:description" content="Sensitivity analysis for linear regression coefficients in the presence of omitted variables. Implements the identified-set and breakdown-point analyses of Diegert, Masten and Poirier (2026) &lt;doi:10.48550/arXiv.2206.02303&gt;, Oster (2019) &lt;doi:10.1080/07350015.2016.1227711&gt; and Masten and Poirier (2026) &lt;doi:10.48550/arXiv.2208.00552&gt;. Provides bounds on regression coefficients under relaxations of the no-omitted-variables assumption indexed by interpretable sensitivity parameters, the breakdown point of a hypothesis about the long-regression coefficient, and plotting helpers.">
+<meta name="description" content="Sensitivity analysis for linear regression coefficients in the presence of omitted variables. Implements the identified-set and breakdown-point analyses of Diegert, Masten and Poirier (2026) &lt;doi:10.48550/arXiv.2206.02303&gt;, Oster (2019) &lt;doi:10.1080/07350015.2016.1227711&gt; and Masten and Poirier (2026) &lt;doi:10.1257/aer.20230242&gt;. Provides bounds on regression coefficients under relaxations of the no-omitted-variables assumption indexed by interpretable sensitivity parameters, the breakdown point of a hypothesis about the long-regression coefficient, and plotting helpers.">
+<meta property="og:description" content="Sensitivity analysis for linear regression coefficients in the presence of omitted variables. Implements the identified-set and breakdown-point analyses of Diegert, Masten and Poirier (2026) &lt;doi:10.48550/arXiv.2206.02303&gt;, Oster (2019) &lt;doi:10.1080/07350015.2016.1227711&gt; and Masten and Poirier (2026) &lt;doi:10.1257/aer.20230242&gt;. Provides bounds on regression coefficients under relaxations of the no-omitted-variables assumption indexed by interpretable sensitivity parameters, the breakdown point of a hypothesis about the long-regression coefficient, and plotting helpers.">
 <meta property="og:image" content="https://mikenguyen13.github.io/regsensitivity/logo.png">
 </head>
 <body>
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="articles/interpreting-results.html">Reading the output: interpretation, edge cases and decisions</a></li>
     <li><a class="dropdown-item" href="articles/plots-and-tables.html">Publication-ready plots and tables</a></li>
     <li><a class="dropdown-item" href="articles/stata-migration.html">Coming from the Stata package</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -94,7 +95,8 @@
 <blockquote>
 <p>Both arXiv working papers above are still revised periodically; citations in this package track the year of the latest arXiv revision.</p>
 </blockquote>
-<p>The package provides a formula + <code>data.frame</code> API, <code>ggplot2</code>-based plotting, and a percentile/cluster bootstrap on the breakdown point.</p>
+<p>The package provides a formula + <code>data.frame</code> API, <code>ggplot2</code>-based plotting, and percentile and bias-corrected-and-accelerated bootstrap intervals — i.i.d. or clustered — on the breakdown point.</p>
+<p>Beyond the Stata original it computes the identified set at every triple of sensitivity parameters, including the region <code>rxbar &gt; rmax(cbar) &gt; rybar</code>; traces the breakdown frontier in either direction (<code>direction = "rybar"</code>); and takes Assumption A6 in its two-sided form (<code>clow</code>).</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -135,7 +137,7 @@
 <span>                     cbar <span class="op">=</span> <span class="fl">1</span>, cluster <span class="op">=</span> <span class="st">"km_grid_cel_code"</span>,</span>
 <span>                     R <span class="op">=</span> <span class="fl">199</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span></code></pre></div>
-<p>See <code><a href="articles/regsensitivity.html">vignette("regsensitivity")</a></code> for a full tour, and <code><a href="articles/dmp2022-replication.html">vignette("dmp2022-replication")</a></code> for the paper-exact replication.</p>
+<p>See <code><a href="articles/regsensitivity.html">vignette("regsensitivity")</a></code> for a full tour, <code><a href="articles/interpreting-results.html">vignette("interpreting-results")</a></code> for what the numbers mean and what to write in a paper, and <code><a href="articles/dmp2022-replication.html">vignette("dmp2022-replication")</a></code> for the paper-exact replication.</p>
 </div>
 <div class="section level2">
 <h2 id="crosswalk-stata--r">Crosswalk: Stata → R<a class="anchor" aria-label="anchor" href="#crosswalk-stata--r"></a>
@@ -187,6 +189,14 @@
 <td><code>regsen_breakdown(..., beta = bnd_ub(4))</code></td>
 </tr>
 <tr>
+<td><em>(no equivalent)</em></td>
+<td><code>regsen_breakdown(..., direction = "rybar", rxbar = ...)</code></td>
+</tr>
+<tr>
+<td><em>(no equivalent)</em></td>
+<td><code>regsen_bounds(..., clow = 0.5)</code></td>
+</tr>
+<tr>
 <td><code>regsensitivity breakdown ... oster rmax(0(.1)1) beta(0 eq)</code></td>
 <td><code>regsen_breakdown(..., analysis = "oster", r2long = seq(0, 1, 0.1), beta = bnd_eq(0))</code></td>
 </tr>
@@ -218,7 +228,7 @@
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>    <span class="dt">title</span>  = {regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias},</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="dt">author</span> = {Mike Nguyen},</span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="dt">year</span>   = {2026},</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    <span class="dt">note</span>   = {R package version 0.1.2},</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    <span class="dt">note</span>   = {R package version 0.2.0},</span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>    <span class="dt">url</span>    = {https://github.com/mikenguyen13/regsensitivity}</span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>}</span></code></pre></div>
 </div>
@@ -230,7 +240,7 @@ TI  - regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias
 AU  - Nguyen, Mike
 PY  - 2026
 PB  - GitHub
-ET  - 0.1.2
+ET  - 0.2.0
 UR  - https://github.com/mikenguyen13/regsensitivity
 ER  -</code></pre>
 </div>
@@ -238,21 +248,21 @@ ER  -</code></pre>
 <h3 id="apa-7">APA 7<a class="anchor" aria-label="anchor" href="#apa-7"></a>
 </h3>
 <blockquote>
-<p>Nguyen, M. (2026). <em>regsensitivity: Regression sensitivity analysis for omitted variable bias</em> (Version 0.1.2) [R package]. <a href="https://github.com/mikenguyen13/regsensitivity" class="external-link uri">https://github.com/mikenguyen13/regsensitivity</a></p>
+<p>Nguyen, M. (2026). <em>regsensitivity: Regression sensitivity analysis for omitted variable bias</em> (Version 0.2.0) [R package]. <a href="https://github.com/mikenguyen13/regsensitivity" class="external-link uri">https://github.com/mikenguyen13/regsensitivity</a></p>
 </blockquote>
 </div>
 <div class="section level3">
 <h3 id="mla-9">MLA 9<a class="anchor" aria-label="anchor" href="#mla-9"></a>
 </h3>
 <blockquote>
-<p>Nguyen, Mike. <em>regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias</em>. Version 0.1.2, 2026. <a href="https://github.com/mikenguyen13/regsensitivity" class="external-link uri">https://github.com/mikenguyen13/regsensitivity</a>.</p>
+<p>Nguyen, Mike. <em>regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias</em>. Version 0.2.0, 2026. <a href="https://github.com/mikenguyen13/regsensitivity" class="external-link uri">https://github.com/mikenguyen13/regsensitivity</a>.</p>
 </blockquote>
 </div>
 <div class="section level3">
 <h3 id="chicago-author-date">Chicago (author-date)<a class="anchor" aria-label="anchor" href="#chicago-author-date"></a>
 </h3>
 <blockquote>
-<p>Nguyen, Mike. 2026. “regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias.” R package version 0.1.2. <a href="https://github.com/mikenguyen13/regsensitivity" class="external-link uri">https://github.com/mikenguyen13/regsensitivity</a>.</p>
+<p>Nguyen, Mike. 2026. “regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias.” R package version 0.2.0. <a href="https://github.com/mikenguyen13/regsensitivity" class="external-link uri">https://github.com/mikenguyen13/regsensitivity</a>.</p>
 </blockquote>
 </div>
 <div class="section level3">
@@ -275,7 +285,7 @@ ER  -</code></pre>
 <ul>
 <li>Diegert, Masten, Poirier (2026). <a href="https://arxiv.org/abs/2206.02303" class="external-link">Assessing Omitted Variable Bias when the Controls are Endogenous</a>. arXiv:2206.02303.</li>
 <li>Oster (2019). <a href="https://www.tandfonline.com/doi/abs/10.1080/07350015.2016.1227711" class="external-link">Unobservable Selection and Coefficient Stability</a>. <em>JBES</em> 37(2), 187–204.</li>
-<li>Masten, Poirier (2026). <a href="https://arxiv.org/abs/2208.00552" class="external-link">The Effect of Omitted Variables on the Sign of Regression Coefficients</a>. arXiv:2208.00552.</li>
+<li>Masten, Poirier (2026). <a href="https://doi.org/10.1257/aer.20230242" class="external-link">The Effect of Omitted Variables on the Sign of Regression Coefficients</a>. <em>AER</em> 116(7), 2685–2710.</li>
 </ul>
 </div>
 <div class="section level2">

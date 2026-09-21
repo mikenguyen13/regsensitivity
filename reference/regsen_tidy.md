@@ -59,11 +59,11 @@ res <- regsen_bounds(
 head(regsen_tidy(res))
 #>                       term estimate   conf.low conf.high     rxbar rybar cbar
 #> 1 tye_tfe890_500kNI_100_l6 1.385416  1.3854162  1.385416 0.0000000   Inf  0.1
-#> 2 tye_tfe890_500kNI_100_l6 1.385416  0.5047744  2.266058 0.2531195   Inf  0.1
-#> 3 tye_tfe890_500kNI_100_l6 1.385416 -0.4434758  3.214308 0.5062390   Inf  0.1
-#> 4 tye_tfe890_500kNI_100_l6 1.385416 -1.4932901  4.264122 0.7593584   Inf  0.1
-#> 5 tye_tfe890_500kNI_100_l6 1.385416 -2.6971380  5.467970 1.0124779   Inf  0.1
-#> 6 tye_tfe890_500kNI_100_l6 1.385416 -4.1441420  6.914974 1.2655974   Inf  0.1
+#> 2 tye_tfe890_500kNI_100_l6 1.385416  0.5599466  2.210886 0.2377361   Inf  0.1
+#> 3 tye_tfe890_500kNI_100_l6 1.385416 -0.3235995  3.094432 0.4754721   Inf  0.1
+#> 4 tye_tfe890_500kNI_100_l6 1.385416 -1.2922838  4.063116 0.7132082   Inf  0.1
+#> 5 tye_tfe890_500kNI_100_l6 1.385416 -2.3863884  5.157221 0.9509442   Inf  0.1
+#> 6 tye_tfe890_500kNI_100_l6 1.385416 -3.6708919  6.441724 1.1886803   Inf  0.1
 regsen_glance(res)
 #>     analysis subcommand          outcome                treatment nobs
 #> 1 DMP (2026)     bounds avgrep2000to2016 tye_tfe890_500kNI_100_l6 2036

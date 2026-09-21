@@ -18,6 +18,7 @@ regsen_bounds(
   rxbar = NULL,
   rybar = Inf,
   cbar = 1,
+  clow = 0,
   rybar_expr = NULL,
   delta = NULL,
   r2long = 1,
@@ -27,7 +28,6 @@ regsen_bounds(
   maxovb_type = c("bound", "relative"),
   beta = "sign",
   product = TRUE,
-  ngrid = 200L,
   subset = NULL
 )
 ```
@@ -64,6 +64,13 @@ regsen_bounds(
   `rybar = Inf` (the default) gives the no-rybar case; setting it finite
   invokes the global-optimization code path.
 
+- clow:
+
+  (DMP) Lower bound on control endogeneity, the `clow` of DMP Assumption
+  A6 `R(W2 ~ W1 . W0) %in% [clow, cbar]`. Default 0, which asserts
+  nothing beyond `cbar`. A positive value asserts that the controls are
+  *at least* that endogenous. Must satisfy `0 <= clow <= min(cbar)`.
+
 - rybar_expr:
 
   (DMP) A function `function(rxbar) rybar` to set rybar as a function of
@@ -98,10 +105,6 @@ regsen_bounds(
   Logical. If `TRUE` (default), all combinations of the
   sensitivity-parameter grids are evaluated; if `FALSE`, the inputs are
   zipped element-wise. Maps to Stata's `noproduct` option (inverted).
-
-- ngrid:
-
-  Resolution of the finer grid stored in the result. Default 200.
 
 - subset:
 
@@ -160,15 +163,15 @@ print(bnds)
 #> --- Results ---------------------------------------------
 #>    rxbar rybar   cbar     bmin   bmax
 #>        0  +Inf    0.1   1.5864 1.5864
-#>  0.22448  +Inf    0.1  0.65214 2.5207
-#>  0.44897  +Inf    0.1 -0.35117  3.524
-#>  0.67345  +Inf    0.1  -1.4627 4.6356
-#>  0.89793  +Inf    0.1  -2.7437 5.9165
-#>   1.1224  +Inf    0.1  -4.3004 7.4733
-#>   1.3469  +Inf    0.1  -6.3455 9.5184
-#>   1.5714  +Inf    0.1  -9.4032 12.576
-#>   1.7959  +Inf    0.1  -15.393 18.566
-#>   2.0204  +Inf    0.1  -60.525 63.698
-#>   2.2448  +Inf    0.1     -Inf   +Inf
+#>  0.20427  +Inf    0.1   0.7386 2.4343
+#>  0.40855  +Inf    0.1 -0.16388 3.3368
+#>  0.61282  +Inf    0.1  -1.1489 4.3218
+#>   0.8171  +Inf    0.1  -2.2576 5.4304
+#>   1.0214  +Inf    0.1  -3.5556 6.7285
+#>   1.2256  +Inf    0.1  -5.1601  8.333
+#>   1.4299  +Inf    0.1  -7.3101 10.483
+#>   1.6342  +Inf    0.1  -10.614 13.786
+#>   1.8385  +Inf    0.1  -17.445 20.618
+#>   2.0427  +Inf    0.1     -Inf   +Inf
 # }
 ```

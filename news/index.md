@@ -1,5 +1,205 @@
 # Changelog
 
+## regsensitivity 0.2.0
+
+### The identified set is now computed everywhere
+
+- The region `rxbar > rmax(cbar) > rybar` no longer raises an error.
+  [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+  and
+  [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+  compute it like any other, and the numbers agree with an independent
+  search over the constraint set of DMP (2026) Theorem 5 to within 0.01,
+  continuously across `rmax`.
+
+  What stood in the way was the solver for the constraint Assumption A3
+  places on `z`. That constraint is a quadratic inequality whose leading
+  coefficient turns negative exactly when `rxbar * ||c|| > 1`; its
+  solution set is then the complement of an interval, not an interval,
+  and the solver returned the hull of the two pieces. Sampling that hull
+  hands the optimizer selection equations that violate A3, so the region
+  was refused rather than reported. The feasible set is now represented
+  as the list of intervals it is, and sampled in proportion to their
+  lengths.
+
+- The breakdown point in `rxbar` is no longer capped at `rmax(cbar)`.
+  That ceiling binds only when `rybar` is unrestricted; with `rybar`
+  finite the breakdown point can lie well past it. Where no `rxbar`
+  overturns the conclusion – the horizontal arm of the breakdown
+  frontier – the reported value is now `+Inf` instead of the ceiling.
+
+- [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+  gains `direction = "rybar"`, giving the frontier `rybar_bf(rxbar)` of
+  DMP (2026) Theorem 4 over a grid of `rxbar`. This is the form the
+  paper’s Figure 1 plots, and the only one that can describe the
+  frontier’s horizontal arm.
+
+### Assumption A6 in its general form
+
+- [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+  and
+  [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+  gain `clow`, the lower end of DMP Assumption A6, `R(W2 ~ W1 . W0)` in
+  `[clow, cbar]`. Asserting that the controls are *at least* somewhat
+  endogenous tightens the identified set and raises the breakdown point.
+  `clow = 0`, the default, is the previous behaviour.
+
+### Inference
+
+- [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md)
+  now reports a bias-corrected and accelerated (BCa) interval alongside
+  the percentile interval, and returns it by default; `type = "perc"`
+  restores the old choice. The acceleration comes from a delete-one
+  jackknife over the units the bootstrap resamples – rows, or clusters
+  under a cluster bootstrap. In the simulation design of the package’s
+  paper at `n = 500`, coverage improves from 92.0% to 94.0% against a
+  nominal 95% at the same interval width; the two agree by `n = 1000`.
+  `z0` and `acceleration` are returned so the correction can be
+  inspected, and an endpoint that falls on an extreme replicate is
+  reported as such.
+- Bootstrap replicates are about three times faster on the bundled data,
+  5 milliseconds against 14. A replicate is now a row subset of model
+  matrices built once, rather than a fresh
+  [`model.frame()`](https://rdrr.io/r/stats/model.frame.html) call per
+  draw, which is what makes the BCa jackknife – one computation per row
+  – affordable.
+
+### Bug fixes
+
+- `rmax`, the `rxbar` at which the identified set becomes unbounded, was
+  wrong for `cbar < 1`. It solved the `cbar` branch of DMP appendix
+  equation (S18) unconditionally, when the maximising `||c||` is `rxbar`
+  itself wherever A6 allows it. With `cbar = 0.5` on the bundled data,
+  calibrating against the ten geographic and climate covariates, it
+  reported 1.48 where the set is in fact unbounded from 1.19, so
+  [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+  printed a large finite number in place of an infinite one across that
+  range, and the default `rxbar` grid ran past the point where the
+  analysis says anything.
+- A breakdown point for an upper-bound hypothesis (`beta = bnd_ub(v)`)
+  was computed from the lower end of the identified set. With `rybar`
+  finite the set is not symmetric around `beta_med`, so the reported
+  value was wrong; the tested end is now chosen by the direction of the
+  hypothesis.
+- An equality hypothesis (`beta = bnd_eq(v)`) now breaks down at
+  whichever end of the identified set can reach the hypothesised value,
+  rather than always at the upper one.
+- A name in `compare` or `nocompare` that is not a control on the
+  right-hand side of the formula – a typo, or the treatment itself – is
+  now an error. It used to be dropped silently, so a misspelt covariate
+  quietly changed which variables calibrated the analysis.
+- The sensitivity parameters are validated: `cbar` must lie in `[0, 1]`,
+  `rxbar` and `rybar` must be non-negative, `r2long` non-negative and
+  `maxovb` non-negative or `NA`, and none may be missing. Out-of-range
+  values used to reach the closed forms and the optimizer and come back
+  as `NA` without explanation.
+- Under `analysis = "oster"` with `delta_type = "bound"`, a `maxovb` cap
+  is now applied at `delta >= 1` too. The raw set is the whole real line
+  there, and the cap was skipped, so the reported bounds were `-Inf` and
+  `+Inf` where the constraint says `beta_med - maxovb` and
+  `beta_med + maxovb`.
+- Comparison covariates that are collinear with one another are dropped,
+  as the documentation already said and as Stata does; only those
+  collinear with `W0` were. `Var(W1)` is singular otherwise, and the
+  analysis went through a regularised inverse of it. The test for
+  collinearity with `W0` is now relative to the covariate’s own
+  variance, so a covariate measured in small units is no longer mistaken
+  for a constant.
+- [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md)
+  keeps replicates on which the breakdown point is `+Inf` – the
+  hypothesis survived every value of the sensitivity parameter – in both
+  intervals, where they count as `+Inf`. They were dropped along with
+  failed replicates, so an interval whose upper tail is unbounded was
+  reported with a finite upper endpoint. The count is returned as
+  `$infinite` and printed.
+- [`print()`](https://rdrr.io/r/base/print.html) of a
+  [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md)
+  result reports the interval for the magnitude of a signed (Oster)
+  breakdown point correctly. Taking
+  [`abs()`](https://rdrr.io/r/base/MathFun.html) of each endpoint
+  reversed a negative interval and, for one straddling zero, hid that
+  the magnitude may be as small as zero.
+- `regsen_table(label = ...)` warns when `caption` is not given, since
+  [`knitr::kable()`](https://rdrr.io/pkg/knitr/man/kable.html) emits a
+  float only with a caption and the label had nowhere to attach; it was
+  dropped silently. The `r2long` column head uses `\mathrm` rather than
+  `\text`, so it no longer needs `amsmath`.
+- [`scale_colour_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md)
+  and
+  [`scale_fill_regsen()`](https://mikenguyen13.github.io/regsensitivity/reference/scale_colour_regsen.md)
+  recycle the palette (with a warning) when a sweep has more than eight
+  groups, instead of erroring inside
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html).
+- The default y-range of an identified-set plot is read off both bounds.
+  It was read off the lower bound alone, which cropped the upper one
+  whenever the set is not symmetric about `beta_med` (finite `rybar`, or
+  Oster).
+- [`plot()`](https://rdrr.io/r/graphics/plot.default.html) of a result
+  whose sensitivity parameters are all single values says so, rather
+  than failing with a subscript error.
+- A logical `subset` containing `NA` treats `NA` as `FALSE`, as
+  [`subset()`](https://rdrr.io/r/base/subset.html) does. The `NA` used
+  to select a row of missing values and leave an `NA` in the row
+  bookkeeping that
+  [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md)
+  uses to line up a cluster column.
+- The `ngrid` argument of
+  [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+  and
+  [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+  is removed: it was documented but never used.
+- The explorer app no longer errors when the `rybar` box is left at its
+  default. A numeric input cannot carry `Inf`, so blank now means
+  unrestricted, and a cleared box greys the panel instead of raising.
+- Masten and Poirier (2026) is cited as published, in the *American
+  Economic Review* 116(7), rather than as an arXiv preprint.
+
+### Documentation
+
+- New vignette, *Reading the output: interpretation, edge cases and
+  decisions*
+  ([`vignette("interpreting-results")`](https://mikenguyen13.github.io/regsensitivity/articles/interpreting-results.md)).
+  It says what each number means, gives a decision path from breakdown
+  point and `rho_k` to a verdict, and walks through the cases that
+  confuse readers – a robust and a fragile conclusion on worlds where
+  the omitted variable exists, a breakdown point of zero, a set that is
+  unbounded early because the calibration set is weak, what goes in
+  `compare`, when `cbar` matters, an infinite breakdown point under
+  finite `rybar`, the two Oster breakdown points, and how to read the
+  bootstrap print – each with the sentence to write in the paper. It
+  ends with a list of common mistakes and a reporting checklist.
+
+### Verification
+
+- The identified set is now checked against worlds in which the omitted
+  variable exists. Each test world simulates `W2`, reads the true
+  `beta_long`, `r_X`, `r_Y` and `c` off it by the projections DMP (2026)
+  define them through, and requires the package’s set at exactly those
+  parameters to contain `beta_long` – with `rybar` unrestricted, with
+  `rybar` finite (the optimizer), and with two-sided A6. A search over
+  constructed omitted variables on fixed observed data stays inside the
+  `rybar = Inf` set and reaches within 15% of its ends, so the set is
+  neither invalid nor loose.
+- Property tests pin what must hold on any data: sets nest as each
+  parameter is relaxed and collapse to `beta_med` at `rxbar = 0`; the
+  breakdown point is where the tested bound crosses the hypothesis;
+  `rmax` is where the set becomes unbounded; rescaling `Y` or `X` scales
+  the bounds as the model says, and rescaling, shifting or reordering
+  the covariates leaves bounds and breakdown points unchanged, for both
+  DMP and Oster.
+
+### Accuracy and speed
+
+- The global optimizer behind the finite-`rybar` identified set now
+  polishes its result with a local search. Bounds agree with a run
+  twenty times as long to within 3e-4, where the previous setting could
+  be off by 0.02.
+- A breakdown search evaluates only the end of the identified set its
+  hypothesis tests, and finds the crossing by root-finding rather than
+  fixed-iteration bisection. Together these make a breakdown point at
+  finite `rybar` several times faster despite the more accurate
+  optimizer.
+
 ## regsensitivity 0.1.2
 
 ### Plots

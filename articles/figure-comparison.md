@@ -70,7 +70,7 @@ The two curves cross zero at the paper’s two breakdown points:
 c(`rybar = Inf`   = abs(solid$breakdown),    # paper: 0.804
   `rybar = rxbar` = abs(dashed$breakdown))   # paper: 0.959 (96% in prose)
 #>   rybar = Inf rybar = rxbar 
-#>     0.8035643     0.9583522
+#>     0.8035643     0.9583504
 ```
 
 Both bounds go infinite at $`\bar r_X = 1`$ under the dashed
@@ -90,23 +90,28 @@ $`\bar c`$.
 
 ``` r
 
-# One breakdown solve per grid point, parallelised over the rybar grid
-# (forking is unavailable on Windows, hence the core fallback).
-frontier <- function(cbar, rys, w = w1) {
+# The frontier in the rybar direction: one solve per rxbar, parallelised
+# across the grid (forking is unavailable on Windows, hence the fallback).
+frontier <- function(cbar, rxs, w = w1) {
     cores <- if (.Platform$OS.type == "windows") 1L else
         min(4L, max(1L, parallel::detectCores(), na.rm = TRUE))
-    res <- parallel::mclapply(rys, function(ry) {
-        r <- try(regsen_breakdown(form, bfg2020, compare = w,
-                                   cbar = cbar, rybar = ry), silent = TRUE)
-        if (inherits(r, "try-error")) NA_real_ else abs(r$results$breakdown[1])
+    res <- parallel::mclapply(rxs, function(rx) {
+        r <- regsen_breakdown(form, bfg2020, compare = w, cbar = cbar,
+                               direction = "rybar", rxbar = rx)
+        r$results$breakdown[1]
     }, mc.cores = cores)
-    rx <- vapply(res, function(z) if (is.numeric(z)) z else NA_real_,
+    ry <- vapply(res, function(z) if (is.numeric(z)) z else NA_real_,
                  numeric(1))
-    data.frame(rxbar = rx, rybar = rys, cbar = factor(cbar))
+    data.frame(rxbar = rxs, rybar = ry, cbar = factor(cbar))
 }
-# Dense where the curve bends; the flat arm above needs only anchors.
-rys <- c(seq(0.6, 1.7, by = 0.05), 2, 3, 4)
-fr  <- do.call(rbind, lapply(c(1, 0.9, 0.75, 0.5), frontier, rys = rys))
+# Dense through the bend; the flat arm to the right needs only anchors.
+rxs <- c(seq(0.7, 2, by = 0.05), 2.25, 2.5, 3, 3.5, 4)
+fr  <- do.call(rbind, lapply(c(1, 0.9, 0.75, 0.5), frontier, rxs = rxs))
+
+# Below its breakdown point in rxbar the conclusion survives every rybar,
+# so the frontier is +Inf there: send those points off the top of the
+# panel and let coord_cartesian clip, which is the vertical arm.
+fr$rybar[!is.finite(fr$rybar)] <- 40
 
 # As in the paper: thick black is cbar = 1; the greys are 0.9, 0.75,
 # and 0.5, moving outward. Dotted guides mark rxbar = rybar = 1.
@@ -134,28 +139,33 @@ frontier_plot(fr)
 
 ![](figure-comparison_files/figure-html/fig1-right-1.png)
 
-**Where this one stops short, and why.** The published panel runs to
-$`\bar r_X = 4`$, each curve having flattened onto a horizontal arm.
-This reproduction covers the vertical arm only. That arm carries the
-quantity the paper reports – each curve approaches $`\bar r_X = 0.804`$
-as $`\bar r_Y`$ grows, which is the breakdown point of Table 1, Panel C.
-The horizontal arm lives in a region the package declines to compute:
+Both arms are here. The vertical one sits at the breakdown point of
+Table 1, Panel C – each curve approaches $`\bar r_X = 0.804`$ as
+$`\bar r_Y`$ grows – and the horizontal one is the level of $`\bar r_Y`$
+below which no amount of selection on the treatment side overturns the
+sign, which is what the curve flattening onto it means.
+
+The horizontal arm is the part that needed the frontier in the
+$`\bar r_Y`$ direction. Sweeping $`\bar r_Y`$ and solving for
+$`\bar r_X`$ cannot draw it, because along that arm the answer is
+$`+\infty`$: every $`\bar r_X`$ leaves the conclusion standing.
 
 ``` r
 
-tryCatch(
-    regsen_bounds(form, bfg2020, compare = w1,
-                  cbar = 1, rxbar = 2, rybar = 0.6),
-    error = conditionMessage
-)
-#> [1] "Bounds calculation not implemented in the region where rxbar > rmax(c) > rybar (see DMP 2026)"
-```
+# Far out on the horizontal arm, where the identified set is still
+# bounded because rybar is restricted even though rxbar is not.
+regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
+              rxbar = 2, rybar = 0.6)$results
+#>   rxbar rybar cbar        bmin    bmax
+#> 1     2   0.6    1 -0.05202383 4.31302
 
-Rather than return a number it cannot stand behind, the package raises
-an error carrying that message
-([`tryCatch()`](https://rdrr.io/r/base/conditions.html) above captures
-it for display). So the missing arm is a stated limitation of the
-implementation, not a disagreement with the paper.
+# ... and the rybar frontier at the same rxbar, which is what the curve
+# above plots.
+regsen_breakdown(form, bfg2020, compare = w1, cbar = 1,
+                 direction = "rybar", rxbar = 2)$results
+#>   index breakdown
+#> 1     2 0.5901671
+```
 
 ## Figure 3: calibrating with state fixed effects
 
@@ -212,15 +222,16 @@ text.
 
 ``` r
 
-rys3 <- c(seq(0.3, 1.3, by = 0.05), 1.7, 2.5, 4)
-fr3  <- do.call(rbind, lapply(c(1, 0.75), frontier, rys = rys3, w = w1_fe))
+rxs3 <- c(seq(0.25, 2, by = 0.05), 2.25, 2.5, 3, 3.5, 4)
+fr3  <- do.call(rbind, lapply(c(1, 0.75), frontier, rxs = rxs3, w = w1_fe))
+fr3$rybar[!is.finite(fr3$rybar)] <- 40
 frontier_plot(fr3)
 ```
 
 ![](figure-comparison_files/figure-html/fig3-right-1.png)
 
-As in Figure 1, the horizontal arm past the finiteness threshold is not
-computed; the vertical arm now sits near 0.29 instead of 0.80.
+Both arms again, with the vertical one now near 0.29 instead of 0.80 –
+the inward shift the paper describes.
 
 ``` r
 
@@ -268,10 +279,10 @@ figures in that vignette.
 | Figure | Status | Reason |
 |:---|:---|:---|
 | DMP Fig 1 (left) | reproduced | matches on both specifications; crossings 0.8036 / 0.9584 |
-| DMP Fig 1 (right) | partly reproduced | vertical arm matches; horizontal arm needs a region the package does not implement |
+| DMP Fig 1 (right) | reproduced | both arms match; the horizontal one is drawn in the rybar direction |
 | DMP Fig 2 | not reproducible | outcome ‘Cut Spending on Poor’ is not in the bundled bfg2020 data |
 | DMP Fig 3 (left) | reproduced | matches; breakdown falls to 0.2909 against the paper’s ‘about 30%’ |
-| DMP Fig 3 (right) | partly reproduced | vertical arm matches, shifted inward as in the paper; horizontal arm as in Fig 1 (right) |
+| DMP Fig 3 (right) | reproduced | matches, shifted inward as in the paper |
 | MP Fig 1 | structure only | built on Satyanath et al. (2017); moments not reported in full |
 | MP Fig 2 | structure only | as Figure 1 |
 | MP Fig S1 | not reproducible | Satyanath et al. (2017) data, not bundled |
@@ -282,13 +293,12 @@ figures in that vignette.
 What replicates, what does not, and why. {.table}
 
 Every panel this package’s methods can produce from the bundled data is
-reproduced above. The two bounds panels match in full; the two frontier
-panels match on their vertical arms, while the horizontal arms lie in a
-region the package deliberately does not implement, as the table
-records. The rest need data that is not distributed with the package –
-the full BFG outcome set, or the Satyanath et al. microdata – or, in
-Oster’s case, are simulation and literature meta-analysis exercises
-rather than sensitivity analyses of a dataset.
+reproduced above, in full: both bounds panels and both frontier panels,
+each frontier with both of its arms. The rest need data that is not
+distributed with the package – the full BFG outcome set, or the
+Satyanath et al. microdata – or, in Oster’s case, are simulation and
+literature meta-analysis exercises rather than sensitivity analyses of a
+dataset.
 
 ## Summary
 

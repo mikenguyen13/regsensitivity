@@ -16,7 +16,14 @@ Implements the identified-set and breakdown-point analyses described in:
 > citations in this package track the year of the latest arXiv revision.
 
 The package provides a formula + `data.frame` API, `ggplot2`-based
-plotting, and a percentile/cluster bootstrap on the breakdown point.
+plotting, and percentile and bias-corrected-and-accelerated bootstrap
+intervals — i.i.d. or clustered — on the breakdown point.
+
+Beyond the Stata original it computes the identified set at every triple
+of sensitivity parameters, including the region
+`rxbar > rmax(cbar) > rybar`; traces the breakdown frontier in either
+direction (`direction = "rybar"`); and takes Assumption A6 in its
+two-sided form (`clow`).
 
 ## Installation
 
@@ -63,7 +70,9 @@ print(boot)
 
 See
 [`vignette("regsensitivity")`](https://mikenguyen13.github.io/regsensitivity/articles/regsensitivity.md)
-for a full tour, and
+for a full tour,
+[`vignette("interpreting-results")`](https://mikenguyen13.github.io/regsensitivity/articles/interpreting-results.md)
+for what the numbers mean and what to write in a paper, and
 [`vignette("dmp2022-replication")`](https://mikenguyen13.github.io/regsensitivity/articles/dmp2022-replication.md)
 for the paper-exact replication.
 
@@ -80,6 +89,8 @@ for the paper-exact replication.
 | `regsensitivity breakdown ... cbar(0(.1)1)` | `regsen_breakdown(..., cbar = seq(0, 1, 0.1))` |
 | `regsensitivity breakdown ... beta(-1(.2)1 lb)` | `regsen_breakdown(..., beta = bnd_lb(seq(-1, 1, 0.2)))` |
 | `regsensitivity breakdown ... beta(4 ub)` | `regsen_breakdown(..., beta = bnd_ub(4))` |
+| *(no equivalent)* | `regsen_breakdown(..., direction = "rybar", rxbar = ...)` |
+| *(no equivalent)* | `regsen_bounds(..., clow = 0.5)` |
 | `regsensitivity breakdown ... oster rmax(0(.1)1) beta(0 eq)` | `regsen_breakdown(..., analysis = "oster", r2long = seq(0, 1, 0.1), beta = bnd_eq(0))` |
 | `regsensitivity plot` | `plot(result)` |
 | `regsensitivity` (no subcommand) | `regsen_summary(...)` |
@@ -104,7 +115,7 @@ Copy-pasteable forms below.
     title  = {regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias},
     author = {Mike Nguyen},
     year   = {2026},
-    note   = {R package version 0.1.2},
+    note   = {R package version 0.2.0},
     url    = {https://github.com/mikenguyen13/regsensitivity}
 }
 ```
@@ -117,7 +128,7 @@ TI  - regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias
 AU  - Nguyen, Mike
 PY  - 2026
 PB  - GitHub
-ET  - 0.1.2
+ET  - 0.2.0
 UR  - https://github.com/mikenguyen13/regsensitivity
 ER  -
 ```
@@ -125,19 +136,19 @@ ER  -
 ### APA 7
 
 > Nguyen, M. (2026). *regsensitivity: Regression sensitivity analysis
-> for omitted variable bias* (Version 0.1.2) \[R package\].
+> for omitted variable bias* (Version 0.2.0) \[R package\].
 > <https://github.com/mikenguyen13/regsensitivity>
 
 ### MLA 9
 
 > Nguyen, Mike. *regsensitivity: Regression Sensitivity Analysis for
-> Omitted Variable Bias*. Version 0.1.2, 2026.
+> Omitted Variable Bias*. Version 0.2.0, 2026.
 > <https://github.com/mikenguyen13/regsensitivity>.
 
 ### Chicago (author-date)
 
 > Nguyen, Mike. 2026. “regsensitivity: Regression Sensitivity Analysis
-> for Omitted Variable Bias.” R package version 0.1.2.
+> for Omitted Variable Bias.” R package version 0.2.0.
 > <https://github.com/mikenguyen13/regsensitivity>.
 
 ### Machine-readable
@@ -162,8 +173,8 @@ works**) live below in [References](#references).
   Stability](https://www.tandfonline.com/doi/abs/10.1080/07350015.2016.1227711).
   *JBES* 37(2), 187–204.
 - Masten, Poirier (2026). [The Effect of Omitted Variables on the Sign
-  of Regression Coefficients](https://arxiv.org/abs/2208.00552).
-  arXiv:2208.00552.
+  of Regression Coefficients](https://doi.org/10.1257/aer.20230242).
+  *AER* 116(7), 2685–2710.
 
 ## Code of conduct
 
