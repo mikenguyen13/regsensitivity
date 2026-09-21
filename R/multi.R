@@ -58,6 +58,10 @@ regsen_multi <- function(formula, data, treatments,
     }
     fun <- match.fun(fun)
     ncores <- resolve_ncores(ncores)
+    # Force every argument the worker closure will touch. A socket worker
+    # receives an unevaluated promise as a promise and evaluates it there,
+    # where the caller's variables do not exist.
+    force(compare)
 
     rhs <- attr(stats::terms(formula), "term.labels")
     lhs <- all.vars(formula)[1]

@@ -477,6 +477,10 @@ beta_bounds_ryfinite_cbar_neq0 <- function(sp, s, maxiter = 1000L,
 # optimizer.
 dmp_identified_set <- function(rxbar, rybar, cbar, s, product = TRUE,
                                 clow = 0, ncores = 1L) {
+    # Forced here so a socket worker receives values, not promises into
+    # the caller's frame (which it cannot evaluate, and which would ship
+    # the whole frame along with them).
+    force(s); force(clow)
     sp <- format_dmp_sparams(rxbar, rybar, cbar, product)
     n <- length(sp$rxbar)
     out <- data.frame(
@@ -681,6 +685,7 @@ breakdown_point_ry_idx <- function(beta, c, rx, lower_bound, s, clow = 0,
 dmp_breakdown_frontier <- function(beta, cs, ry = POS_INF, hyposign = ">",
                                     s, ry_expr = NULL, clow = 0,
                                     ncores = 1L) {
+    force(s); force(ry); force(ry_expr); force(clow)   # see dmp_identified_set
     if (length(beta) > 1) {
         cs <- rep(cs[1], length(beta))
         index <- beta
@@ -720,6 +725,7 @@ dmp_breakdown_frontier <- function(beta, cs, ry = POS_INF, hyposign = ">",
 # (the rybar at which the hypothesis fails, possibly +Inf).
 dmp_breakdown_frontier_ry <- function(beta, cbar, rxbar, hyposign = ">", s,
                                        clow = 0, ncores = 1L) {
+    force(beta); force(cbar); force(rxbar); force(s); force(clow)
     lower_bound <- if (identical(hyposign, "<")) {
         FALSE
     } else if (identical(hyposign, "=")) {

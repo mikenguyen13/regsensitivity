@@ -53,6 +53,13 @@
   of the machine's cores; `regsen_cores(n)` sets a number. Work inside a
   bootstrap replicate or a treatment always runs serially, so cores are
   not oversubscribed by nesting.
+* The socket backend that Windows uses can be selected on any machine
+  with `options(regsensitivity.backend = "psock")`, and the test suite
+  runs it everywhere, so a change that works under fork but not on
+  Windows is caught before it ships. Arguments a worker closure touches
+  are forced before the closure is built: a socket worker is a fresh
+  session and would otherwise receive an unevaluated promise into a frame
+  it does not have.
 * A replicate or grid point that errors is now confined to its own slot.
   `mclapply()` preschedules jobs onto cores and marks every job on a core
   as failed when one errors, so a single bad bootstrap resample used to

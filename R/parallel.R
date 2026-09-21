@@ -119,21 +119,52 @@ par_lapply <- function(n, fn, ncores) {
     if (ncores <= 1L || n <= 1L) {
         return(lapply(seq_len(n), safe))
     }
-    if (.Platform$OS.type != "windows") {
-        # mc.set.seed = FALSE: the only caller that draws random numbers
-        # seeds each replicate itself, so letting the fork reseed would
-        # only add core-count dependence back in.
-        parallel::mclapply(seq_len(n), safe, mc.cores = ncores,
-                           mc.set.seed = FALSE)
-    } else {
-        cl <- parallel::makeCluster(ncores)
-        on.exit(parallel::stopCluster(cl), add = TRUE)
-        parallel::clusterEvalQ(cl, {
-            suppressMessages(requireNamespace("regsensitivity", quietly = TRUE))
-        })
-        parallel::clusterExport(cl, varlist = "fn", envir = environment())
-        parallel::parLapply(cl, seq_len(n), safe)
-    }
+    switch(parallel_backend(),
+           fork  = par_lapply_fork(n, safe, ncores),
+           psock = par_lapply_psock(n, safe, ncores))
+}
+
+# Fork where the OS provides it, a socket cluster otherwise. The option
+# exists so the socket path can be exercised on a machine that can fork
+# -- it is the path Windows users get, and the one a test suite run on
+# macOS or Linux would otherwise never touch.
+parallel_backend <- function() {
+    b <- getOption("regsensitivity.backend", NULL)
+    if (!is.null(b)) return(match.arg(b, c("fork", "psock")))
+    if (.Platform$OS.type == "windows") "psock" else "fork"
+}
+
+par_lapply_fork <- function(n, safe, ncores) {
+    # mc.set.seed = FALSE: the only caller that draws random numbers
+    # seeds each replicate itself, so letting the fork reseed would
+    # only add core-count dependence back in.
+    parallel::mclapply(seq_len(n), safe, mc.cores = ncores,
+                       mc.set.seed = FALSE)
+}
+
+# A socket worker is a fresh R session. It receives `safe` by
+# serialization, which carries `safe`'s enclosing environment along --
+# and that environment must contain only what the job needs. So `safe`
+# is rebuilt here in a small environment holding just `fn`, rather than
+# shipped from par_lapply()'s frame, which would drag the cluster object
+# itself into every message. The package namespace that `fn` closes over
+# is serialized by name and loaded on the worker from the same library
+# path the master uses.
+par_lapply_psock <- function(n, safe, ncores) {
+    fn <- environment(safe)$fn
+    job_env <- new.env(parent = globalenv())
+    job_env$fn <- fn
+    job <- function(i) try(fn(i), silent = TRUE)
+    environment(job) <- job_env
+
+    cl <- parallel::makeCluster(ncores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    lib <- .libPaths()
+    parallel::clusterCall(cl, function(lib) {
+        .libPaths(lib)
+        suppressMessages(requireNamespace("regsensitivity", quietly = TRUE))
+    }, lib)
+    parallel::parLapply(cl, seq_len(n), job)
 }
 
 # par_lapply() for work that returns one number per index; a failed

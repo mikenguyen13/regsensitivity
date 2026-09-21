@@ -111,6 +111,48 @@ test_that("regsen_multi() is identical across cores and reports failures per row
     expect_true(all(is.finite(m$breakdown[m$treatment != "lat"])))
 })
 
+test_that("the socket backend gives what the fork backend gives", {
+    # The socket path is what Windows users get, and the one a fork-capable
+    # machine would otherwise never exercise. A socket worker is a fresh
+    # session: an argument left as an unevaluated promise reaches it as a
+    # promise into a frame that does not exist there, which is exactly the
+    # bug this guards against. It needs the installed package, since the
+    # worker loads the namespace by name.
+    skip_if(exists(".__DEVTOOLS__", asNamespace("regsensitivity")),
+            "package is loaded with load_all(); the socket worker needs it installed")
+    old <- getOption("regsensitivity.backend")
+    on.exit(options(regsensitivity.backend = old), add = TRUE)
+    options(regsensitivity.backend = "psock")
+    expect_equal(regsensitivity:::parallel_backend(), "psock")
+
+    fn <- function(i) if (i == 2) stop("boom") else i * 10
+    expect_equal(regsensitivity:::par_numeric(4, fn, two), c(10, NA, 30, 40))
+
+    # A closure argument evaluated only inside the worker.
+    helper <- function() bfg_compare()
+    trs <- c("tye_tfe890_500kNI_100_l6", "lat")
+    m2 <- regsen_multi(bfg_formula(), bfg(), treatments = trs,
+                       compare = helper(), cbar = 1, ncores = two)
+    m1 <- regsen_multi(bfg_formula(), bfg(), treatments = trs,
+                       compare = bfg_compare(), cbar = 1, ncores = 1)
+    expect_identical(as.data.frame(m2), as.data.frame(m1))
+
+    bb <- regsen_boot(bfg_formula(), bfg(), compare = helper(), cbar = 1,
+                      R = 4, seed = 1, type = "perc", show_progress = FALSE,
+                      ncores = two)
+    bb1 <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(), cbar = 1,
+                       R = 4, seed = 1, type = "perc", show_progress = FALSE,
+                       ncores = 1)
+    expect_identical(bb$replicates, bb1$replicates)
+    expect_equal(bb$na, 0L)
+
+    b2 <- regsen_bounds(bfg_formula(), bfg(), compare = helper(),
+                        rxbar = c(0.3, 0.6), rybar = 1, cbar = 1, ncores = two)
+    b1 <- regsen_bounds(bfg_formula(), bfg(), compare = bfg_compare(),
+                        rxbar = c(0.3, 0.6), rybar = 1, cbar = 1, ncores = 1)
+    expect_identical(b2$results, b1$results)
+})
+
 test_that("the session default reaches every entry point", {
     old <- getOption("regsensitivity.ncores")
     on.exit(options(regsensitivity.ncores = old), add = TRUE)
