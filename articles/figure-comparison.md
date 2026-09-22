@@ -270,9 +270,10 @@ plausible-looking substitute.
 ![MP (2026) Figure 2](figures/mp-fig2-paper.png)
 
 The structural features do carry over to constructed data: the
-identified set has at most three branches, and they diverge at the
-vertical asymptote $`\delta = 1`$. Both are visible in the stylized
-figures in that vignette.
+identified set has at most three solutions at any $`\delta`$, and a
+solution escapes to infinity at $`\delta = 1`$, where a second branch
+enters from the other side and sweeps across zero. Both are visible in
+the stylized figures in that vignette.
 
 ## Coverage: every figure in the three papers
 
