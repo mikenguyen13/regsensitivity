@@ -93,8 +93,9 @@ paper itself does not print the moments needed to regenerate those
 curves. Its survey tables aggregate across many published studies. So
 this vignette exercises the machinery in <code>regsensitivity</code>
 end-to-end on a data-generating process we control, and the structural
-features of the published figures – at most three branches, the vertical
-asymptote at
+features of the published figures – at most three solutions at any
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>,
+the vertical asymptote at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta = 1</annotation></semantics></math>
 – are what should carry over. The numerical values should not be
 compared.</p>
@@ -114,18 +115,30 @@ crosses zero at moderate
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">5000</span></span>
 <span><span class="va">w1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="va">w2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
-<span><span class="va">x</span>  <span class="op">&lt;-</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">w1</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">w2</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
-<span><span class="va">y</span>  <span class="op">&lt;-</span> <span class="fl">0.8</span> <span class="op">*</span> <span class="va">x</span> <span class="op">+</span> <span class="fl">0.4</span> <span class="op">*</span> <span class="va">w1</span> <span class="op">+</span> <span class="fl">0.6</span> <span class="op">*</span> <span class="va">w2</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
-<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, x <span class="op">=</span> <span class="va">x</span>, w1 <span class="op">=</span> <span class="va">w1</span><span class="op">)</span>   <span class="co"># w2 is unobserved!</span></span>
+<span><span class="va">w3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">x</span>  <span class="op">&lt;-</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">w1</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">w2</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">w3</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">y</span>  <span class="op">&lt;-</span> <span class="fl">0.8</span> <span class="op">*</span> <span class="va">x</span> <span class="op">+</span> <span class="fl">0.4</span> <span class="op">*</span> <span class="va">w1</span> <span class="op">-</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">w2</span> <span class="op">+</span> <span class="fl">0.6</span> <span class="op">*</span> <span class="va">w3</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, x <span class="op">=</span> <span class="va">x</span>, w1 <span class="op">=</span> <span class="va">w1</span>, w2 <span class="op">=</span> <span class="va">w2</span><span class="op">)</span>   <span class="co"># w3 is unobserved!</span></span>
 <span></span>
-<span><span class="va">form</span> <span class="op">&lt;-</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x</span> <span class="op">+</span> <span class="va">w1</span></span></code></pre></div>
+<span><span class="va">form</span> <span class="op">&lt;-</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x</span> <span class="op">+</span> <span class="va">w1</span> <span class="op">+</span> <span class="va">w2</span></span></code></pre></div>
 <p>The “true” long-regression coefficient is 0.8; the medium regression
-sees an upward-biased estimate because <code>w2</code> is correlated
+sees an upward-biased estimate because <code>w3</code> is correlated
 with <code>x</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x</span> <span class="op">+</span> <span class="va">w1</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"x"</span><span class="op">]</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">form</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"x"</span><span class="op">]</span></span>
 <span><span class="co">#&gt;        x </span></span>
-<span><span class="co">#&gt; 1.025787</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.060427</span></span></code></pre></div>
+<p>Two observed controls rather than one is not cosmetic. With a single
+control,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{med}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>π</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">\pi_{med}</annotation></semantics></math>
+are scalars, the numerator and denominator of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo stretchy="false" form="prefix">(</mo><mi>β</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\delta(\beta)</annotation></semantics></math>
+share a root, and the asymptote at that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+cancels into a removable hole – a degenerate case with none of the
+structure the paper’s figures show.</p>
 </div>
 <div class="section level2">
 <h2 id="figure-1-osters-identified-set-mathcalb_idelta-r_long">Figure 1: Oster’s identified set
@@ -141,10 +154,25 @@ with <code>x</code>.</p>
 <p><img src="mp2022-stylized_files/figure-html/mp-fig1-1.png" class="r-plt" alt="" width="576"></p>
 <p>The branches of the cubic in
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-that solve Oster’s equation give the identified set. As
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>→</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta \to 1</annotation></semantics></math>
-from either side, the branches diverge (asymptotes are roots of the
-cubic’s denominator).</p>
+that solve Oster’s equation give the identified set. The cubic’s leading
+coefficient is proportional to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta - 1</annotation></semantics></math>,
+so a root escapes to infinity exactly at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta = 1</annotation></semantics></math>:
+below it there is one solution near
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{med}</annotation></semantics></math>,
+and at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta = 1</annotation></semantics></math>
+a second branch enters from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>∞</mi></mrow><annotation encoding="application/x-tex">-\infty</annotation></semantics></math>
+and sweeps up across zero. The curves are drawn as branches of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo stretchy="false" form="prefix">(</mo><mi>β</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\delta(\beta)</annotation></semantics></math>
+rather than as functions of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>,
+which is why a branch can fold back – one
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>
+carrying two solutions on the same branch – as this one does just past
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta = 1</annotation></semantics></math>.</p>
 </div>
 <div class="section level2">
 <h2 id="figure-2-cumulative-identified-set-delta-le-bar-d">Figure 2: cumulative identified set
@@ -153,12 +181,22 @@ cubic’s denominator).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">dat</span>,</span>
 <span>                       analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
-<span>                       delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.99</span>, <span class="fl">0.005</span><span class="op">)</span>,</span>
+<span>                       delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0.005</span><span class="op">)</span>,</span>
 <span>                       delta_type <span class="op">=</span> <span class="st">"bound"</span>,</span>
 <span>                       r2long <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res2</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span>,</span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res2</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>     title <span class="op">=</span> <span class="st">"Figure 2 (stylized): cumulative identified set"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mp2022-stylized_files/figure-html/mp-fig2-1.png" class="r-plt" alt="" width="576"></p>
+<p>The cumulative set is a narrow cone around
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{med}</annotation></semantics></math>
+for every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>
+short of one, and at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta = 1</annotation></semantics></math>
+it is the whole real line: both bounds leave the panel rather than
+flattening along its edge. The sign of the effect is therefore not in
+doubt anywhere below the threshold and completely undetermined at it –
+the discontinuity, not a gradual widening, is what does the work.</p>
 </div>
 <div class="section level2">
 <h2 id="table-1-breakdown-points">Table 1: breakdown points<a class="anchor" aria-label="anchor" href="#table-1-breakdown-points"></a>
@@ -179,7 +217,7 @@ cubic’s denominator).</p>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\beta = 0</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mrow><mi>l</mi><mi>o</mi><mi>n</mi><mi>g</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R_{long}=1</annotation></semantics></math>
 </td>
-<td>1.0725</td>
+<td>1.2342</td>
 </tr>
 <tr class="even">
 <td>
@@ -187,7 +225,7 @@ cubic’s denominator).</p>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\beta &gt; 0</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mrow><mi>l</mi><mi>o</mi><mi>n</mi><mi>g</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R_{long}=1</annotation></semantics></math>
 </td>
-<td>1</td>
+<td>0.9937</td>
 </tr>
 <tr class="odd">
 <td>DMP
@@ -195,7 +233,7 @@ cubic’s denominator).</p>
 at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>c</mi><mo accent="true">‾</mo></mover><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\bar c = 1</annotation></semantics></math>
 </td>
-<td>0.9424</td>
+<td>0.9013</td>
 </tr>
 </tbody>
 </table>
@@ -204,10 +242,28 @@ at
 <h2 id="effect-of-a-maxovb-constraint">Effect of a maxovb constraint<a class="anchor" aria-label="anchor" href="#effect-of-a-maxovb-constraint"></a>
 </h2>
 <p>Masten-Poirier (2026) extend Oster by adding a <strong>maximum
-omitted variable bias</strong> constraint. We illustrate by varying
-maxovb:</p>
+omitted variable bias</strong> constraint. A sign change requires the
+bias to carry
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+all the way from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{med}</annotation></semantics></math>
+to zero, so any cap below
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{med}</annotation></semantics></math>
+rules one out and the breakdown point is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>∞</mi></mrow><annotation encoding="application/x-tex">+\infty</annotation></semantics></math>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ovbs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.5</span>, <span class="fl">0.05</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">bmed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">dat</span>, analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
+<span>                       delta <span class="op">=</span> <span class="fl">0</span>, r2long <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">dgp</span><span class="op">$</span><span class="va">beta_med</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">bmed</span>, <span class="fl">3</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.001</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">M</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">dat</span>, analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
+<span>                      r2long <span class="op">=</span> <span class="fl">1</span>, maxovb <span class="op">=</span> <span class="va">M</span><span class="op">)</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]      Inf      Inf 1.233942</span></span></code></pre></div>
+<p>Above that threshold the cap binds without forbidding the sign
+change, and the breakdown point falls back towards its uncapped value as
+the cap loosens:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ovbs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1.1</span>, <span class="fl">3</span>, <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">ovbs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">M</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">dat</span>,</span>
 <span>                           analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
@@ -215,12 +271,24 @@ maxovb:</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>maxovb <span class="op">=</span> <span class="va">M</span>, breakdown <span class="op">=</span> <span class="va">r</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">out</span><span class="op">)</span></span>
+<span><span class="va">uncapped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">dat</span>, analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
+<span>                              r2long <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">out</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">maxovb</span>, <span class="va">breakdown</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">1</span>, linetype <span class="op">=</span> <span class="st">"dotted"</span>, colour <span class="op">=</span> <span class="st">"grey40"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"maxovb"</span>, y <span class="op">=</span> <span class="st">"Delta (breakdown)"</span>,</span>
-<span>         title <span class="op">=</span> <span class="st">"Oster breakdown vs max OVB"</span><span class="op">)</span></span></code></pre></div>
+<span>         title <span class="op">=</span> <span class="st">"Oster sign-change breakdown vs max OVB"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="../reference/theme_regsen.html">theme_regsen</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mp2022-stylized_files/figure-html/mp-maxovb-1.png" class="r-plt" alt="" width="576"></p>
-<p>A tighter cap on the OVB magnitude lifts the breakdown delta.</p>
+<p>A tighter cap on the OVB magnitude lifts the breakdown delta, and
+every value drawn is above one – the dotted line. That is the point of
+the constraint: without it, Masten and Poirier’s Theorem 2 caps the
+sign-change breakdown at one (here 0.9937), so no sign conclusion can be
+called robust by the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>δ</mi><mo stretchy="false" form="prefix">|</mo><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">|\delta| &gt; 1</annotation></semantics></math>
+convention. The cap is the extra assumption that lifts the ceiling, and
+it has to be argued for rather than chosen for the answer it gives.</p>
 </div>
 <div class="section level2">
 <h2 id="meta-analysis-tables-paper-tables-3-4">Meta-analysis tables (paper Tables 3-4)<a class="anchor" aria-label="anchor" href="#meta-analysis-tables-paper-tables-3-4"></a>
@@ -231,7 +299,7 @@ application, not the survey.) The package contains the primitives needed
 to reproduce those tables
 (<code>regsen_breakdown(... maxovb = ...)</code>); plug your own
 meta-analysis data in and call:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">study_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">study</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">study</span><span class="op">$</span><span class="va">formula</span>, <span class="va">study</span><span class="op">$</span><span class="va">data</span>,</span>
 <span>                             analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>

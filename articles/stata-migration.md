@@ -298,14 +298,17 @@ regsensitivity plot, xline(1)
 $`R^2_{max} = 1`$, the point past which the assumed long-regression fit
 would exceed a perfect one.
 
+Stata’s `delta(-3 3 eq)` names the *endpoints* of a range and fills in
+the grid itself. `delta` here is the grid, so pass the whole sequence:
+`delta = c(-3, 3)` asks for the identified set at exactly two values of
+$`\delta`$, and a curve through two points is not a curve.
+
 ``` r
 
 os <- regsen_bounds(form, bfg2020, compare = w1,
                      analysis = "oster",
-                     delta = c(-3, 3), delta_type = "eq")
+                     delta = seq(-3, 3, 0.05), delta_type = "eq")
 plot(os, ylim = c(-5, 8), xline = 1)
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
 ```
 
 ![](stata-migration_files/figure-html/oster-1.png)
@@ -388,6 +391,6 @@ previously stopped:
 
 regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
                rxbar = 2, rybar = 0.5)$results
-#>   rxbar rybar cbar     bmin     bmax
-#> 1     2   0.5    1 0.424218 3.774923
+#>   rxbar rybar cbar      bmin     bmax
+#> 1     2   0.5    1 0.4241849 3.774923
 ```

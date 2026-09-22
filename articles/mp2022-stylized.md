@@ -11,9 +11,9 @@ the paper itself does not print the moments needed to regenerate those
 curves. Its survey tables aggregate across many published studies. So
 this vignette exercises the machinery in `regsensitivity` end-to-end on
 a data-generating process we control, and the structural features of the
-published figures – at most three branches, the vertical asymptote at
-$`\delta = 1`$ – are what should carry over. The numerical values should
-not be compared.
+published figures – at most three solutions at any $`\delta`$, the
+vertical asymptote at $`\delta = 1`$ – are what should carry over. The
+numerical values should not be compared.
 
 ## A stylized data-generating process
 
@@ -30,22 +30,29 @@ set.seed(2208)
 n <- 5000
 w1 <- rnorm(n)
 w2 <- rnorm(n)
-x  <- 0.3 * w1 + 0.5 * w2 + rnorm(n)
-y  <- 0.8 * x + 0.4 * w1 + 0.6 * w2 + rnorm(n)
-dat <- data.frame(y = y, x = x, w1 = w1)   # w2 is unobserved!
+w3 <- rnorm(n)
+x  <- 0.3 * w1 + 0.3 * w2 + 0.5 * w3 + rnorm(n)
+y  <- 0.8 * x + 0.4 * w1 - 0.3 * w2 + 0.6 * w3 + rnorm(n)
+dat <- data.frame(y = y, x = x, w1 = w1, w2 = w2)   # w3 is unobserved!
 
-form <- y ~ x + w1
+form <- y ~ x + w1 + w2
 ```
 
 The “true” long-regression coefficient is 0.8; the medium regression
-sees an upward-biased estimate because `w2` is correlated with `x`.
+sees an upward-biased estimate because `w3` is correlated with `x`.
 
 ``` r
 
-coef(lm(y ~ x + w1, data = dat))["x"]
+coef(lm(form, data = dat))["x"]
 #>        x 
-#> 1.025787
+#> 1.060427
 ```
+
+Two observed controls rather than one is not cosmetic. With a single
+control, $`\gamma_{med}`$ and $`\pi_{med}`$ are scalars, the numerator
+and denominator of $`\delta(\beta)`$ share a root, and the asymptote at
+that $`\beta`$ cancels into a removable hole – a degenerate case with
+none of the structure the paper’s figures show.
 
 ## Figure 1: Oster’s identified set $`\mathcal{B}_I(\delta, R_{long})`$
 
@@ -62,8 +69,14 @@ plot(res, ylim = c(-2, 4),
 ![](mp2022-stylized_files/figure-html/mp-fig1-1.png)
 
 The branches of the cubic in $`\beta`$ that solve Oster’s equation give
-the identified set. As $`\delta \to 1`$ from either side, the branches
-diverge (asymptotes are roots of the cubic’s denominator).
+the identified set. The cubic’s leading coefficient is proportional to
+$`\delta - 1`$, so a root escapes to infinity exactly at $`\delta = 1`$:
+below it there is one solution near $`\beta_{med}`$, and at
+$`\delta = 1`$ a second branch enters from $`-\infty`$ and sweeps up
+across zero. The curves are drawn as branches of $`\delta(\beta)`$
+rather than as functions of $`\delta`$, which is why a branch can fold
+back – one $`\delta`$ carrying two solutions on the same branch – as
+this one does just past $`\delta = 1`$.
 
 ## Figure 2: cumulative identified set $`\delta \le \bar d`$
 
@@ -71,31 +84,55 @@ diverge (asymptotes are roots of the cubic’s denominator).
 
 res2 <- regsen_bounds(form, dat,
                        analysis = "oster",
-                       delta = seq(0, 0.99, 0.005),
+                       delta = seq(0, 1, 0.005),
                        delta_type = "bound",
                        r2long = 1)
-plot(res2, ylim = c(-5, 5),
+plot(res2, ylim = c(0, 2),
      title = "Figure 2 (stylized): cumulative identified set")
 ```
 
 ![](mp2022-stylized_files/figure-html/mp-fig2-1.png)
 
+The cumulative set is a narrow cone around $`\beta_{med}`$ for every
+$`\delta`$ short of one, and at $`\delta = 1`$ it is the whole real
+line: both bounds leave the panel rather than flattening along its edge.
+The sign of the effect is therefore not in doubt anywhere below the
+threshold and completely undetermined at it – the discontinuity, not a
+gradual widening, is what does the work.
+
 ## Table 1: breakdown points
 
 | Quantity                                               | Value  |
 |--------------------------------------------------------|--------|
-| `oster_breakdown_eq`, $`\beta = 0`$, $`R_{long}=1`$    | 1.0725 |
-| `oster_breakdown_bound`, $`\beta > 0`$, $`R_{long}=1`$ | 1      |
-| DMP $`\bar r_X^{bp}`$ at $`\bar c = 1`$                | 0.9424 |
+| `oster_breakdown_eq`, $`\beta = 0`$, $`R_{long}=1`$    | 1.2342 |
+| `oster_breakdown_bound`, $`\beta > 0`$, $`R_{long}=1`$ | 0.9937 |
+| DMP $`\bar r_X^{bp}`$ at $`\bar c = 1`$                | 0.9013 |
 
 ## Effect of a maxovb constraint
 
 Masten-Poirier (2026) extend Oster by adding a **maximum omitted
-variable bias** constraint. We illustrate by varying maxovb:
+variable bias** constraint. A sign change requires the bias to carry
+$`\beta`$ all the way from $`\beta_{med}`$ to zero, so any cap below
+$`\beta_{med}`$ rules one out and the breakdown point is $`+\infty`$:
 
 ``` r
 
-ovbs <- seq(0.05, 0.5, 0.05)
+bmed <- regsen_bounds(form, dat, analysis = "oster",
+                       delta = 0, r2long = 1)$dgp$beta_med
+sapply(c(0.5, 1, round(bmed, 3) + 0.001), function(M) {
+    regsen_breakdown(form, dat, analysis = "oster",
+                      r2long = 1, maxovb = M)$results$breakdown[1]
+})
+#> [1]      Inf      Inf 1.233942
+```
+
+Above that threshold the cap binds without forbidding the sign change,
+and the breakdown point falls back towards its uncapped value as the cap
+loosens:
+
+``` r
+
+ovbs <- seq(1.1, 3, 0.1)
 out <- lapply(ovbs, function(M) {
     r <- regsen_breakdown(form, dat,
                            analysis = "oster",
@@ -103,15 +140,26 @@ out <- lapply(ovbs, function(M) {
     data.frame(maxovb = M, breakdown = r$results$breakdown[1])
 })
 out <- do.call(rbind, out)
+uncapped <- regsen_breakdown(form, dat, analysis = "oster",
+                              r2long = 1)$results$breakdown[1]
+
 ggplot(out, aes(maxovb, breakdown)) +
+    geom_hline(yintercept = 1, linetype = "dotted", colour = "grey40") +
     geom_line() + geom_point() +
     labs(x = "maxovb", y = "Delta (breakdown)",
-         title = "Oster breakdown vs max OVB")
+         title = "Oster sign-change breakdown vs max OVB") +
+    theme_regsen()
 ```
 
 ![](mp2022-stylized_files/figure-html/mp-maxovb-1.png)
 
-A tighter cap on the OVB magnitude lifts the breakdown delta.
+A tighter cap on the OVB magnitude lifts the breakdown delta, and every
+value drawn is above one – the dotted line. That is the point of the
+constraint: without it, Masten and Poirier’s Theorem 2 caps the
+sign-change breakdown at one (here 0.9937), so no sign conclusion can be
+called robust by the $`|\delta| > 1`$ convention. The cap is the extra
+assumption that lifts the ceiling, and it has to be argued for rather
+than chosen for the answer it gives.
 
 ## Meta-analysis tables (paper Tables 3-4)
 
