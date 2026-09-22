@@ -159,54 +159,68 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
         sp <- if ("delta" %in% names(df)) "delta" else colnames(df)[1]
         df$x_var <- df[[sp]]
         if (x$sparams$delta_type == "eq") {
-            # Up to three solutions per delta: beta1, beta2, beta3. They are
-            # ordered numerically, so a nominal branch can swap arms where a
-            # root diverges; drawn as one line, that swap paints a false
-            # vertical connector through the panel. Two exact facts locate
-            # every swap: a true branch never crosses a vertical asymptote
-            # of beta -> delta(beta), and the cubic's leading coefficient is
-            # proportional to (delta - 1), so one root escapes to infinity
-            # exactly at delta = 1, shifting the numeric ordering there.
-            # Break a branch wherever a step straddles either. Each r2long
-            # value is its own curve with its own asymptotes.
+            # Up to three solutions per delta, sorted within each delta and
+            # stored as beta1, beta2, beta3. That sort order is not branch
+            # identity: wherever two roots appear at a fold or one escapes to
+            # infinity, the root continuing a given curve moves between the
+            # columns. Drawing a column as a line therefore both cuts
+            # continuous branches and joins unrelated ones.
+            #
+            # Branch identity is exact here, so no matching heuristic is
+            # needed. delta(beta) is a ratio of cubics in beta; between two
+            # consecutive poles of it the map is continuous and single
+            # valued, so all the roots lying in one pole interval belong to
+            # one branch, and walking that interval in increasing beta
+            # traverses the branch end to end -- including across a fold,
+            # where one delta contributes two of its points. Each r2long
+            # value has its own poles and its own curve. The branches are
+            # drawn with geom_path(), not geom_line(): a folded branch is
+            # not a function of delta, and geom_line() would re-sort it by
+            # delta and saw the fold into vertical spikes.
             r2s <- if ("r2long" %in% names(df)) df$r2long
                    else rep(x$sparams$r2long[1], nrow(df))
             long_list <- list()
             for (r2 in unique(r2s)) {
                 sub <- df[r2s == r2, , drop = FALSE]
-                sub <- sub[order(sub$x_var), , drop = FALSE]
                 asym <- tryCatch(oster_delta_asymptotes(r2, x$dgp),
                                   error = function(e) numeric(0))
-                for (k in 1:3) {
-                    y <- sub[[paste0("beta", k)]]
-                    keep <- is.finite(y)
-                    yk <- y[keep]
-                    if (length(yk) == 0) next
-                    xk <- sub$x_var[keep]
-                    cross <- rep(FALSE, max(0, length(yk) - 1))
-                    for (a in asym) {
-                        cross <- cross |
-                            ((yk[-length(yk)] - a) * (yk[-1] - a) < 0)
-                    }
-                    if (length(yk) > 1) {
-                        cross <- cross |
-                            (xk[-length(xk)] <= 1 & xk[-1] > 1) |
-                            (xk[-length(xk)] < 1 & xk[-1] >= 1)
-                    }
-                    long_list[[length(long_list) + 1]] <- data.frame(
-                        x = xk, y = yk, r2long = r2,
-                        branch = k, segment = cumsum(c(0, cross)))
-                }
+                asym <- sort(asym[is.finite(asym)])
+                pts <- data.frame(
+                    x = rep(sub$x_var, 3L),
+                    y = c(sub$beta1, sub$beta2, sub$beta3)
+                )
+                pts <- pts[is.finite(pts$y), , drop = FALSE]
+                if (nrow(pts) == 0) next
+                pts$r2long <- r2
+                pts$branch <- findInterval(pts$y, asym)
+                long_list[[length(long_list) + 1]] <-
+                    pts[order(pts$branch, pts$y), , drop = FALSE]
+            }
+            if (length(long_list) == 0) {
+                stop("nothing to plot: Oster's cubic has no real solution at ",
+                     "any delta on the grid. Widen `delta`, or check `r2long` ",
+                     "against the medium-regression R-squared.", call. = FALSE)
             }
             long <- do.call(rbind, long_list)
             long$y_p <- long$y
-            grp <- interaction(long$r2long, long$branch, long$segment)
+            grp <- interaction(long$r2long, long$branch)
+            # A branch of one point draws nothing at all, so a `delta` of two
+            # or three values produces an empty panel with no complaint. The
+            # Stata command takes the endpoints of a range and fills in the
+            # grid itself; `delta` here is the grid.
+            if (max(table(grp)) < 2) {
+                warning("nothing will be drawn: every branch of the ",
+                        "identified set has a single point on this `delta` ",
+                        "grid. `delta` is the grid itself, not its ",
+                        "endpoints -- pass a sequence such as ",
+                        "seq(-3, 3, 0.05).", call. = FALSE)
+            }
             if (length(unique(long$r2long)) > 1) {
                 long$group_r2 <- factor(long$r2long)
                 p <- ggplot(long, aes(x = .data$x, y = .data$y_p,
                                         group = grp,
                                         colour = .data$group_r2)) +
-                    geom_line(linewidth = 0.6, na.rm = TRUE)
+                    geom_path(linewidth = 0.6, na.rm = TRUE)
                 if (show_legend) {
                     p <- p + labs(colour = sparam_label("r2long"))
                 } else {
@@ -215,7 +229,7 @@ plot_bounds <- function(x, ywidth = NULL, ylim = NULL,
             } else {
                 p <- ggplot(long, aes(x = .data$x, y = .data$y_p,
                                         group = grp)) +
-                    geom_line(linewidth = 0.6, na.rm = TRUE)
+                    geom_path(linewidth = 0.6, na.rm = TRUE)
             }
             primary <- "delta"
         } else {

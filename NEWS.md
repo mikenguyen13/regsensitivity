@@ -1,5 +1,41 @@
 # regsensitivity 0.2.0
 
+## The Oster equality identified-set plot draws the actual branches
+
+* `plot()` on an `analysis = "oster"`, `delta_type = "eq"` sweep now
+  groups the roots by branch rather than by sort order. Up to three
+  roots come back per `delta`, sorted within each `delta`, so the root
+  continuing a given branch moves between the `beta1`/`beta2`/`beta3`
+  columns wherever a fold adds two roots or one escapes to infinity.
+  Drawing a column as a line cut continuous branches into pieces and
+  joined unrelated ones; a heuristic that broke the line at an asymptote
+  and at `delta = 1` suppressed the false connectors but left visible
+  gaps in curves that are not broken.
+
+  Branch identity does not need a heuristic. `delta(beta)` is a ratio of
+  cubics; between two consecutive poles of it the map is continuous and
+  single valued, so the roots in one pole interval are one branch, and
+  walking that interval in increasing `beta` traverses it end to end.
+  A branch that folds back is not a function of `delta`, so the branches
+  are drawn with `geom_path()`.
+
+* A zero of the denominator of `delta(beta)` that is also a zero of its
+  numerator is a hole, not an asymptote, and no longer splits a branch.
+  With a single control covariate it is the only real root of the
+  denominator, which made that case a single continuous curve reported
+  as two.
+
+* The spurious root -- the one solving the cubic at every `delta`, since
+  it is that common root -- no longer survives at scattered `delta` and
+  draws a stray spur along the asymptote. Its residual is set by how
+  accurately `polyroot()` locates it, which is well above the few digits
+  of machine epsilon the filter allowed.
+
+* `plot()` warns when a `delta` grid is too coarse to draw anything, and
+  errors when Oster's cubic has no real solution anywhere on it. Passing
+  `delta = c(-3, 3)` -- the endpoints, as Stata's `delta()` takes them,
+  rather than the grid -- silently produced an empty panel.
+
 ## The identified set is now computed everywhere
 
 * The region `rxbar > rmax(cbar) > rybar` no longer raises an error.

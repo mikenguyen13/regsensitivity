@@ -30,12 +30,22 @@ oster_idset_scalar <- function(delta, r_max, s) {
     }
 
     # Remove the spurious root for which gamma_med + root * pi_med == 0.
-    # See the Stata source notes about the tolerance: we allow 2 extra digits
-    # of slack on top of machine epsilon for the worst-conditioned input.
+    # It is a root of the cubic at every delta, because it is a common root
+    # of the numerator and denominator of delta(beta) -- equivalently it sits
+    # exactly on a vertical asymptote of that map -- so it is never a member
+    # of the identified set at a finite delta.
+    #
+    # The tolerance is set by how accurately polyroot() locates the root, not
+    # by the arithmetic that evaluates the residual: an error of eps in the
+    # root shows up as |pi_med| * eps here. A few digits of slack on machine
+    # epsilon is below that floor, and the spurious root then survived at
+    # scattered deltas and drew a stray spur along the asymptote. Half the
+    # digits is the usual root-finder allowance, and it is still many orders
+    # of magnitude below any genuine root's residual.
     keep <- logical(length(rts))
     for (i in seq_along(rts)) {
         ref <- max(abs(rts[i] * s$pi_med), abs(s$gamma_med))
-        tol <- .Machine$double.eps * max(ref, 1) * 1e2
+        tol <- sqrt(.Machine$double.eps) * max(ref, 1)
         check <- sqrt(sum((s$gamma_med + rts[i] * s$pi_med)^2))
         keep[i] <- check >= tol
     }
@@ -267,8 +277,8 @@ oster_breakdown_bound <- function(r2max, beta, maxovb, hyposign, s) {
     data.frame(index = index, breakdown = delta)
 }
 
-# The vertical asymptotes of beta -> delta(beta), used only by the equality
-# identified-set plot to know where to break the curve into segments.
+# The vertical asymptotes of beta -> delta(beta), used by the equality
+# identified-set plot to tell one branch of the curve from another.
 oster_delta_asymptotes <- function(r_max, s) {
     bm <- s$beta_med; bs <- s$beta_short
     vxr <- s$var_x_resid; vx <- s$var_x; vy <- s$var_y
@@ -279,5 +289,20 @@ oster_delta_asymptotes <- function(r_max, s) {
         vxr * vx - vxr^2
     )
     roots <- real_roots(coef)
+
+    # A zero of the denominator that is also a zero of the numerator is a
+    # hole, not an asymptote: delta(beta) stays finite through it and the
+    # curve does not break there. That is exactly the spurious root
+    # oster_idset_scalar() drops, and with a single control covariate it is
+    # the only real root of the denominator -- so keeping it split one
+    # continuous branch in two.
+    if (length(roots) && length(s$gamma_med)) {
+        removable <- vapply(roots, function(rt) {
+            ref <- max(abs(rt * s$pi_med), abs(s$gamma_med))
+            sqrt(sum((s$gamma_med + rt * s$pi_med)^2)) <
+                sqrt(.Machine$double.eps) * max(ref, 1)
+        }, logical(1))
+        roots <- roots[!removable]
+    }
     sort(bm - roots)
 }

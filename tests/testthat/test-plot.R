@@ -23,6 +23,56 @@ test_that("plot for Oster equality has three-branch geoms", {
     expect_s3_class(p, "ggplot")
 })
 
+test_that("Oster equality branches are continuous curves, not sort order", {
+    # Up to three roots per delta come back sorted within each delta, so the
+    # root continuing a given branch moves between the beta1/beta2/beta3
+    # columns wherever a fold adds two roots or one escapes. Drawing a column
+    # as a line cut continuous branches and joined unrelated ones; the plot
+    # groups by which interval between the poles of delta(beta) a root falls
+    # in instead, and walks each interval in increasing beta.
+    #
+    # One control covariate puts the only real root of the denominator on the
+    # spurious root, where the numerator vanishes too -- a hole, not a pole --
+    # so the whole picture is a single branch.
+    set.seed(2208)
+    n <- 2000
+    w1 <- rnorm(n); w2 <- rnorm(n)
+    x <- 0.3 * w1 + 0.5 * w2 + rnorm(n)
+    y <- 0.8 * x + 0.4 * w1 + 0.6 * w2 + rnorm(n)
+    d <- data.frame(y = y, x = x, w1 = w1)
+
+    res <- regsen_bounds(y ~ x + w1, d, analysis = "oster",
+                          delta = seq(-2, 2, 0.02), r2long = 1)
+    p <- plot(res, ylim = c(-2, 4))
+
+    # A branch that folds is not a function of delta, so it has to be drawn
+    # in data order: geom_line() would re-sort it by delta and saw the fold
+    # into vertical spikes.
+    expect_identical(unname(vapply(p$layers, function(l) class(l$geom)[1], "")),
+                     c("GeomPath", "GeomHline"))
+
+    dat <- ggplot2::layer_data(p, 1)
+    expect_equal(length(unique(dat$group)), 1L)
+
+    # beta increases monotonically along the path, and inside the panel no
+    # step spans an appreciable part of it. The largest legitimate step is
+    # the near-vertical turn at the fold (about 1.0 of a 6-unit panel), where
+    # the delta grid is coarse relative to how fast beta moves; the
+    # sort-order grouping instead put a connector of nearly 28 -- more than
+    # four panel heights -- through the figure.
+    yy <- dat$y
+    expect_true(all(diff(yy) > 0))
+    inside <- yy >= -2 & yy <= 4
+    expect_gt(sum(inside), 100)
+    expect_lt(max(abs(diff(yy[inside]))), 1.5)
+
+    # The spurious root sits exactly on the denominator's root and solves the
+    # cubic at every delta; it must not appear in the identified set.
+    hole <- res$dgp$beta_med + res$dgp$gamma_med / res$dgp$pi_med
+    betas <- unlist(res$results[, c("beta1", "beta2", "beta3")])
+    expect_false(any(abs(betas - hole) < 1e-8, na.rm = TRUE))
+})
+
 test_that("print method runs without error", {
     res <- regsen_bounds(bfg_formula(), bfg(),
                           compare = bfg_compare(), cbar = 0.1)
