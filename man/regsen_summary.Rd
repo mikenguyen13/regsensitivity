@@ -32,3 +32,14 @@ Runs the default sweep used by Stata's \code{regsensitivity} when no subcommand
 is given: a DMP bounds analysis and an Oster breakdown analysis at a few
 standard r2long values.
 }
+\examples{
+\donttest{
+data(bfg2020)
+s <- regsen_summary(
+  avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+    log_area_2010 + lat + lon,
+  data = bfg2020
+)
+print(s)
+}
+}

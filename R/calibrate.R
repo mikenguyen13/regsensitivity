@@ -76,6 +76,13 @@ calibrate_rho <- function(formula, data, compare = NULL, nocompare = NULL,
 #'
 #' @inheritParams regsen_bounds
 #' @return A data.frame with columns `variable` and `R2`.
+#' @examples
+#' data(bfg2020)
+#' calibrate_partial_r2(
+#'   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+#'     log_area_2010 + lat + lon,
+#'   data = bfg2020
+#' )
 #' @export
 calibrate_partial_r2 <- function(formula, data, compare = NULL,
                                   nocompare = NULL, subset = NULL) {

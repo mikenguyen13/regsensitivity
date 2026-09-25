@@ -103,6 +103,15 @@ okabe_ito <- c("#0072B2", "#D55E00", "#009E73", "#CC79A7",
 #'
 #' @param ... Passed to [ggplot2::discrete_scale()].
 #' @return A \pkg{ggplot2} scale.
+#' @examples
+#' d <- data.frame(
+#'   x = rep(1:3, 2),
+#'   y = c(1, 2, 3, 2, 3, 4),
+#'   series = rep(c("a", "b"), each = 3)
+#' )
+#' ggplot2::ggplot(d, ggplot2::aes(x, y, colour = series)) +
+#'   ggplot2::geom_line() +
+#'   scale_colour_regsen()
 #' @export
 scale_colour_regsen <- function(...) {
     ggplot2::discrete_scale("colour", palette = okabe_ito_palette, ...)

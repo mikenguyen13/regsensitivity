@@ -34,4 +34,8 @@ the Diegert-Masten-Poirier (2026) sensitivity analysis vignette. Each row
 is a county; each column is a covariate used in the DMP empirical
 application.
 }
+\examples{
+data(bfg2020)
+str(bfg2020)
+}
 \keyword{datasets}

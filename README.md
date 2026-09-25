@@ -20,7 +20,7 @@
 [![Docs](https://img.shields.io/badge/docs-pkgdown-blue.svg)](https://mikenguyen13.github.io/regsensitivity/)
 [![Last commit](https://img.shields.io/github/last-commit/mikenguyen13/regsensitivity)](https://github.com/mikenguyen13/regsensitivity/commits/main)
 [![Issues](https://img.shields.io/github/issues/mikenguyen13/regsensitivity)](https://github.com/mikenguyen13/regsensitivity/issues)
-[![Code of Conduct](https://img.shields.io/badge/contributor%20covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![Code of Conduct](https://img.shields.io/badge/contributor%20covenant-2.1-4baaaa.svg)](https://github.com/mikenguyen13/regsensitivity/blob/main/CODE_OF_CONDUCT.md)
 
 <!-- badges: end -->
 
@@ -154,8 +154,8 @@ ER  -
 
 ### Machine-readable
 
--   [`CITATION.cff`](CITATION.cff) — used by GitHub’s “Cite this repository” widget
--   [`codemeta.json`](codemeta.json) — CodeMeta JSON-LD, consumed by Zenodo, r-universe, OpenAIRE
+-   [`CITATION.cff`](https://github.com/mikenguyen13/regsensitivity/blob/main/CITATION.cff) — used by GitHub’s “Cite this repository” widget
+-   [`codemeta.json`](https://github.com/mikenguyen13/regsensitivity/blob/main/codemeta.json) — CodeMeta JSON-LD, consumed by Zenodo, r-universe, OpenAIRE
 -   [`inst/CITATION`](inst/CITATION) — R-side `utils::citation()` source
 
 Methodology citations (the underlying papers, which are **separate works**) live below in [References](#references).

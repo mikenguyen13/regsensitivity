@@ -30,6 +30,18 @@ Top-level dispatcher that mirrors the Stata \code{regsensitivity} command.
 For most users, calling \code{\link[=regsen_bounds]{regsen_bounds()}} or \code{\link[=regsen_breakdown]{regsen_breakdown()}} directly
 is clearer.
 }
+\examples{
+\donttest{
+data(bfg2020)
+regsensitivity(
+  "bounds",
+  avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+    log_area_2010 + lat + lon,
+  data = bfg2020,
+  cbar = 0.1
+)
+}
+}
 \seealso{
 \code{\link[=regsen_bounds]{regsen_bounds()}}, \code{\link[=regsen_breakdown]{regsen_breakdown()}}, \code{\link[=regsen_summary]{regsen_summary()}}
 }

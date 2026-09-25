@@ -16,6 +16,11 @@ bnd_eq(x)
 \arguments{
 \item{x}{Numeric scalar or vector of hypothesis values.}
 }
+\value{
+A numeric vector of the same length as \code{x}, carrying a \code{"sign"}
+attribute -- \code{">"}, \code{"<"} or \code{"="} -- that tells \code{\link[=regsen_breakdown]{regsen_breakdown()}}
+and \code{\link[=regsen_bounds]{regsen_bounds()}} which direction of hypothesis the values state.
+}
 \description{
 Convenience wrappers for specifying the direction of a hypothesis used by
 \code{\link[=regsen_breakdown]{regsen_breakdown()}} and \code{\link[=regsen_bounds]{regsen_bounds()}}.

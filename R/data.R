@@ -22,4 +22,7 @@
 #'   in the United States", \emph{Econometrica}
 #'   <doi:10.3982/ECTA16484>. A 14-variable, 2036-row subset of their
 #'   public replication data, used here to demonstrate the package.
+#' @examples
+#' data(bfg2020)
+#' str(bfg2020)
 "bfg2020"

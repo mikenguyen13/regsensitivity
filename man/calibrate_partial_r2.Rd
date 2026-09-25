@@ -39,3 +39,11 @@ i.e. the R-squared of regressing the \code{W0}-residualized \code{W1[k]} on the
 \code{W0}-residualized \code{W1[-k]}. Matches Table 3 in DMP (2026): a quick read
 on how collinear the comparison controls are.
 }
+\examples{
+data(bfg2020)
+calibrate_partial_r2(
+  avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+    log_area_2010 + lat + lon,
+  data = bfg2020
+)
+}

@@ -24,14 +24,16 @@
 #' @return Invisibly `NULL`; called for the running application.
 #'
 #' @examples
-#' \dontrun{
-#' data(bfg2020)
-#' bfg2020$statea <- factor(bfg2020$statea)
-#' w1 <- c("log_area_2010", "lat", "lon")
-#' regsen_explore(
-#'     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
-#'     data = bfg2020, compare = w1
-#' )
+#' # Starts a Shiny app, so it only runs in an interactive session.
+#' if (interactive()) {
+#'     data(bfg2020)
+#'     bfg2020$statea <- factor(bfg2020$statea)
+#'     w1 <- c("log_area_2010", "lat", "lon")
+#'     regsen_explore(
+#'         avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+#'             log_area_2010 + lat + lon,
+#'         data = bfg2020, compare = w1
+#'     )
 #' }
 #' @export
 regsen_explore <- function(formula, data, compare = NULL, ...) {

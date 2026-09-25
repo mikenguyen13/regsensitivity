@@ -43,3 +43,7 @@ reference-papers/
 
 # R CMD check output
 *.Rcheck/
+
+# Left behind when a plotting example runs with no device open. Shipping
+# it trips the "Non-standard file/directory found at top level" NOTE.
+Rplots.pdf

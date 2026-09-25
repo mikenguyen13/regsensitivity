@@ -28,6 +28,17 @@
 #'
 #' @return An object of class `regsensitivity`.
 #' @seealso [regsen_bounds()], [regsen_breakdown()], [regsen_summary()]
+#' @examples
+#' \donttest{
+#' data(bfg2020)
+#' regsensitivity(
+#'   "bounds",
+#'   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+#'     log_area_2010 + lat + lon,
+#'   data = bfg2020,
+#'   cbar = 0.1
+#' )
+#' }
 #' @export
 regsensitivity <- function(subcommand = c("bounds", "breakdown", "summary"),
                             formula, data, ...) {
@@ -599,6 +610,16 @@ breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
 #' @inheritParams regsen_bounds
 #' @return A list with elements `dmp_bounds` and `oster_breakdown`, each a
 #'   `regsensitivity` object.
+#' @examples
+#' \donttest{
+#' data(bfg2020)
+#' s <- regsen_summary(
+#'   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+#'     log_area_2010 + lat + lon,
+#'   data = bfg2020
+#' )
+#' print(s)
+#' }
 #' @export
 regsen_summary <- function(formula, data,
                             compare = NULL, nocompare = NULL,
@@ -627,6 +648,9 @@ regsen_summary <- function(formula, data,
 #' Convenience wrappers for specifying the direction of a hypothesis used by
 #' [regsen_breakdown()] and [regsen_bounds()].
 #' @param x Numeric scalar or vector of hypothesis values.
+#' @return A numeric vector of the same length as `x`, carrying a `"sign"`
+#'   attribute -- `">"`, `"<"` or `"="` -- that tells [regsen_breakdown()]
+#'   and [regsen_bounds()] which direction of hypothesis the values state.
 #' @name hypothesis_helpers
 #' @export
 #' @examples
