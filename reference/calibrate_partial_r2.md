@@ -47,3 +47,18 @@ calibrate_partial_r2(
 ## Value
 
 A data.frame with columns `variable` and `R2`.
+
+## Examples
+
+``` r
+data(bfg2020)
+calibrate_partial_r2(
+  avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+    log_area_2010 + lat + lon,
+  data = bfg2020
+)
+#>        variable          R2
+#> 3           lon 0.184922201
+#> 1 log_area_2010 0.182701680
+#> 2           lat 0.006174835
+```

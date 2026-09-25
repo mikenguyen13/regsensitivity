@@ -153,9 +153,9 @@ ER  -
 
 ### Machine-readable
 
-- [`CITATION.cff`](https://mikenguyen13.github.io/regsensitivity/CITATION.cff)
+- [`CITATION.cff`](https://github.com/mikenguyen13/regsensitivity/blob/main/CITATION.cff)
   — used by GitHub’s “Cite this repository” widget
-- [`codemeta.json`](https://mikenguyen13.github.io/regsensitivity/codemeta.json)
+- [`codemeta.json`](https://github.com/mikenguyen13/regsensitivity/blob/main/codemeta.json)
   — CodeMeta JSON-LD, consumed by Zenodo, r-universe, OpenAIRE
 - [`inst/CITATION`](https://mikenguyen13.github.io/regsensitivity/inst/CITATION)
   — R-side [`utils::citation()`](https://rdrr.io/r/utils/citation.html)

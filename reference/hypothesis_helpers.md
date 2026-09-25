@@ -22,6 +22,15 @@ bnd_eq(x)
 
   Numeric scalar or vector of hypothesis values.
 
+## Value
+
+A numeric vector of the same length as `x`, carrying a `"sign"`
+attribute – `">"`, `"<"` or `"="` – that tells
+[`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
+and
+[`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md)
+which direction of hypothesis the values state.
+
 ## Examples
 
 ``` r

@@ -26,3 +26,16 @@ scale_fill_regsen(...)
 ## Value
 
 A ggplot2 scale.
+
+## Examples
+
+``` r
+d <- data.frame(
+  x = rep(1:3, 2),
+  y = c(1, 2, 3, 2, 3, 4),
+  series = rep(c("a", "b"), each = 3)
+)
+ggplot2::ggplot(d, ggplot2::aes(x, y, colour = series)) +
+  ggplot2::geom_line() +
+  scale_colour_regsen()
+```

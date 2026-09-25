@@ -67,11 +67,14 @@ never oversubscribed by nesting.
 ## Examples
 
 ``` r
+old <- getOption("regsensitivity.ncores")
 regsen_cores()          # the current setting, 1 unless changed
 #> [1] 1
-if (FALSE) { # \dontrun{
-regsen_cores("auto")    # all but two of the machine's cores
-regsen_cores(4)
+regsen_cores(2)         # run the sweeps on two cores
 regsen_cores(1)         # back to serial
+options(regsensitivity.ncores = old)
+if (FALSE) { # \dontrun{
+# Uses every core but two, so it is not run inside checks.
+regsen_cores("auto")
 } # }
 ```

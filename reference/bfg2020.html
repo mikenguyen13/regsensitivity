@@ -108,6 +108,55 @@ in the United States", <em>Econometrica</em>
 public replication data, used here to demonstrate the package.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">bfg2020</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">bfg2020</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	2036 obs. of  14 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ lat                     : num  32.5 30.7 31.9 33 34 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "latitude"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ lon                     : num  -86.6 -87.7 -85.4 -87.1 -86.6 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "longitude"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ statea                  : num  1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "state code"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%8.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ avgrep2000to2016        : num  72.8 75.6 50.9 70.8 82.2 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "average Republican Presidential vote share, 2000 to 2016"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ temp_mean               : num  17.8 19.1 18.1 17.3 15.5 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "mean temperature"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ rain_mean               : num  1415 1627 1361 1425 1450 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "mean rainfall"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ elev_mean               : num  119.8 39.1 115.9 132.7 244.4 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "mean elevation"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ d_coa                   : num  217686 22562 169688 265655 378500 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "distance to the coast"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ d_riv                   : num  13971 24708 36964 56269 46732 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "distance to rivers"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ d_lak                   : num  34995 255740 21274 55554 53897 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "distance to lakes"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ ave_gyi                 : num  0.609 0.584 0.658 0.608 0.622 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "potential agricultural productivity"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ tye_tfe890_500kNI_100_l6: num  0.3 2.5 1.6 0.8 2.2 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "TFE: 100 km, $\\leq 6$/mi$^2$, no inner island lines (baseline)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ log_area_2010           : num  6.4 7.4 6.81 6.44 6.48 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "log county area"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ km_grid_cel_code        : num  713 512 615 713 913 614 613 814 714 914 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "label")= chr "arbitrary 60km grid cells for clustering"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "format.stata")= chr "%9.0g"</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

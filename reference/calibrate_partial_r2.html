@@ -112,6 +112,20 @@ of <code>data</code> to include in the estimation.</p></dd>
     <p>A data.frame with columns <code>variable</code> and <code>R2</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">bfg2020</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">calibrate_partial_r2</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">avgrep2000to2016</span> <span class="op">~</span> <span class="va">tye_tfe890_500kNI_100_l6</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>    <span class="va">log_area_2010</span> <span class="op">+</span> <span class="va">lat</span> <span class="op">+</span> <span class="va">lon</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">bfg2020</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        variable          R2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3           lon 0.184922201</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 log_area_2010 0.182701680</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2           lat 0.006174835</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
