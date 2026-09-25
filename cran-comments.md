@@ -42,6 +42,11 @@ No code changed; the revision is documentation only.
 ## Test environments
 
 * local macOS 26.6.2 (Apple M4), R 4.5.2
+* win-builder, R-devel (2026-09-21 r90579 ucrt): 1 NOTE, "New submission"
+* win-builder, R 4.6.1 (2026-06-24 ucrt): 1 NOTE, "New submission"
+
+This exact tarball was checked on both win-builder flavours before
+resubmitting. Neither reports the file-URI problem, nor anything else.
 
 The package is also checked by GitHub Actions on macOS-latest
 (R-release), windows-latest (R-release), and ubuntu-latest under R-devel,
