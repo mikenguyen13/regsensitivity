@@ -76,6 +76,49 @@ test_that("a different seed gives different replicates", {
     expect_false(isTRUE(all.equal(a$replicates, b$replicates)))
 })
 
+test_that("a seeded run leaves the session stream where it found it", {
+    skip_on_cran()
+    # A bootstrap called from inside someone else's simulation must not
+    # redirect their draws: with an explicit seed the call is transparent.
+    set.seed(7)
+    before <- runif(2)
+    state <- get_random_seed()
+
+    regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                cbar = 1, R = 4, seed = 123, show_progress = FALSE)
+
+    expect_identical(get_random_seed(), state)
+
+    # And the draws that follow are the ones that would have followed
+    # anyway.
+    after <- runif(2)
+    set.seed(7)
+    expect_equal(c(before, after), runif(4))
+})
+
+test_that("an unseeded run advances the stream by one draw, not to a seed", {
+    skip_on_cran()
+    # Without a seed the call consumes randomness like any random
+    # function, so consecutive calls must differ ...
+    set.seed(8)
+    a <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                      cbar = 1, R = 4, show_progress = FALSE)
+    b <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                      cbar = 1, R = 4, show_progress = FALSE)
+    expect_false(isTRUE(all.equal(a$replicates, b$replicates)))
+
+    # ... and the stream is left exactly where drawing the replicate seeds
+    # leaves it, not on the last replicate's seed.
+    set.seed(9)
+    regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                cbar = 1, R = 4, show_progress = FALSE)
+    got <- get_random_seed()
+
+    set.seed(9)
+    invisible(sample.int(.Machine$integer.max, 4))
+    expect_identical(got, get_random_seed())
+})
+
 test_that("ncores is validated and capped at R", {
     skip_on_cran()
     expect_error(regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),

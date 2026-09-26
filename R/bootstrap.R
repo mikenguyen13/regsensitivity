@@ -49,7 +49,11 @@
 #' @param seed Optional integer seed for reproducibility. Results are
 #'   identical for a given `seed` regardless of `ncores`: each replicate
 #'   draws its own seed from a vector generated once up front, so nothing
-#'   depends on how the work was divided.
+#'   depends on how the work was divided. Passing a `seed` leaves the
+#'   session's random stream where it was, so a bootstrap run inside a
+#'   larger simulation does not disturb that simulation's own draws. With
+#'   `seed = NULL` the replicate seeds come from the session stream, which
+#'   is advanced by that one draw and nothing else.
 #' @param ncores Number of cores for the replications and the jackknife.
 #'   `NULL` (default) uses the session setting of [regsen_cores()], which
 #'   is 1 unless changed; `"auto"` uses all but two of the machine's
@@ -115,6 +119,20 @@ regsen_boot <- function(formula, data,
     type <- match.arg(type)
     ncores <- min(resolve_ncores(ncores), R)
 
+    # Where the session's random stream is left when this returns. With a
+    # `seed` the call is transparent: it starts from `seed` and puts the
+    # caller's stream back as it found it, so a bootstrap dropped into the
+    # middle of someone else's simulation does not redirect theirs. Without
+    # one the call consumes randomness like any other random function, and
+    # the stream is left advanced by exactly the seed draw below rather
+    # than parked on the last replicate's seed. `exit_state` is read when
+    # on.exit() fires, so the assignment after that draw is the one that
+    # counts; until then it restores what we started with, which is what an
+    # error part way through should leave behind.
+    old_state <- get_random_seed()
+    exit_state <- old_state
+    on.exit(restore_random_seed(exit_state), add = TRUE)
+
     if (!is.null(seed)) set.seed(seed)
 
     # The point estimate may use the cores itself: nothing else is running
@@ -165,6 +183,7 @@ regsen_boot <- function(formula, data,
     # depend on the core count, which is exactly what a replication package
     # must not do.
     rep_seeds <- sample.int(.Machine$integer.max, R)
+    if (is.null(seed)) exit_state <- get_random_seed()
 
     boot_one <- function(b) {
         set.seed(rep_seeds[b])

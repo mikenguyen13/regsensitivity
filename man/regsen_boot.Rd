@@ -45,7 +45,11 @@ used.}
 \item{seed}{Optional integer seed for reproducibility. Results are
 identical for a given \code{seed} regardless of \code{ncores}: each replicate
 draws its own seed from a vector generated once up front, so nothing
-depends on how the work was divided.}
+depends on how the work was divided. Passing a \code{seed} leaves the
+session's random stream where it was, so a bootstrap run inside a
+larger simulation does not disturb that simulation's own draws. With
+\code{seed = NULL} the replicate seeds come from the session stream, which
+is advanced by that one draw and nothing else.}
 
 \item{ncores}{Number of cores for the replications and the jackknife.
 \code{NULL} (default) uses the session setting of \code{\link[=regsen_cores]{regsen_cores()}}, which
