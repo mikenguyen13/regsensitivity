@@ -76,8 +76,13 @@ test_that("a different seed gives different replicates", {
     expect_false(isTRUE(all.equal(a$replicates, b$replicates)))
 })
 
+## The RNG-state cases below run everywhere, unlike the rest of this
+## file. `type = "perc"` skips the jackknife, which is what makes a
+## bootstrap slow -- one breakdown computation per row -- and leaves a
+## call that costs about a tenth of a second. What they check is a
+## contract about the session, so it is worth checking on every platform.
+
 test_that("a seeded run leaves the session stream where it found it", {
-    skip_on_cran()
     # A bootstrap called from inside someone else's simulation must not
     # redirect their draws: with an explicit seed the call is transparent.
     set.seed(7)
@@ -85,7 +90,8 @@ test_that("a seeded run leaves the session stream where it found it", {
     state <- get_random_seed()
 
     regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
-                cbar = 1, R = 4, seed = 123, show_progress = FALSE)
+                cbar = 1, R = 4, type = "perc", seed = 123,
+                show_progress = FALSE)
 
     expect_identical(get_random_seed(), state)
 
@@ -96,22 +102,39 @@ test_that("a seeded run leaves the session stream where it found it", {
     expect_equal(c(before, after), runif(4))
 })
 
+test_that("a seeded run leaves no RNG state where there was none", {
+    # A session that has never drawn a random number has no .Random.seed.
+    # Restoring that means leaving it absent, not leaving ours behind.
+    old <- get_random_seed()
+    on.exit(restore_random_seed(old), add = TRUE)
+    restore_random_seed(NULL)
+
+    regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
+                cbar = 1, R = 4, type = "perc", seed = 5,
+                show_progress = FALSE)
+
+    expect_false(exists(".Random.seed", envir = globalenv(),
+                        inherits = FALSE))
+})
+
 test_that("an unseeded run advances the stream by one draw, not to a seed", {
-    skip_on_cran()
     # Without a seed the call consumes randomness like any random
     # function, so consecutive calls must differ ...
     set.seed(8)
     a <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
-                      cbar = 1, R = 4, show_progress = FALSE)
+                      cbar = 1, R = 4, type = "perc",
+                      show_progress = FALSE)
     b <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
-                      cbar = 1, R = 4, show_progress = FALSE)
+                      cbar = 1, R = 4, type = "perc",
+                      show_progress = FALSE)
     expect_false(isTRUE(all.equal(a$replicates, b$replicates)))
 
     # ... and the stream is left exactly where drawing the replicate seeds
-    # leaves it, not on the last replicate's seed.
+    # leaves it, not on the last replicate's seed. Nothing else in the
+    # package draws, so that one call to sample.int() is the whole of it.
     set.seed(9)
     regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(),
-                cbar = 1, R = 4, show_progress = FALSE)
+                cbar = 1, R = 4, type = "perc", show_progress = FALSE)
     got <- get_random_seed()
 
     set.seed(9)

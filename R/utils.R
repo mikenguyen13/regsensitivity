@@ -164,7 +164,13 @@ get_random_seed <- function() {
 
 restore_random_seed <- function(state) {
     if (is.null(state)) {
+        # Removing `.Random.seed` is not enough on its own: the generator
+        # also holds its state internally and writes it back on the next
+        # draw, so the seed we were asked to forget would come back.
+        # set.seed(NULL) reseeds from the clock and the process id first,
+        # which is what a session that had never drawn would do.
         if (exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+            set.seed(NULL)
             rm(list = ".Random.seed", envir = globalenv())
         }
     } else {
