@@ -162,19 +162,28 @@ get_random_seed <- function() {
     }
 }
 
+# The restore runs from on.exit(), which is where a Ctrl-C lands when the
+# user interrupts a long bootstrap. An interrupt arriving between the
+# reseed and the removal below would leave the session holding a state
+# that nobody chose, and that is the one outcome this whole exercise is
+# meant to prevent, so the two steps are taken together.
 restore_random_seed <- function(state) {
-    if (is.null(state)) {
-        # Removing `.Random.seed` is not enough on its own: the generator
-        # also holds its state internally and writes it back on the next
-        # draw, so the seed we were asked to forget would come back.
-        # set.seed(NULL) reseeds from the clock and the process id first,
-        # which is what a session that had never drawn would do.
-        if (exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
-            set.seed(NULL)
-            rm(list = ".Random.seed", envir = globalenv())
+    suspendInterrupts({
+        if (is.null(state)) {
+            # Removing `.Random.seed` is not enough on its own: the
+            # generator also holds its state internally and writes it back
+            # on the next draw, so the seed we were asked to forget would
+            # come back. set.seed(NULL) reseeds from the clock and the
+            # process id first, which is what a session that had never
+            # drawn would do.
+            if (exists(".Random.seed", envir = globalenv(),
+                       inherits = FALSE)) {
+                set.seed(NULL)
+                rm(list = ".Random.seed", envir = globalenv())
+            }
+        } else {
+            assign(".Random.seed", state, envir = globalenv())
         }
-    } else {
-        assign(".Random.seed", state, envir = globalenv())
-    }
+    })
     invisible(NULL)
 }
