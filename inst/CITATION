@@ -4,12 +4,29 @@ citHeader(
     "also cite the relevant methodology paper(s)."
 )
 
+# The year this version was released, not the year someone happens to run
+# citation(). A citation names a fixed version of the software, so the two
+# must not drift apart. CRAN fills Date/Publication on publication;
+# Packaged is written by R CMD build and covers a copy installed from
+# source before then. Today's date is the last resort, for a package
+# loaded straight from a checkout, where no release date exists to report.
+pkg_year <- local({
+    for (field in c("Date/Publication", "Packaged")) {
+        value <- meta[[field]]
+        if (!is.null(value) && nzchar(value)) {
+            year <- sub("-.*", "", value)
+            if (grepl("^[0-9]{4}$", year)) return(year)
+        }
+    }
+    format(Sys.Date(), "%Y")
+})
+
 # --- The R package itself (sole author: Mike Nguyen) ---
 bibentry(
     bibtype = "Manual",
     title   = "{regsensitivity}: Regression Sensitivity Analysis for Omitted Variable Bias",
     author  = person("Mike", "Nguyen"),
-    year    = format(Sys.Date(), "%Y"),
+    year    = pkg_year,
     note    = sprintf("R package version %s", meta$Version),
     url     = "https://github.com/mikenguyen13/regsensitivity",
     header  = "To cite the R package itself:"
