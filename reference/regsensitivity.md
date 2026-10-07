@@ -50,7 +50,6 @@ An object of class `regsensitivity`.
 ## Examples
 
 ``` r
-# \donttest{
 data(bfg2020)
 regsensitivity(
   "bounds",
@@ -91,5 +90,4 @@ regsensitivity(
 #>   1.9019  +Inf    0.1 -10.676 13.447
 #>   2.1396  +Inf    0.1  -17.46 20.231
 #>   2.3774  +Inf    0.1    -Inf   +Inf
-# }
 ```

@@ -128,7 +128,11 @@ used.</p></dd>
 <dd><p>Optional integer seed for reproducibility. Results are
 identical for a given <code>seed</code> regardless of <code>ncores</code>: each replicate
 draws its own seed from a vector generated once up front, so nothing
-depends on how the work was divided.</p></dd>
+depends on how the work was divided. Passing a <code>seed</code> leaves the
+session's random stream where it was, so a bootstrap run inside a
+larger simulation does not disturb that simulation's own draws. With
+<code>seed = NULL</code> the replicate seeds come from the session stream, which
+is advanced by that one draw and nothing else.</p></dd>
 
 
 <dt id="arg-ncores">ncores<a class="anchor" aria-label="anchor" href="#arg-ncores"></a></dt>

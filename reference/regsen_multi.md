@@ -95,7 +95,6 @@ breakdown points would no longer be comparable across rows.
 ## Examples
 
 ``` r
-# \donttest{
 data(bfg2020)
 w1 <- c("log_area_2010", "lat", "lon")
 regsen_multi(
@@ -110,5 +109,4 @@ regsen_multi(
 #>                 treatment estimate breakdown     n
 #>  tye_tfe890_500kNI_100_l6    1.385    0.3749  2036
 #>                       lat  -0.3266    0.9425  2036
-# }
 ```

@@ -141,7 +141,6 @@ result carries the value in `results$breakdown` alone.
 ## Examples
 
 ``` r
-# \donttest{
 data(bfg2020)
 bnds <- regsen_bounds(
   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
@@ -183,5 +182,4 @@ print(bnds)
 #>   1.6342  +Inf    0.1  -10.614 13.786
 #>   1.8385  +Inf    0.1  -17.445 20.618
 #>   2.0427  +Inf    0.1     -Inf   +Inf
-# }
 ```

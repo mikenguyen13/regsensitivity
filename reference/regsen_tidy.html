@@ -104,8 +104,7 @@ Without it, call <code>regsen_tidy()</code> and <code>regsen_glance()</code> dir
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">bfg2020</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">bfg2020</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">avgrep2000to2016</span> <span class="op">~</span> <span class="va">tye_tfe890_500kNI_100_l6</span> <span class="op">+</span> <span class="va">log_area_2010</span> <span class="op">+</span> <span class="va">lat</span> <span class="op">+</span> <span class="va">lon</span>,</span></span>
 <span class="r-in"><span>    data <span class="op">=</span> <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_area_2010"</span>, <span class="st">"lat"</span>, <span class="st">"lon"</span><span class="op">)</span>,</span></span>
@@ -124,7 +123,6 @@ Without it, call <code>regsen_tidy()</code> and <code>regsen_glance()</code> dir
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 DMP (2026)     bounds avgrep2000to2016 tye_tfe890_500kNI_100_l6 2036</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   beta_medium breakdown hypothesis n_gridpoints</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    1.385416        NA   Beta &gt; 0           22</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -45,7 +45,6 @@ A list with elements `dmp_bounds` and `oster_breakdown`, each a
 ## Examples
 
 ``` r
-# \donttest{
 data(bfg2020)
 s <- regsen_summary(
   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
@@ -120,5 +119,4 @@ print(s)
 #>   0.89334   0.18456
 #>   0.99334   0.16488
 #>         1   0.16371
-# }
 ```

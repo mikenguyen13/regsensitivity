@@ -115,7 +115,6 @@ is a dead end.
 ## Examples
 
 ``` r
-# \donttest{
 data(bfg2020)
 res <- regsen_bounds(
     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
@@ -220,5 +219,4 @@ regsen_table(res, format = "latex", notes = TRUE,
 #> \end{tablenotes}
 #> \end{threeparttable}
 #> \end{table}
-# }
 ```

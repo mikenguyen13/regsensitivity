@@ -66,7 +66,6 @@ wraps the common case.
 ## Examples
 
 ``` r
-# \donttest{
 data(bfg2020)
 res <- regsen_bounds(
     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
@@ -80,5 +79,4 @@ head(as.data.frame(res))
 #> 4 0.7132082   Inf  0.1 -1.2922838 4.063116
 #> 5 0.9509442   Inf  0.1 -2.3863884 5.157221
 #> 6 1.1886803   Inf  0.1 -3.6708919 6.441724
-# }
 ```

@@ -148,7 +148,6 @@ assumption that lifts the cap.
 ## Examples
 
 ``` r
-# \donttest{
 data(bfg2020)
 bk <- regsen_breakdown(
   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
@@ -189,5 +188,4 @@ print(bk)
 #>     0.8   0.35936
 #>     0.9   0.35936
 #>       1   0.35936
-# }
 ```

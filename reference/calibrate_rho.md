@@ -52,7 +52,6 @@ breakdown point against. See DMP (2026) section 3.4 and Table 4.
 ## Examples
 
 ``` r
-# \donttest{
 data(bfg2020)
 bfg2020$statea <- factor(bfg2020$statea)
 w1 <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
@@ -71,5 +70,4 @@ calibrate_rho(form, bfg2020, compare = w1)
 #> 1  log_area_2010  22.45564
 #> 6      elev_mean  20.25159
 #> 9          d_lak  12.06453
-# }
 ```

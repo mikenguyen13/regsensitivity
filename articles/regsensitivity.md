@@ -456,9 +456,12 @@ they can be spread across cores. Set the session default once:
 
 ``` r
 
-regsen_cores("auto")   # all but two of the machine's cores
-regsen_cores(4)        # or a number
+regsen_cores(2)        # a number of cores
 ```
+
+`regsen_cores("auto")` takes every core but two, leaving the session and
+whatever else the machine is doing responsive. Whatever you set, at most
+two are used while `R CMD check --as-cran` runs, which forbids more.
 
 or pass `ncores` to a single call of
 [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md),

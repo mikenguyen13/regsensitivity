@@ -17,9 +17,10 @@ fragile. One section uses the bundled BFG (2020) data for a real case.
 
 # A world with six observed covariates w1..w6 and one omitted variable u.
 # `beta` is the true effect of x; pi2 and g2 are u's effects on x and y.
-make_world <- function(seed, beta, pi2, g2, pi1 = rep(0.6, 6), sy = 1,
+# The seed is set by the caller rather than inside here, so that calling
+# this does not reach into the session's random stream behind your back.
+make_world <- function(beta, pi2, g2, pi1 = rep(0.6, 6), sy = 1,
                        n = 2000) {
-    set.seed(seed)
     w <- matrix(rnorm(n * 6), n, 6, dimnames = list(NULL, paste0("w", 1:6)))
     u <- 0.3 * w[, 1] + rnorm(n)
     x <- w %*% pi1 + pi2 * u + rnorm(n)
@@ -87,7 +88,8 @@ The true effect is 1; the omitted variable is modest.
 
 ``` r
 
-d <- make_world(11, beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
+set.seed(11)
+d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
 res <- regsen_bounds(form, d, compare = w1, cbar = 1)
 rho <- calibrate_rho(form, d, compare = w1)
 res$breakdown
@@ -136,7 +138,8 @@ same way.
 
 ``` r
 
-d <- make_world(12, beta = 0, pi2 = 0.8, g2 = 0.8)
+set.seed(12)
+d <- make_world(beta = 0, pi2 = 0.8, g2 = 0.8)
 res <- regsen_bounds(form, d, compare = w1, cbar = 1)
 rho <- calibrate_rho(form, d, compare = w1)
 c(beta_med = res$dgp$beta_med, breakdown = res$breakdown)
@@ -175,7 +178,8 @@ $`\beta_{\text{med}}`$ itself.
 
 ``` r
 
-d <- make_world(11, beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
+set.seed(11)
+d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
 regsen_breakdown(form, d, compare = w1, beta = bnd_lb(2))$results
 #>   index breakdown
 #> 1     1         0
@@ -196,7 +200,8 @@ and the identified set blows up at a small $`\bar r_X`$.
 
 ``` r
 
-d <- make_world(13, beta = 1, pi2 = 0.5, g2 = 0.5, pi1 = rep(0.08, 6))
+set.seed(13)
+d <- make_world(beta = 1, pi2 = 0.5, g2 = 0.5, pi1 = rep(0.08, 6))
 res <- regsen_bounds(form, d, compare = w1, cbar = 1)
 r2 <- res$dgp$covwx_norm_sq / res$dgp$var_x        # R2 of X on W1
 c(R2_x_on_w1 = r2, rmax = sqrt(1 - r2), breakdown = res$breakdown)
@@ -272,7 +277,8 @@ set, but it binds only once $`\bar r_X`$ exceeds it:
 
 ``` r
 
-d <- make_world(11, beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
+set.seed(11)
+d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
 regsen_breakdown(form, d, compare = w1, cbar = c(0, 0.25, 0.5, 0.75, 1))$results
 #>   index breakdown
 #> 1  0.00 0.5985359
@@ -303,7 +309,8 @@ overturns the sign once the outcome channel is capped tightly enough.
 
 ``` r
 
-d <- make_world(11, beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
+set.seed(11)
+d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
 sapply(c(Inf, 2, 1, 0.5), function(ry) {
     regsen_breakdown(form, d, compare = w1, cbar = 1, rybar = ry)$results$breakdown
 })
@@ -354,7 +361,8 @@ $`0.974`$.
 
 ``` r
 
-d <- make_world(12, beta = 0, pi2 = 0.8, g2 = 0.8)
+set.seed(12)
+d <- make_world(beta = 0, pi2 = 0.8, g2 = 0.8)
 d_eq   <- regsen_breakdown(form, d, compare = w1, analysis = "oster",
                            r2long = 1, beta = bnd_eq(0))$results$breakdown
 d_sign <- regsen_breakdown(form, d, compare = w1, analysis = "oster",

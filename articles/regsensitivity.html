@@ -507,8 +507,11 @@ slow parts – each grid point or frontier value is a global optimization
 – and they are independent, so they can be spread across cores. Set the
 session default once:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/regsen_cores.html">regsen_cores</a></span><span class="op">(</span><span class="st">"auto"</span><span class="op">)</span>   <span class="co"># all but two of the machine's cores</span></span>
-<span><span class="fu"><a href="../reference/regsen_cores.html">regsen_cores</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span>        <span class="co"># or a number</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/regsen_cores.html">regsen_cores</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>        <span class="co"># a number of cores</span></span></code></pre></div>
+<p><code>regsen_cores("auto")</code> takes every core but two, leaving
+the session and whatever else the machine is doing responsive. Whatever
+you set, at most two are used while <code>R CMD check --as-cran</code>
+runs, which forbids more.</p>
 <p>or pass <code>ncores</code> to a single call of
 <code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code>, <code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code>,
 <code><a href="../reference/regsen_multi.html">regsen_multi()</a></code> or <code><a href="../reference/regsen_boot.html">regsen_boot()</a></code>. Results are

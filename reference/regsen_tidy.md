@@ -49,7 +49,6 @@ Without it, call `regsen_tidy()` and `regsen_glance()` directly.
 ## Examples
 
 ``` r
-# \donttest{
 data(bfg2020)
 res <- regsen_bounds(
     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
@@ -69,5 +68,4 @@ regsen_glance(res)
 #> 1 DMP (2026)     bounds avgrep2000to2016 tye_tfe890_500kNI_100_l6 2036
 #>   beta_medium breakdown hypothesis n_gridpoints
 #> 1    1.385416        NA   Beta > 0           22
-# }
 ```

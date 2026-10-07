@@ -67,7 +67,11 @@ regsen_boot(
   Optional integer seed for reproducibility. Results are identical for a
   given `seed` regardless of `ncores`: each replicate draws its own seed
   from a vector generated once up front, so nothing depends on how the
-  work was divided.
+  work was divided. Passing a `seed` leaves the session's random stream
+  where it was, so a bootstrap run inside a larger simulation does not
+  disturb that simulation's own draws. With `seed = NULL` the replicate
+  seeds come from the session stream, which is advanced by that one draw
+  and nothing else.
 
 - ncores:
 
