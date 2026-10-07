@@ -143,3 +143,47 @@ expand_numlist <- function(x) {
     v <- suppressWarnings(as.numeric(strsplit(s, "\\s+")[[1]]))
     v[!is.na(v)]
 }
+
+# --- RNG state ------------------------------------------------------
+#
+# A function that draws random numbers moves the session's random
+# stream, which is what a caller expects. Parking that stream on a
+# seed the function chose is not: the next draw in the caller's own
+# simulation would then follow from our seed rather than from theirs.
+# These two save the state and put it back.
+
+# NULL means the RNG had not been used yet in this session, so there is
+# no state to preserve and none to return to.
+get_random_seed <- function() {
+    if (exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+        get(".Random.seed", envir = globalenv(), inherits = FALSE)
+    } else {
+        NULL
+    }
+}
+
+# The restore runs from on.exit(), which is where a Ctrl-C lands when the
+# user interrupts a long bootstrap. An interrupt arriving between the
+# reseed and the removal below would leave the session holding a state
+# that nobody chose, and that is the one outcome this whole exercise is
+# meant to prevent, so the two steps are taken together.
+restore_random_seed <- function(state) {
+    suspendInterrupts({
+        if (is.null(state)) {
+            # Removing `.Random.seed` is not enough on its own: the
+            # generator also holds its state internally and writes it back
+            # on the next draw, so the seed we were asked to forget would
+            # come back. set.seed(NULL) reseeds from the clock and the
+            # process id first, which is what a session that had never
+            # drawn would do.
+            if (exists(".Random.seed", envir = globalenv(),
+                       inherits = FALSE)) {
+                set.seed(NULL)
+                rm(list = ".Random.seed", envir = globalenv())
+            }
+        } else {
+            assign(".Random.seed", state, envir = globalenv())
+        }
+    })
+    invisible(NULL)
+}
