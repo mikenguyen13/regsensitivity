@@ -33,7 +33,6 @@ is given: a DMP bounds analysis and an Oster breakdown analysis at a few
 standard r2long values.
 }
 \examples{
-\donttest{
 data(bfg2020)
 s <- regsen_summary(
   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
@@ -41,5 +40,4 @@ s <- regsen_summary(
   data = bfg2020
 )
 print(s)
-}
 }

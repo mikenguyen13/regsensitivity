@@ -29,7 +29,6 @@
 #' @return An object of class `regsensitivity`.
 #' @seealso [regsen_bounds()], [regsen_breakdown()], [regsen_summary()]
 #' @examples
-#' \donttest{
 #' data(bfg2020)
 #' regsensitivity(
 #'   "bounds",
@@ -38,7 +37,6 @@
 #'   data = bfg2020,
 #'   cbar = 0.1
 #' )
-#' }
 #' @export
 regsensitivity <- function(subcommand = c("bounds", "breakdown", "summary"),
                             formula, data, ...) {
@@ -247,7 +245,6 @@ new_regsen <- function(subcommand, analysis, dgp, inputs, sparams, results,
 #'   result carries the value in `results$breakdown` alone.
 #'
 #' @examples
-#' \donttest{
 #' data(bfg2020)
 #' bnds <- regsen_bounds(
 #'   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
@@ -257,7 +254,6 @@ new_regsen <- function(subcommand, analysis, dgp, inputs, sparams, results,
 #'   cbar = 0.1
 #' )
 #' print(bnds)
-#' }
 #' @export
 regsen_bounds <- function(formula, data,
                           analysis = c("dmp", "oster"),
@@ -455,7 +451,6 @@ regsen_bounds <- function(formula, data,
 #' @return A `regsensitivity` object. `results$index` holds the swept
 #'   parameter and `results$breakdown` the breakdown point at each value.
 #' @examples
-#' \donttest{
 #' data(bfg2020)
 #' bk <- regsen_breakdown(
 #'   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
@@ -465,7 +460,6 @@ regsen_bounds <- function(formula, data,
 #'   cbar = seq(0, 1, 0.1)
 #' )
 #' print(bk)
-#' }
 #' @export
 regsen_breakdown <- function(formula, data,
                              analysis = c("dmp", "oster"),
@@ -611,7 +605,6 @@ breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
 #' @return A list with elements `dmp_bounds` and `oster_breakdown`, each a
 #'   `regsensitivity` object.
 #' @examples
-#' \donttest{
 #' data(bfg2020)
 #' s <- regsen_summary(
 #'   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
@@ -619,7 +612,6 @@ breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
 #'   data = bfg2020
 #' )
 #' print(s)
-#' }
 #' @export
 regsen_summary <- function(formula, data,
                             compare = NULL, nocompare = NULL,

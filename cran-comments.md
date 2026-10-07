@@ -2,42 +2,62 @@
 
 ## Resubmission
 
-This is a resubmission. The previous submission was returned with:
+This is a resubmission addressing the points raised by Konstanze Lauseker
+on 7 October. Each is taken in turn.
 
-```
-Found the following (possibly) invalid file URIs:
-  URI: CODE_OF_CONDUCT.md
-    From: README.md
-  URI: CITATION.cff
-    From: README.md
-  URI: codemeta.json
-    From: README.md
-```
+**Single quotes around names.** The author names in the Description field
+are no longer quoted. The quotes are gone and nothing else in the field
+changed.
 
-Those three files are excluded from the build by `.Rbuildignore`, so the
-relative links to them in `README.md` pointed at paths that do not exist
-in the tarball. All three now link to the files on GitHub with absolute
-`https://` URLs.
+**`\dontrun{}`, and unwrapping examples that run in under 5 seconds.**
+Every example in the package now runs. The `\dontrun{}` block, which
+held three calls to `regsen_cores()`, is gone: the two that belong in a
+check are unwrapped and restore the option they set, and the third is
+described in prose instead, for the reason under cores below. Twelve
+`\donttest{}` wrappers are also unwrapped, having been timed at between
+0.01 and 0.42 seconds each. One `\donttest{}` remains, on
+`regsen_boot()`, whose example takes 4.5 seconds here and would be at
+risk of passing 5 on a slower machine. `regsen_explore()` starts a Shiny
+app, so its example is wrapped in `if (interactive())`.
 
-While going back over the package against the CRAN Cookbook, four
-further things were corrected in the same revision:
+**More than 2 cores.** `regsen_cores("auto")` asks for every core but
+two, so it no longer appears in any example or vignette chunk. What it
+does is described in the text of both. Nothing in the examples, vignettes
+or tests now requests more than two cores, and the package caps itself at
+two whenever `_R_CHECK_LIMIT_CORES_` is set, whatever the user has asked
+for.
 
-* `\value` was missing from `hypothesis_helpers.Rd`, which documents the
-  exported `bnd_lb()`, `bnd_ub()` and `bnd_eq()`. It now says what those
-  return and what the `"sign"` attribute is for.
+**Writing to the user's filespace: `inst/replication/dmp2022.R`.** The
+script wrote four files to the working directory. It now writes them to
+`tempdir()` and prints the path, and takes an optional command-line
+argument for a directory, so it writes to the user's own files only when
+the user names where.
 
-* `regsensitivity()`, `regsen_summary()`, `calibrate_partial_r2()` and
-  `scale_colour_regsen()` are exported but had no examples, and neither
-  did the `bfg2020` data set. Each now has a small executable one.
+**Resetting `options()`: `inst/doc`.** Two vignettes set
+`options(width = )` in their setup chunk and did not put it back. Each
+now saves the old value and restores it in a final chunk.
 
-* `regsen_cores()` had its examples in `\dontrun{}` although they run
-  instantly. They are unwrapped, and the session option they set is
-  restored afterwards. The one case that is genuinely not for a check
-  machine, `regsen_cores("auto")`, stays in `\dontrun{}`.
-  `regsen_explore()` starts a Shiny app, so its example moved from
-  `\dontrun{}` to `if (interactive())`.
+**Setting a seed within a function.** `regsen_boot()` takes a `seed`
+argument defaulting to `NULL`, and now saves the session's random state
+on entry and restores it on exit, so a bootstrap run inside a larger
+simulation no longer redirects that simulation's draws. Where a `seed`
+is given the call is transparent; where it is not, the stream is left
+advanced by the one draw that generates the replicate seeds and nothing
+more. The remaining `set.seed()` inside the function seeds each
+bootstrap replicate from that drawn vector, which is what makes results
+identical whatever the core count, and it is covered by the same restore.
+Two helper functions outside the package code, one in a vignette and one
+in `inst/casestudies/`, also set a seed internally; both now take it from
+the caller instead.
 
-No code changed; the revision is documentation only.
+Four tests cover the new behaviour, and they run everywhere rather than
+under `skip_on_cran()`.
+
+While making these changes the package was re-read against the CRAN
+Cookbook as a whole. Nothing else was found: no writes outside
+`tempdir()`, no `setwd()`, no `par()` left unrestored, no `T`/`F`, no
+assignment to the global environment beyond the `.Random.seed` restore
+described above, and no `installed.packages()`.
 
 ## Test environments
 

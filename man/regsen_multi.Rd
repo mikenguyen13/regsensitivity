@@ -66,7 +66,6 @@ deliberate -- dropping the others would change the specification and the
 breakdown points would no longer be comparable across rows.
 }
 \examples{
-\donttest{
 data(bfg2020)
 w1 <- c("log_area_2010", "lat", "lon")
 regsen_multi(
@@ -75,5 +74,4 @@ regsen_multi(
     treatments = c("tye_tfe890_500kNI_100_l6", "lat"),
     compare = w1, cbar = 1
 )
-}
 }

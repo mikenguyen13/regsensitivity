@@ -81,7 +81,6 @@ Anything this function does not expose can be done by taking
 your choice; nothing here is a dead end.
 }
 \examples{
-\donttest{
 data(bfg2020)
 res <- regsen_bounds(
     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
@@ -91,5 +90,4 @@ res <- regsen_bounds(
 regsen_table(res, format = "markdown", digits = 3)
 regsen_table(res, format = "latex", notes = TRUE,
              caption = "Identified sets", label = "idset")
-}
 }

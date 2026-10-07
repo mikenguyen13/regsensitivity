@@ -111,7 +111,6 @@ cutoff, not that a solution was found there. Supplying \code{maxovb} adds
 the assumption that lifts the cap.
 }
 \examples{
-\donttest{
 data(bfg2020)
 bk <- regsen_breakdown(
   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
@@ -121,5 +120,4 @@ bk <- regsen_breakdown(
   cbar = seq(0, 1, 0.1)
 )
 print(bk)
-}
 }

@@ -45,12 +45,10 @@ The default \code{base_size} of 11 assumes a figure rendered at roughly
 pass \code{base_size = 9}; the type will then sit at about 8pt on the page.
 }
 \examples{
-\donttest{
 data(bfg2020)
 res <- regsen_bounds(
     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
     data = bfg2020, compare = c("log_area_2010", "lat", "lon"), cbar = 0.1
 )
 plot(res) + theme_regsen(base_size = 9)
-}
 }

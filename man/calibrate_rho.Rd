@@ -40,7 +40,6 @@ These are point-identified reference values to compare the rxbar
 breakdown point against. See DMP (2026) section 3.4 and Table 4.
 }
 \examples{
-\donttest{
 data(bfg2020)
 bfg2020$statea <- factor(bfg2020$statea)
 w1 <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
@@ -48,5 +47,4 @@ w1 <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
 form <- reformulate(c("tye_tfe890_500kNI_100_l6", w1, "statea"),
                     response = "avgrep2000to2016")
 calibrate_rho(form, bfg2020, compare = w1)
-}
 }

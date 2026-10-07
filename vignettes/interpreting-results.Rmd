@@ -15,7 +15,9 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.width = 6, fig.height = 4
 )
-options(width = 90)
+# Wider output for the tables below. Put back at the end of the vignette,
+# so building it leaves the reader's options as it found them.
+old_options <- options(width = 90)
 library(regsensitivity)
 library(ggplot2)
 ```
@@ -36,9 +38,10 @@ One section uses the bundled BFG (2020) data for a real case.
 ```{r world}
 # A world with six observed covariates w1..w6 and one omitted variable u.
 # `beta` is the true effect of x; pi2 and g2 are u's effects on x and y.
-make_world <- function(seed, beta, pi2, g2, pi1 = rep(0.6, 6), sy = 1,
+# The seed is set by the caller rather than inside here, so that calling
+# this does not reach into the session's random stream behind your back.
+make_world <- function(beta, pi2, g2, pi1 = rep(0.6, 6), sy = 1,
                        n = 2000) {
-    set.seed(seed)
     w <- matrix(rnorm(n * 6), n, 6, dimnames = list(NULL, paste0("w", 1:6)))
     u <- 0.3 * w[, 1] + rnorm(n)
     x <- w %*% pi1 + pi2 * u + rnorm(n)
@@ -100,7 +103,8 @@ calibration set. Those three are what a referee will ask about.
 The true effect is 1; the omitted variable is modest.
 
 ```{r robust}
-d <- make_world(11, beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
+set.seed(11)
+d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
 res <- regsen_bounds(form, d, compare = w1, cbar = 1)
 rho <- calibrate_rho(form, d, compare = w1)
 res$breakdown
@@ -137,7 +141,8 @@ coefficient only because the omitted variable pushes $X$ and $Y$ the same
 way.
 
 ```{r fragile}
-d <- make_world(12, beta = 0, pi2 = 0.8, g2 = 0.8)
+set.seed(12)
+d <- make_world(beta = 0, pi2 = 0.8, g2 = 0.8)
 res <- regsen_bounds(form, d, compare = w1, cbar = 1)
 rho <- calibrate_rho(form, d, compare = w1)
 c(beta_med = res$dgp$beta_med, breakdown = res$breakdown)
@@ -170,7 +175,8 @@ hypothesis is already false at $\bar r_X = 0$, i.e. at $\beta_{\text{med}}$
 itself.
 
 ```{r zero}
-d <- make_world(11, beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
+set.seed(11)
+d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
 regsen_breakdown(form, d, compare = w1, beta = bnd_lb(2))$results
 ```
 
@@ -187,7 +193,8 @@ those covariates explain little of the treatment, the yardstick is short
 and the identified set blows up at a small $\bar r_X$.
 
 ```{r weak}
-d <- make_world(13, beta = 1, pi2 = 0.5, g2 = 0.5, pi1 = rep(0.08, 6))
+set.seed(13)
+d <- make_world(beta = 1, pi2 = 0.5, g2 = 0.5, pi1 = rep(0.08, 6))
 res <- regsen_bounds(form, d, compare = w1, cbar = 1)
 r2 <- res$dgp$covwx_norm_sq / res$dgp$var_x        # R2 of X on W1
 c(R2_x_on_w1 = r2, rmax = sqrt(1 - r2), breakdown = res$breakdown)
@@ -252,7 +259,8 @@ already explain -- how *endogenous* the controls are. The default
 but it binds only once $\bar r_X$ exceeds it:
 
 ```{r cbar}
-d <- make_world(11, beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
+set.seed(11)
+d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
 regsen_breakdown(form, d, compare = w1, cbar = c(0, 0.25, 0.5, 0.75, 1))$results
 ```
 
@@ -275,7 +283,8 @@ breakdown point *infinite*: no amount of selection on the treatment
 overturns the sign once the outcome channel is capped tightly enough.
 
 ```{r rybar}
-d <- make_world(11, beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
+set.seed(11)
+d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
 sapply(c(Inf, 2, 1, 0.5), function(ry) {
     regsen_breakdown(form, d, compare = w1, cbar = 1, rybar = ry)$results$breakdown
 })
@@ -318,7 +327,8 @@ $0.586$; on the frontier data of this package it is $-23.3$ against
 $0.974$.
 
 ```{r oster}
-d <- make_world(12, beta = 0, pi2 = 0.8, g2 = 0.8)
+set.seed(12)
+d <- make_world(beta = 0, pi2 = 0.8, g2 = 0.8)
 d_eq   <- regsen_breakdown(form, d, compare = w1, analysis = "oster",
                            r2long = 1, beta = bnd_eq(0))$results$breakdown
 d_sign <- regsen_breakdown(form, d, compare = w1, analysis = "oster",
@@ -454,3 +464,7 @@ table; `regsen_glance(res)` collects the headline numbers in one row.
   Theory and Evidence. *JBES* 37(2), 187--204.
 * Masten, M., and Poirier, A. (2026). The Effect of Omitted Variables on
   the Sign of Regression Coefficients. *AER* 116(7), 2685--2710.
+
+```{r cleanup, include = FALSE}
+options(old_options)
+```

@@ -39,7 +39,6 @@ only when that package is installed, so it stays an optional dependency.
 Without it, call \code{\link[=regsen_tidy]{regsen_tidy()}} and \code{\link[=regsen_glance]{regsen_glance()}} directly.
 }
 \examples{
-\donttest{
 data(bfg2020)
 res <- regsen_bounds(
     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
@@ -48,5 +47,4 @@ res <- regsen_bounds(
 )
 head(regsen_tidy(res))
 regsen_glance(res)
-}
 }

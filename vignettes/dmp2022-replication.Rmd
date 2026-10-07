@@ -13,7 +13,9 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.width = 6, fig.height = 4
 )
-options(width = 100)
+# Wider output for the tables below. Put back at the end of the vignette,
+# so building it leaves the reader's options as it found them.
+old_options <- options(width = 100)
 ```
 
 This vignette reproduces every empirical table and figure of
@@ -407,4 +409,8 @@ fy <- regsen_bounds(form, bfg2020, compare = w1, rybar = 2,
                      rxbar = seq(0, 0.95, length.out = 30))
 plot(fy, ylim = c(-1, 5),
      title = "rybar = 2 finite-impact constraint")
+```
+
+```{r cleanup, include = FALSE}
+options(old_options)
 ```

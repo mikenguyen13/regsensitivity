@@ -37,7 +37,6 @@
 #'   the whole sweep.
 #'
 #' @examples
-#' \donttest{
 #' data(bfg2020)
 #' w1 <- c("log_area_2010", "lat", "lon")
 #' regsen_multi(
@@ -46,7 +45,6 @@
 #'     treatments = c("tye_tfe890_500kNI_100_l6", "lat"),
 #'     compare = w1, cbar = 1
 #' )
-#' }
 #' @export
 regsen_multi <- function(formula, data, treatments,
                          compare = NULL, fun = regsen_breakdown, ...,

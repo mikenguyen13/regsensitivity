@@ -18,7 +18,6 @@
 #' @return A data.frame with columns `variable` and `rho` (a percentage).
 #' @export
 #' @examples
-#' \donttest{
 #' data(bfg2020)
 #' bfg2020$statea <- factor(bfg2020$statea)
 #' w1 <- c("log_area_2010", "lat", "lon", "temp_mean", "rain_mean",
@@ -26,7 +25,6 @@
 #' form <- reformulate(c("tye_tfe890_500kNI_100_l6", w1, "statea"),
 #'                     response = "avgrep2000to2016")
 #' calibrate_rho(form, bfg2020, compare = w1)
-#' }
 calibrate_rho <- function(formula, data, compare = NULL, nocompare = NULL,
                           subset = NULL) {
     inp <- build_dgp_inputs(formula, data, compare = compare,

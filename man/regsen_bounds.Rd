@@ -104,7 +104,6 @@ parameters. Implements the analyses of Diegert, Masten & Poirier (2026)
 (the default) and of Oster (2019) extended by Masten & Poirier (2026).
 }
 \examples{
-\donttest{
 data(bfg2020)
 bnds <- regsen_bounds(
   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
@@ -114,5 +113,4 @@ bnds <- regsen_bounds(
   cbar = 0.1
 )
 print(bnds)
-}
 }

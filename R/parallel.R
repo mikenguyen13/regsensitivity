@@ -59,10 +59,6 @@
 #' regsen_cores(2)         # run the sweeps on two cores
 #' regsen_cores(1)         # back to serial
 #' options(regsensitivity.ncores = old)
-#' \dontrun{
-#' # Uses every core but two, so it is not run inside checks.
-#' regsen_cores("auto")
-#' }
 #' @export
 regsen_cores <- function(n = NULL) {
     if (is.null(n)) {

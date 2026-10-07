@@ -1,14 +1,20 @@
 # Standalone replication of Diegert, Masten, Poirier (2026) tables and
 # figures that use the bundled data. Run with:
-#   Rscript inst/replication/dmp2022.R
+#   Rscript inst/replication/dmp2022.R [output directory]
 #
-# Output: dmp2022_table3.csv, dmp2022_table4.csv, dmp2022_fig1_left.png,
-# dmp2022_fig1_right.png in the current working directory.
+# Writes dmp2022_table3.csv, dmp2022_table4.csv, dmp2022_fig1_left.png and
+# dmp2022_fig1_right.png. With no argument they go to a temporary
+# directory, whose path is printed at the end: nothing is written to your
+# own files unless you name a directory to put them in.
 
 suppressPackageStartupMessages({
     library(regsensitivity)
     library(ggplot2)
 })
+
+args <- commandArgs(trailingOnly = TRUE)
+outdir <- if (length(args) >= 1 && nzchar(args[1])) args[1] else tempdir()
+dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
 
 data(bfg2020)
 bfg2020$statea <- factor(bfg2020$statea)
@@ -45,18 +51,18 @@ cat("\n=== Table 3: partial R^2 of W1k on W1,-k given W0 ===\n")
 tbl3 <- calibrate_partial_r2(form, bfg2020, compare = w1)
 tbl3$variable <- labels[tbl3$variable]
 print(tbl3, row.names = FALSE)
-write.csv(tbl3, "dmp2022_table3.csv", row.names = FALSE)
+write.csv(tbl3, file.path(outdir, "dmp2022_table3.csv"), row.names = FALSE)
 
 cat("\n=== Table 4 col (5): rho_k for Republican Vote Share ===\n")
 tbl4 <- calibrate_rho(form, bfg2020, compare = w1)
 tbl4$variable <- labels[tbl4$variable]
 print(tbl4, row.names = FALSE)
-write.csv(tbl4, "dmp2022_table4.csv", row.names = FALSE)
+write.csv(tbl4, file.path(outdir, "dmp2022_table4.csv"), row.names = FALSE)
 
 cat("\n=== Figure 1 (left): bounds vs rxbar at cbar=1 ===\n")
 fig1L <- regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
                         rxbar = seq(0, 0.99, length.out = 100))
-ggsave("dmp2022_fig1_left.png",
+ggsave(file.path(outdir, "dmp2022_fig1_left.png"),
         plot(fig1L, ylim = c(-2, 8)),
         width = 5, height = 4, dpi = 150)
 cat("  saved dmp2022_fig1_left.png\n")
@@ -74,7 +80,8 @@ p <- plot(fig1R) +
                aes(x = 0.02, y = rho_dec, label = variable),
                hjust = 0, vjust = -0.3, size = 2.4, colour = "grey30") +
     coord_cartesian(ylim = c(0, 1.4))
-ggsave("dmp2022_fig1_right.png", p, width = 6, height = 4, dpi = 150)
+ggsave(file.path(outdir, "dmp2022_fig1_right.png"), p,
+        width = 6, height = 4, dpi = 150)
 cat("  saved dmp2022_fig1_right.png\n")
 
-cat("\nReplication complete.\n")
+cat(sprintf("\nReplication complete. Files written to %s\n", outdir))

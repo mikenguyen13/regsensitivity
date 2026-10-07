@@ -55,8 +55,4 @@ regsen_cores()          # the current setting, 1 unless changed
 regsen_cores(2)         # run the sweeps on two cores
 regsen_cores(1)         # back to serial
 options(regsensitivity.ncores = old)
-\dontrun{
-# Uses every core but two, so it is not run inside checks.
-regsen_cores("auto")
-}
 }

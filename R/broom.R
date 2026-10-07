@@ -26,7 +26,6 @@
 #'   `regsen_glance()` returns a one-row `data.frame`.
 #'
 #' @examples
-#' \donttest{
 #' data(bfg2020)
 #' res <- regsen_bounds(
 #'     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
@@ -35,7 +34,6 @@
 #' )
 #' head(regsen_tidy(res))
 #' regsen_glance(res)
-#' }
 #' @export
 regsen_tidy <- function(x, conf.int = TRUE, ...) {
     stopifnot(inherits(x, "regsensitivity"))

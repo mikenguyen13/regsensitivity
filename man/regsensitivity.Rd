@@ -31,7 +31,6 @@ For most users, calling \code{\link[=regsen_bounds]{regsen_bounds()}} or \code{\
 is clearer.
 }
 \examples{
-\donttest{
 data(bfg2020)
 regsensitivity(
   "bounds",
@@ -40,7 +39,6 @@ regsensitivity(
   data = bfg2020,
   cbar = 0.1
 )
-}
 }
 \seealso{
 \code{\link[=regsen_bounds]{regsen_bounds()}}, \code{\link[=regsen_breakdown]{regsen_breakdown()}}, \code{\link[=regsen_summary]{regsen_summary()}}

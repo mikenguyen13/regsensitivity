@@ -62,7 +62,6 @@ Produces a ggplot object visualizing either an identified-set sweep (from
 \code{\link[=regsen_bounds]{regsen_bounds()}}) or a breakdown frontier (from \code{\link[=regsen_breakdown]{regsen_breakdown()}}).
 }
 \examples{
-\donttest{
 data(bfg2020)
 res <- regsen_bounds(
     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
@@ -70,5 +69,4 @@ res <- regsen_bounds(
     cbar = c(0.1, 0.5, 1)
 )
 plot(res, xline = 1, base_size = 9)
-}
 }

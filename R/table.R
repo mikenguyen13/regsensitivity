@@ -28,14 +28,12 @@
 #' @return A `data.frame`.
 #'
 #' @examples
-#' \donttest{
 #' data(bfg2020)
 #' res <- regsen_bounds(
 #'     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
 #'     data = bfg2020, compare = c("log_area_2010", "lat", "lon"), cbar = 0.1
 #' )
 #' head(as.data.frame(res))
-#' }
 #' @export
 as.data.frame.regsensitivity <- function(x, row.names = NULL, optional = FALSE,
                                           ...,
@@ -108,7 +106,6 @@ as.data.frame.regsensitivity <- function(x, row.names = NULL, optional = FALSE,
 #'   renders directly in an Rmd/Qmd chunk.
 #'
 #' @examples
-#' \donttest{
 #' data(bfg2020)
 #' res <- regsen_bounds(
 #'     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
@@ -118,7 +115,6 @@ as.data.frame.regsensitivity <- function(x, row.names = NULL, optional = FALSE,
 #' regsen_table(res, format = "markdown", digits = 3)
 #' regsen_table(res, format = "latex", notes = TRUE,
 #'              caption = "Identified sets", label = "idset")
-#' }
 #' @export
 regsen_table <- function(x,
                          format = NULL,

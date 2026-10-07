@@ -29,14 +29,12 @@
 #' @return A \pkg{ggplot2} theme object, which can be added to any plot.
 #'
 #' @examples
-#' \donttest{
 #' data(bfg2020)
 #' res <- regsen_bounds(
 #'     avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon,
 #'     data = bfg2020, compare = c("log_area_2010", "lat", "lon"), cbar = 0.1
 #' )
 #' plot(res) + theme_regsen(base_size = 9)
-#' }
 #' @export
 theme_regsen <- function(base_size = 11, base_family = "",
                          grid = c("none", "y", "x", "both"),
