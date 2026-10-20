@@ -44,7 +44,7 @@ and takes Assumption A6 in its two-sided form (`clow`).
 ## Installation
 
 ``` r
-# Released version (once accepted on CRAN):
+# Released version from CRAN:
 install.packages("regsensitivity")
 
 # Development version from GitHub:
