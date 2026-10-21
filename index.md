@@ -29,7 +29,7 @@ two-sided form (`clow`).
 
 ``` r
 
-# Released version (once accepted on CRAN):
+# Released version from CRAN:
 install.packages("regsensitivity")
 
 # Development version from GitHub:

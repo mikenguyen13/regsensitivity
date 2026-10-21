@@ -2,6 +2,8 @@
 
 ## regsensitivity 0.2.0
 
+CRAN release: 2026-10-20
+
 ### The Oster equality identified-set plot draws the actual branches
 
 - [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on an
