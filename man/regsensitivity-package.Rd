@@ -17,6 +17,8 @@ with omitted variables.
 \item \code{\link[=regsen_breakdown]{regsen_breakdown()}} -- smallest sensitivity value at which a hypothesis fails
 \item \code{\link[=regsen_summary]{regsen_summary()}} -- default summary sweep (DMP + Oster)
 \item \code{\link[=plot.regsensitivity]{plot.regsensitivity()}} -- ggplot2 visualization
+\item \code{\link[=breakdown_point]{breakdown_point()}}, \code{\link[=identified_set]{identified_set()}}, \code{\link[=breakdown_frontier]{breakdown_frontier()}} --
+accessors for the reported quantities
 }
 }
 

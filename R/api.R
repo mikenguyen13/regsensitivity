@@ -19,28 +19,59 @@
 #' For most users, calling [regsen_bounds()] or [regsen_breakdown()] directly
 #' is clearer.
 #'
-#' @param subcommand One of `"bounds"`, `"breakdown"`, `"summary"`.
 #' @param formula Two-sided formula: `y ~ x + w1 + w2 + ...`. The first
 #'   right-hand-side variable is the primary independent variable; the rest
 #'   are controls.
 #' @param data A data.frame.
+#' @param subcommand One of `"bounds"` (the default), `"breakdown"`,
+#'   `"summary"`.
 #' @param ... Additional arguments forwarded to the underlying function.
 #'
-#' @return An object of class `regsensitivity`.
+#' @details
+#' Versions before 0.3.0 took `subcommand` first, following the Stata
+#' syntax. A call in that order, `regsensitivity("bounds", y ~ x, data)`,
+#' still runs, with a deprecation warning.
+#'
+#' @return An object of class `regsensitivity`, or for
+#'   `subcommand = "summary"` one of class `regsensitivity_summary`.
 #' @seealso [regsen_bounds()], [regsen_breakdown()], [regsen_summary()]
 #' @examples
 #' data(bfg2020)
 #' regsensitivity(
-#'   "bounds",
 #'   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
 #'     log_area_2010 + lat + lon,
 #'   data = bfg2020,
+#'   subcommand = "bounds",
 #'   cbar = 0.1
 #' )
 #' @export
-regsensitivity <- function(subcommand = c("bounds", "breakdown", "summary"),
-                            formula, data, ...) {
-    subcommand <- match.arg(subcommand)
+regsensitivity <- function(formula, data,
+                           subcommand = c("bounds", "breakdown", "summary"),
+                           ...) {
+    subs <- c("bounds", "breakdown", "summary")
+    # The pre-0.3.0 order put the subcommand first. Positionally, the
+    # formula then arrives in `data` or `subcommand`, and the data in
+    # whichever of the two is left.
+    if (is.character(formula) && length(formula) == 1 && formula %in% subs) {
+        warning("`regsensitivity(subcommand, formula, data)` is deprecated; ",
+                "use `regsensitivity(formula, data, subcommand = \"",
+                formula, "\")`.", call. = FALSE)
+        old_sub <- formula
+        if (inherits(subcommand, "formula")) {
+            formula <- subcommand
+        } else if (inherits(data, "formula")) {
+            formula <- data
+            data <- subcommand
+        } else {
+            stop("no formula found in the call.", call. = FALSE)
+        }
+        subcommand <- old_sub
+    }
+    if (!inherits(formula, "formula")) {
+        stop("`formula` must be a formula such as `y ~ x + w1 + w2`.",
+             call. = FALSE)
+    }
+    subcommand <- match.arg(subcommand, subs)
     switch(subcommand,
            bounds    = regsen_bounds(formula, data, ...),
            breakdown = regsen_breakdown(formula, data, ...),

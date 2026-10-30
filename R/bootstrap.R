@@ -352,44 +352,221 @@ abs_interval <- function(ci) {
     if (ci[1] <= 0 && ci[2] >= 0) c(0, max(abs(ci))) else sort(abs(ci))
 }
 
+
+#' Print, summarize and plot a bootstrapped breakdown point
+#'
+#' `print()` gives the point estimate and the interval `regsen_boot()`
+#' reported. `summary()` adds the analysis bootstrapped, both interval
+#' types, the BCa constants, the distribution of the replicates (their
+#' standard deviation is the bootstrap standard error) and the counts of
+#' failed and infinite replicates. `plot()` draws the replicates with the
+#' point estimate and the interval marked. `confint()` returns the interval
+#' as a matrix, recomputing it from the stored replicates when `level` or
+#' `type` differ from those of the run.
+#'
+#' Every value is the magnitude of the breakdown point, as printed by
+#' [regsen_breakdown()].
+#'
+#' @param x,object A `regsensitivity_boot` object, or for the `print()`
+#'   method of its summary, a `summary.regsensitivity_boot` object.
+#' @param parm Ignored; there is one parameter.
+#' @param level Confidence level. Defaults to the level of the run.
+#' @param type `"bca"` or `"perc"`. Defaults to the interval the run
+#'   reported. `"bca"` needs the jackknife, which a run with
+#'   `type = "perc"` skipped.
+#' @param bins Number of histogram bins.
+#' @param base_size Base font size, passed to [theme_regsen()].
+#' @param ... Ignored.
+#'
+#' @return `confint()` returns a 1 x 2 matrix. `summary()` returns an
+#'   object of class `summary.regsensitivity_boot`. `plot()` returns a
+#'   `ggplot` object.
+#' @name regsen_boot-methods
+#' @examples
+#' \donttest{
+#' data(bfg2020)
+#' f <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + lat + lon
+#' bb <- regsen_boot(f, bfg2020, compare = c("log_area_2010", "lat", "lon"),
+#'                   R = 99, type = "perc", seed = 1)
+#' bb
+#' summary(bb)
+#' confint(bb, level = 0.9)
+#' plot(bb)
+#' }
+NULL
+
+#' @rdname regsen_boot-methods
 #' @export
 print.regsensitivity_boot <- function(x, ...) {
     cat("Bootstrap confidence interval for the breakdown point\n")
     cat(strrep("-", 60), "\n", sep = "")
-    cat(sprintf("  R                  : %d\n", x$R))
+    kind <- if (identical(x$type, "bca")) "BCa" else "percentile"
+    cat(sprintf("  Point estimate     : %.4f\n", abs(x$point)))
+    ci <- abs_interval(x$ci)
+    cat(sprintf("  %s%% CI (%s)%s: [%.4f, %.4f]\n", round(100 * x$level),
+                kind, strrep(" ", max(0, 10 - nchar(kind))), ci[1], ci[2]))
+    cat(sprintf("  Replicates         : %d%s\n", x$R,
+                if (is.null(x$cluster)) "" else
+                    paste0(", resampling clusters of ", x$cluster)))
+    if (identical(x$requested_type, "bca") && !identical(x$type, "bca")) {
+        cat("  (BCa unavailable on these replicates; showing percentile)\n")
+    }
+    cat("\nUse summary() for the replicate distribution and both intervals.\n")
+    invisible(x)
+}
+
+#' @rdname regsen_boot-methods
+#' @export
+summary.regsensitivity_boot <- function(object, ...) {
+    reps <- abs(object$replicates[!is.na(object$replicates)])
+    fin <- reps[is.finite(reps)]
+    point <- abs(object$point)
+    pr <- object$point_res
+    structure(
+        list(
+            analysis = pr$analysis,
+            treatment = pr$indvar,
+            hypothesis = format_hypothesis(pr),
+            point = point,
+            ci = abs_interval(object$ci),
+            ci_perc = abs_interval(object$ci_perc),
+            ci_bca = abs_interval(object$ci_bca),
+            type = object$type,
+            requested_type = object$requested_type,
+            level = object$level,
+            z0 = object$z0,
+            acceleration = object$acceleration,
+            extreme_endpoint = object$extreme_endpoint,
+            R = object$R,
+            cluster = object$cluster,
+            ncores = object$ncores,
+            se = if (length(fin) > 1) stats::sd(fin) else NA_real_,
+            bias = if (length(fin)) mean(fin) - point else NA_real_,
+            quantiles = if (length(fin)) {
+                stats::quantile(fin, c(0, 0.25, 0.5, 0.75, 1), names = TRUE)
+            } else {
+                NULL
+            },
+            na = object$na,
+            infinite = object$infinite
+        ),
+        class = "summary.regsensitivity_boot"
+    )
+}
+
+#' @rdname regsen_boot-methods
+#' @export
+print.summary.regsensitivity_boot <- function(x, ...) {
+    cat("Bootstrap inference for the breakdown point\n")
+    cat(strrep("-", 60), "\n", sep = "")
+    cat(sprintf("  Analysis           : %s\n", x$analysis))
+    cat(sprintf("  Treatment          : %s\n", x$treatment))
+    cat(sprintf("  Hypothesis         : %s\n", x$hypothesis))
+    cat(sprintf("  Replicates (R)     : %d\n", x$R))
     cat(sprintf("  Cluster bootstrap  : %s\n",
                 if (is.null(x$cluster)) "no" else x$cluster))
     if (!is.null(x$ncores) && x$ncores > 1L) {
         cat(sprintf("  Cores              : %d\n", x$ncores))
     }
-    kind <- if (identical(x$type, "bca")) "BCa" else "percentile"
-    cat(sprintf("  Interval           : %s\n", kind))
+
+    cat("\n--- Estimate --------------------------------------------\n")
+    cat(sprintf("  Point estimate     : %.4f\n", x$point))
+    cat(sprintf("  Bootstrap SE       : %.4f\n", x$se))
+    cat(sprintf("  Bootstrap bias     : %.4f\n", x$bias))
+    lv <- round(100 * x$level)
     if (identical(x$type, "bca")) {
+        cat(sprintf("  %s%% CI (BCa)       : [%.4f, %.4f]\n", lv,
+                    x$ci_bca[1], x$ci_bca[2]))
         cat(sprintf("  Bias corr. (z0)    : %.4f\n", x$z0))
         cat(sprintf("  Acceleration       : %.4f\n", x$acceleration))
     } else if (identical(x$requested_type, "bca")) {
         cat("  (BCa unavailable on these replicates; showing percentile)\n")
     }
-    cat(sprintf("  Confidence level   : %.0f%%\n", 100 * x$level))
-    cat(sprintf("  Point estimate     : %.4f\n", abs(x$point)))
-    ci <- abs_interval(x$ci)
-    cat(sprintf("  %s%% CI            : [%.4f, %.4f]\n",
-                round(100 * x$level), ci[1], ci[2]))
+    cat(sprintf("  %s%% CI (percentile): [%.4f, %.4f]\n", lv,
+                x$ci_perc[1], x$ci_perc[2]))
     if (isTRUE(x$extreme_endpoint)) {
-        cat("  (An endpoint is an extreme replicate; raise R)\n")
+        cat("  (A BCa endpoint is an extreme replicate; raise R)\n")
     }
-    if (!is.null(x$ci_perc) && identical(x$type, "bca")) {
-        cip <- abs_interval(x$ci_perc)
-        cat(sprintf("  %s%% CI (percentile): [%.4f, %.4f]\n",
-                    round(100 * x$level), cip[1], cip[2]))
+
+    if (!is.null(x$quantiles)) {
+        cat("\n--- Finite replicates -----------------------------------\n")
+        q <- x$quantiles
+        names(q) <- c("Min", "Q1", "Median", "Q3", "Max")
+        print(round(q, 4))
     }
     if (x$na > 0) {
-        cat(sprintf("  (Failed replicates : %d/%d)\n", x$na, x$R))
+        cat(sprintf("\n  Failed replicates  : %d of %d, dropped\n", x$na, x$R))
     }
     if (!is.null(x$infinite) && x$infinite > 0) {
-        cat(sprintf("  (Infinite replicates: %d/%d; the hypothesis ",
+        cat(sprintf("  Infinite replicates: %d of %d, kept as +Inf; the ",
                     x$infinite, x$R),
-            "survived every value there)\n", sep = "")
+            "hypothesis survived every value there\n", sep = "")
     }
     invisible(x)
+}
+
+#' @rdname regsen_boot-methods
+#' @export
+confint.regsensitivity_boot <- function(object, parm, level = object$level,
+                                        type = object$type, ...) {
+    type <- match.arg(type, c("bca", "perc"))
+    stopifnot(is.numeric(level), length(level) == 1, level > 0, level < 1)
+    same <- isTRUE(all.equal(level, object$level))
+    ci <- if (type == "perc") {
+        if (same) {
+            object$ci_perc
+        } else {
+            alpha <- (1 - level) / 2
+            stats::quantile(object$replicates, c(alpha, 1 - alpha),
+                            names = FALSE, na.rm = TRUE)
+        }
+    } else {
+        if (length(object$jackknife) == 0) {
+            stop("the BCa interval needs the jackknife, which a run with ",
+                 "type = \"perc\" skips; rerun regsen_boot() with ",
+                 "type = \"bca\".", call. = FALSE)
+        }
+        if (same) {
+            object$ci_bca
+        } else {
+            bca_interval(object$point, object$replicates, object$jackknife,
+                         level)$ci
+        }
+    }
+    probs <- c((1 - level) / 2, 1 - (1 - level) / 2)
+    matrix(abs_interval(ci), nrow = 1,
+           dimnames = list("breakdown",
+                           paste(format(100 * probs, trim = TRUE,
+                                        scientific = FALSE, digits = 3), "%")))
+}
+
+#' @rdname regsen_boot-methods
+#' @export
+plot.regsensitivity_boot <- function(x, bins = 30, base_size = 11, ...) {
+    reps <- abs(x$replicates[!is.na(x$replicates)])
+    fin <- reps[is.finite(reps)]
+    if (length(fin) == 0) {
+        stop("no finite replicates to plot.", call. = FALSE)
+    }
+    ci <- abs_interval(x$ci)
+    kind <- if (identical(x$type, "bca")) "BCa" else "percentile"
+    sub <- sprintf("%s%% %s interval shaded; point estimate dashed",
+                   round(100 * x$level), kind)
+    n_inf <- length(reps) - length(fin)
+    if (n_inf > 0) {
+        sub <- paste0(sub, sprintf("; %d infinite replicate(s) not drawn",
+                                   n_inf))
+    }
+    ggplot2::ggplot(data.frame(breakdown = fin),
+                    ggplot2::aes(x = .data$breakdown)) +
+        ggplot2::annotate("rect", xmin = ci[1], xmax = ci[2],
+                          ymin = -Inf, ymax = Inf,
+                          fill = okabe_ito[1], alpha = 0.15) +
+        ggplot2::geom_histogram(bins = bins, fill = "grey60",
+                                colour = "white", linewidth = 0.2) +
+        ggplot2::geom_vline(xintercept = abs(x$point), linetype = "dashed",
+                            colour = okabe_ito[1], linewidth = 0.5) +
+        ggplot2::labs(x = "Bootstrap breakdown point", y = "Replicates",
+                      subtitle = sub) +
+        theme_regsen(base_size = base_size, grid = "y")
 }

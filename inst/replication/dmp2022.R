@@ -43,9 +43,9 @@ bp1 <- regsen_bounds(form, bfg2020, compare = w1, cbar = 1)
 bp2 <- regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
                       rybar_expr = function(rx) rx)
 cat(sprintf("  rxbar^bp (cbar=1):                 %.4f  (paper: 0.804)\n",
-            bp1$breakdown))
+            breakdown_point(bp1)))
 cat(sprintf("  r^bp (cbar=1, rybar = rxbar):      %.4f  (paper: 0.96)\n",
-            bp2$breakdown))
+            breakdown_point(bp2)))
 
 cat("\n=== Table 3: partial R^2 of W1k on W1,-k given W0 ===\n")
 tbl3 <- calibrate_partial_r2(form, bfg2020, compare = w1)

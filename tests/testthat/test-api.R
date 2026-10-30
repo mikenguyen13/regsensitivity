@@ -1,9 +1,32 @@
 test_that("regsensitivity() dispatcher routes to subcommand functions", {
-    a <- regsensitivity("bounds", bfg_formula(), bfg(),
-                         compare = bfg_compare(), cbar = 0.1)
+    a <- regsensitivity(bfg_formula(), bfg(), subcommand = "bounds",
+                        compare = bfg_compare(), cbar = 0.1)
     b <- regsen_bounds(bfg_formula(), bfg(),
                        compare = bfg_compare(), cbar = 0.1)
     expect_equal(a$results, b$results)
+    # bounds is the default
+    d <- regsensitivity(bfg_formula(), bfg(), compare = bfg_compare(),
+                        cbar = 0.1)
+    expect_equal(d$results, b$results)
+})
+
+test_that("regsensitivity() still accepts the pre-0.3.0 argument order", {
+    b <- regsen_bounds(bfg_formula(), bfg(),
+                       compare = bfg_compare(), cbar = 0.1)
+    expect_warning(
+        a1 <- regsensitivity("bounds", bfg_formula(), bfg(),
+                             compare = bfg_compare(), cbar = 0.1),
+        "deprecated")
+    expect_warning(
+        a2 <- regsensitivity("bounds", bfg_formula(), data = bfg(),
+                             compare = bfg_compare(), cbar = 0.1),
+        "deprecated")
+    a3 <- regsensitivity(subcommand = "bounds", formula = bfg_formula(),
+                         data = bfg(), compare = bfg_compare(), cbar = 0.1)
+    expect_equal(a1$results, b$results)
+    expect_equal(a2$results, b$results)
+    expect_equal(a3$results, b$results)
+    expect_error(regsensitivity("y ~ x", bfg()), "must be a formula")
 })
 
 test_that("parse_beta handles defaults, numeric, sign forms", {

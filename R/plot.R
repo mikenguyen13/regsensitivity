@@ -394,3 +394,35 @@ axis_label <- function(user, default) {
 autoplot.regsensitivity <- function(object, ...) {
     plot.regsensitivity(object, ...)
 }
+
+#' @rdname regsen_summary
+#' @param which Which panel to draw: `"both"` (default) side by side, or
+#'   `"dmp"` or `"oster"` alone.
+#' @return `plot()` returns a `ggplot` for a single panel. For both it
+#'   returns a list of the two, of class `regsensitivity_plots`, whose print
+#'   method draws them side by side; each element is an ordinary `ggplot`
+#'   that can be modified and drawn on its own.
+#' @export
+plot.regsensitivity_summary <- function(x, which = c("both", "dmp", "oster"),
+                                        ...) {
+    which <- match.arg(which)
+    p_dmp <- if (which != "oster") plot(x$dmp_bounds, ...)
+    p_oster <- if (which != "dmp") plot(x$oster_breakdown, ...)
+    switch(which,
+           dmp = p_dmp,
+           oster = p_oster,
+           structure(list(dmp_bounds = p_dmp, oster_breakdown = p_oster),
+                     class = "regsensitivity_plots"))
+}
+
+#' @export
+print.regsensitivity_plots <- function(x, ...) {
+    grid::grid.newpage()
+    grid::pushViewport(grid::viewport(layout = grid::grid.layout(1, length(x))))
+    for (i in seq_along(x)) {
+        print(x[[i]], vp = grid::viewport(layout.pos.row = 1,
+                                          layout.pos.col = i))
+    }
+    grid::popViewport()
+    invisible(x)
+}

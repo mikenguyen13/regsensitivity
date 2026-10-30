@@ -13,9 +13,14 @@ reference:
       - regsen_bounds
       - regsen_breakdown
       - regsen_summary
+  - title: "Reading the results"
+    contents:
+      - regsensitivity-display
+      - regsensitivity-accessors
   - title: "Inference"
     contents:
       - regsen_boot
+      - regsen_boot-methods
   - title: "Parallel computation"
     contents:
       - regsen_cores

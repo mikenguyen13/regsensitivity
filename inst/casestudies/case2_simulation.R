@@ -30,7 +30,7 @@ cat("    Hypothesis    : beta > 0\n\n")
 sim_one <- function(n, rho_W2X, rho_W2Y, R = 100) {
     dat <- dgp_one(n, rho_W2X, rho_W2Y)
     res <- regsen_bounds(Y ~ X + W1, dat, compare = "W1", cbar = 1)
-    list(beta_med = res$dgp$beta_med, rxbar_bp = res$breakdown)
+    list(beta_med = coef(res)[["medium"]], rxbar_bp = breakdown_point(res))
 }
 
 # A plain loop rather than lapply(), so that each seed is set in the

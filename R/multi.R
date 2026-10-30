@@ -127,9 +127,16 @@ regsen_multi <- function(formula, data, treatments,
     # Drop the error column when nothing failed, so the common case is a
     # clean four-column table.
     if (all(is.na(out$error))) out$error <- NULL
-    structure(out, class = c("regsensitivity_multi", "data.frame"))
+    analysis <- tryCatch(
+        switch(match_analysis(if (is.null(dots$analysis)) "dmp" else dots$analysis),
+               dmp = "DMP (2026)", oster = "Oster (2019)"),
+        error = function(e) NA_character_
+    )
+    structure(out, class = c("regsensitivity_multi", "data.frame"),
+              call = match.call(), analysis = analysis)
 }
 
+#' @rdname regsen_multi
 #' @export
 print.regsensitivity_multi <- function(x, ...) {
     cat("\nSensitivity across treatments\n")
@@ -146,7 +153,81 @@ print.regsensitivity_multi <- function(x, ...) {
 }
 
 #' @rdname regsen_multi
-#' @param x A `regsensitivity_multi` object.
+#' @param row.names,optional Ignored, present for S3 compatibility with
+#'   [base::as.data.frame()].
+#' @export
+as.data.frame.regsensitivity_multi <- function(x, row.names = NULL,
+                                               optional = FALSE, ...) {
+    # The table alone: the call and analysis label describe how it was made,
+    # and two runs that differ only in, say, `ncores` give the same table.
+    attr(x, "call") <- NULL
+    attr(x, "analysis") <- NULL
+    class(x) <- "data.frame"
+    x
+}
+
+#' @rdname regsen_multi
+#' @param object A `regsensitivity_multi` object.
+#' @return `summary()` returns an object of class
+#'   `summary.regsensitivity_multi`: the treatments ordered from most to
+#'   least fragile, with the count of those whose breakdown point is below
+#'   1, the benchmark at which the omitted variable is no more important
+#'   than the comparison controls.
+#' @export
+summary.regsensitivity_multi <- function(object, ...) {
+    df <- as.data.frame(object)
+    df <- df[order(df$breakdown, na.last = TRUE), , drop = FALSE]
+    df$rank <- seq_len(nrow(df))
+    df$rank[is.na(df$breakdown)] <- NA_integer_
+    rownames(df) <- NULL
+    bp <- df$breakdown[!is.na(df$breakdown)]
+    structure(
+        list(
+            call = attr(object, "call"),
+            analysis = attr(object, "analysis"),
+            table = df,
+            n_treatments = nrow(df),
+            n_failed = sum(is.na(df$breakdown)),
+            n_below_one = sum(bp < 1),
+            range = if (length(bp)) range(bp) else c(NA_real_, NA_real_)
+        ),
+        class = "summary.regsensitivity_multi"
+    )
+}
+
+#' @rdname regsen_multi
+#' @export
+print.summary.regsensitivity_multi <- function(x, ...) {
+    cat("\nSensitivity across treatments")
+    if (!is.null(x$analysis) && !is.na(x$analysis)) {
+        cat(" [", x$analysis, "]", sep = "")
+    }
+    cat("\n", strrep("-", 60), "\n", sep = "")
+    if (!is.null(x$call)) {
+        cat("Call:\n  ", paste(deparse(x$call, width.cutoff = 68),
+                               collapse = "\n  "), "\n\n", sep = "")
+    }
+    cat(sprintf("  %-34s %d\n", "Treatments:", x$n_treatments))
+    if (x$n_failed > 0) {
+        cat(sprintf("  %-34s %d (see the `error` column)\n", "Failed:",
+                    x$n_failed))
+    }
+    cat(sprintf("  %-34s %d\n", "Breakdown point below 1:", x$n_below_one))
+    if (!anyNA(x$range)) {
+        cat(sprintf("  %-34s [%s, %s]\n", "Breakdown range:",
+                    format_bp(x$range[1]), format_bp(x$range[2])))
+    }
+    cat("\nMost fragile first:\n")
+    df <- x$table
+    num <- vapply(df, is.double, logical(1))
+    df[num] <- lapply(df[num], function(v) formatC(v, format = "fg", digits = 4))
+    print(df, row.names = FALSE)
+    invisible(x)
+}
+
+#' @rdname regsen_multi
+#' @param x A `regsensitivity_multi` object, or for the `print()` method of
+#'   its summary, a `summary.regsensitivity_multi` object.
 #' @param base_size Base font size, passed to [theme_regsen()].
 #' @export
 plot.regsensitivity_multi <- function(x, base_size = 11, ...) {

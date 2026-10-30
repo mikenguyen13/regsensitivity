@@ -86,8 +86,8 @@ ggplot(df, aes(x = rxbar, linetype = spec)) +
 The two curves cross zero at the paper's two breakdown points:
 
 ```{r crossings, echo = TRUE}
-c(`rybar = Inf`   = abs(solid$breakdown),    # paper: 0.804
-  `rybar = rxbar` = abs(dashed$breakdown))   # paper: 0.959 (96% in prose)
+c(`rybar = Inf`   = breakdown_point(solid),    # paper: 0.804
+  `rybar = rxbar` = breakdown_point(dashed))   # paper: 0.959 (96% in prose)
 ```
 
 Both bounds go infinite at $\bar r_X = 1$ under the dashed
@@ -114,7 +114,7 @@ frontier <- function(cbar, rxs, w = w1) {
     res <- parallel::mclapply(rxs, function(rx) {
         r <- regsen_breakdown(form, bfg2020, compare = w, cbar = cbar,
                                direction = "rybar", rxbar = rx)
-        r$results$breakdown[1]
+        breakdown_point(r)[1]
     }, mc.cores = cores)
     ry <- vapply(res, function(z) if (is.numeric(z)) z else NA_real_,
                  numeric(1))
@@ -167,13 +167,13 @@ $\bar r_X$ leaves the conclusion standing.
 ```{r arm, echo = TRUE}
 # Far out on the horizontal arm, where the identified set is still
 # bounded because rybar is restricted even though rxbar is not.
-regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
-              rxbar = 2, rybar = 0.6)$results
+identified_set(regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
+                             rxbar = 2, rybar = 0.6))
 
 # ... and the rybar frontier at the same rxbar, which is what the curve
 # above plots.
-regsen_breakdown(form, bfg2020, compare = w1, cbar = 1,
-                 direction = "rybar", rxbar = 2)$results
+breakdown_frontier(regsen_breakdown(form, bfg2020, compare = w1, cbar = 1,
+                                   direction = "rybar", rxbar = 2))
 ```
 
 ## Figure 3: calibrating with state fixed effects
@@ -234,12 +234,12 @@ frontier_plot(fr3)
 ```
 
 Both arms again, with the vertical one now near
-`r sprintf("%.2f", abs(s3$breakdown))` instead of 0.80 -- the inward
+`r sprintf("%.2f", breakdown_point(s3))` instead of 0.80 -- the inward
 shift the paper describes.
 
 ```{r fig3-bp, echo = TRUE}
-c(`w1 only`            = abs(solid$breakdown),   # paper: ~0.80
-  `w1 + state effects` = abs(s3$breakdown))      # paper: ~0.30
+c(`w1 only`            = breakdown_point(solid),   # paper: ~0.80
+  `w1 + state effects` = breakdown_point(s3))      # paper: ~0.30
 ```
 
 ## Masten and Poirier (2026), Figures 1 and 2
@@ -316,6 +316,6 @@ rather than sensitivity analyses of a dataset.
 
 | | Published | This package |
 |---|---|---|
-| $\bar r_X^{bp}$ at $\bar c = 1$ | 0.804 | `r sprintf("%.4f", abs(solid$breakdown))` |
-| $\bar r^{bp}$, $\bar r_Y = \bar r_X$ | 0.959 | `r sprintf("%.4f", abs(dashed$breakdown))` |
-| $\bar r_X^{bp}$, calibrating on state effects | ~0.30 | `r sprintf("%.4f", abs(s3$breakdown))` |
+| $\bar r_X^{bp}$ at $\bar c = 1$ | 0.804 | `r sprintf("%.4f", breakdown_point(solid))` |
+| $\bar r^{bp}$, $\bar r_Y = \bar r_X$ | 0.959 | `r sprintf("%.4f", breakdown_point(dashed))` |
+| $\bar r_X^{bp}$, calibrating on state effects | ~0.30 | `r sprintf("%.4f", breakdown_point(s3))` |

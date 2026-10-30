@@ -12,13 +12,15 @@
 #' * [regsen_breakdown()] -- smallest sensitivity value at which a hypothesis fails
 #' * [regsen_summary()] -- default summary sweep (DMP + Oster)
 #' * [plot.regsensitivity()] -- ggplot2 visualization
+#' * [breakdown_point()], [identified_set()], [breakdown_frontier()] --
+#'   accessors for the reported quantities
 #'
 #' @section Reference data:
 #' * [bfg2020] -- subset of the Bazzi, Fiszbein & Gebresilasse (2020)
 #'   replication data, used to demonstrate the package.
 #'
 #' @keywords internal
-#' @importFrom stats as.formula coef lm model.frame model.matrix model.response resid terms var
+#' @importFrom stats as.formula coef confint lm model.frame model.matrix model.response nobs resid terms var
 #' @importFrom rlang .data
 #' @importFrom grid unit
 "_PACKAGE"

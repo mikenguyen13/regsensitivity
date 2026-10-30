@@ -5,38 +5,45 @@
 \title{Regression sensitivity analysis}
 \usage{
 regsensitivity(
-  subcommand = c("bounds", "breakdown", "summary"),
   formula,
   data,
+  subcommand = c("bounds", "breakdown", "summary"),
   ...
 )
 }
 \arguments{
-\item{subcommand}{One of \code{"bounds"}, \code{"breakdown"}, \code{"summary"}.}
-
 \item{formula}{Two-sided formula: \code{y ~ x + w1 + w2 + ...}. The first
 right-hand-side variable is the primary independent variable; the rest
 are controls.}
 
 \item{data}{A data.frame.}
 
+\item{subcommand}{One of \code{"bounds"} (the default), \code{"breakdown"},
+\code{"summary"}.}
+
 \item{...}{Additional arguments forwarded to the underlying function.}
 }
 \value{
-An object of class \code{regsensitivity}.
+An object of class \code{regsensitivity}, or for
+\code{subcommand = "summary"} one of class \code{regsensitivity_summary}.
 }
 \description{
 Top-level dispatcher that mirrors the Stata \code{regsensitivity} command.
 For most users, calling \code{\link[=regsen_bounds]{regsen_bounds()}} or \code{\link[=regsen_breakdown]{regsen_breakdown()}} directly
 is clearer.
 }
+\details{
+Versions before 0.3.0 took \code{subcommand} first, following the Stata
+syntax. A call in that order, \code{regsensitivity("bounds", y ~ x, data)},
+still runs, with a deprecation warning.
+}
 \examples{
 data(bfg2020)
 regsensitivity(
-  "bounds",
   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
     log_area_2010 + lat + lon,
   data = bfg2020,
+  subcommand = "bounds",
   cbar = 0.1
 )
 }

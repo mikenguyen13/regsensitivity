@@ -2,6 +2,10 @@
 % Please edit documentation in R/multi.R
 \name{regsen_multi}
 \alias{regsen_multi}
+\alias{print.regsensitivity_multi}
+\alias{as.data.frame.regsensitivity_multi}
+\alias{summary.regsensitivity_multi}
+\alias{print.summary.regsensitivity_multi}
 \alias{plot.regsensitivity_multi}
 \title{Sensitivity analysis for several treatments at once}
 \usage{
@@ -14,6 +18,14 @@ regsen_multi(
   ...,
   ncores = NULL
 )
+
+\method{print}{regsensitivity_multi}(x, ...)
+
+\method{as.data.frame}{regsensitivity_multi}(x, row.names = NULL, optional = FALSE, ...)
+
+\method{summary}{regsensitivity_multi}(object, ...)
+
+\method{print}{summary.regsensitivity_multi}(x, ...)
 
 \method{plot}{regsensitivity_multi}(x, base_size = 11, ...)
 }
@@ -41,7 +53,13 @@ a variable cannot calibrate against itself.}
 all but two of the machine's cores. Each treatment's analysis then
 runs serially inside, so cores are not oversubscribed.}
 
-\item{x}{A \code{regsensitivity_multi} object.}
+\item{x}{A \code{regsensitivity_multi} object, or for the \code{print()} method of
+its summary, a \code{summary.regsensitivity_multi} object.}
+
+\item{row.names, optional}{Ignored, present for S3 compatibility with
+\code{\link[base:as.data.frame]{base::as.data.frame()}}.}
+
+\item{object}{A \code{regsensitivity_multi} object.}
 
 \item{base_size}{Base font size, passed to \code{\link[=theme_regsen]{theme_regsen()}}.}
 }
@@ -51,6 +69,12 @@ treatment, with columns \code{treatment}, \code{estimate} (the medium-regression
 coefficient), \code{breakdown}, and \code{n}. Rows where the analysis failed
 carry \code{NA} and an \code{error} column explaining why, rather than aborting
 the whole sweep.
+
+\code{summary()} returns an object of class
+\code{summary.regsensitivity_multi}: the treatments ordered from most to
+least fragile, with the count of those whose breakdown point is below
+1, the benchmark at which the omitted variable is no more important
+than the comparison controls.
 }
 \description{
 Runs \code{\link[=regsen_breakdown]{regsen_breakdown()}} (or \code{\link[=regsen_bounds]{regsen_bounds()}}) once per candidate

@@ -1,3 +1,56 @@
+# regsensitivity 0.3.0
+
+## Results are read through accessors, not fields
+
+* New accessors `breakdown_point()`, `breakdown_frontier()`,
+  `identified_set()` and `sensitivity_params()`, with `coef()` and
+  `nobs()` methods, return the reported quantities without reaching into
+  the object. `breakdown_point()` reports the magnitude, as `print()` does;
+  `signed = TRUE` keeps the sign an Oster delta carries.
+  `breakdown_frontier()` names its first column after the parameter swept
+  rather than `index`. The vignettes and replication scripts now use them.
+
+## print() and summary() say different things
+
+* `print()` on a `regsensitivity` object is now the headline: the model,
+  the medium-regression coefficient, the hypothesis, the breakdown point
+  and a thinned results table. `summary()` used to print exactly the same
+  thing. It now adds the call, the control and comparison sets, every
+  sensitivity parameter, the summary statistics and the full results
+  table; for an identified-set sweep that table gains a `holds` column,
+  `TRUE` where the set lies wholly on the hypothesis' side.
+
+* `regsen_boot()`, `regsen_multi()` and `regsen_summary()` results gain the
+  methods they lacked. Each now has `print()`, `summary()` and `plot()`:
+  the bootstrap summary adds the bootstrap standard error, the bias, both
+  intervals and the replicate quantiles, and its plot draws the replicates
+  with the interval shaded; `confint()` returns the interval and recomputes
+  it at another `level` or `type` from the stored replicates. The
+  multi-treatment summary ranks treatments from most to least fragile and
+  counts those whose breakdown point is below 1. `plot()` on a
+  `regsen_summary()` result draws the DMP bounds and the Oster frontier
+  side by side. `summary()` on these used to fall through to
+  `summary.default()`.
+
+## regsensitivity() takes the formula first
+
+* `regsensitivity(formula, data, subcommand = "bounds", ...)`, following
+  the R convention for formula interfaces; the subcommand used to come
+  first, as in Stata. The old order still runs, with a deprecation
+  warning.
+
+## Quadratic forms no longer invert Var(W1)
+
+* The summary statistics need `u' Var(W1)^{-1} v` for several `u`, `v`.
+  They were computed through an explicit inverse, from `chol2inv()` or,
+  when the Cholesky factorization failed, `solve()` on a ridge-perturbed
+  matrix. Each vector is now whitened once by a triangular solve on the
+  Cholesky factor and the forms are `crossprod()`s of the results. The
+  fallback for a matrix singular to working precision is the symmetric
+  eigendecomposition, which gives the pseudo-inverse rather than an
+  inverse whose entries grow without bound. Results are unchanged to the
+  digits the numeric snapshots record.
+
 # regsensitivity 0.2.0
 
 ## The Oster equality identified-set plot draws the actual branches

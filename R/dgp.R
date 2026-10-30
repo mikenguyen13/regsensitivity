@@ -201,7 +201,6 @@ drop_aliased <- function(w_res, w_orig) {
 # Fields:
 #   var_y, var_x        : variances of (residualized) Y, X
 #   var_w               : variance matrix of (residualized) W1
-#   wt                  : Cholesky inverse of var_w
 #   k0, k1, k2          : DMP scalars (k0 = Var(MX|W1), etc.)
 #   wxwx, wywy, wxwy    : inner products  cov_wx' wt cov_wx, etc.
 #   covwx_norm_sq       : Var(X) - k0
@@ -240,25 +239,23 @@ get_dgp <- function(inputs) {
         # the analysis to run but a number of the sensitivity parameters
         # become meaningless. We populate the struct with sensible defaults.
         var_w <- matrix(0, 0, 0)
-        wt <- matrix(0, 0, 0)
         covwx <- numeric(0)
         covwy <- numeric(0)
+        zx <- numeric(0); zy <- numeric(0)
         wxwx <- 0; wywy <- 0; wxwy <- 0
     } else {
         var_w <- V[-(1:2), -(1:2), drop = FALSE]
-        # cholinv = inverse of a PD matrix via Cholesky; chol2inv() does this.
-        ch <- tryCatch(chol(var_w), error = function(e) NULL)
-        if (is.null(ch)) {
-            # fall back to ginv for near-singular cases
-            wt <- solve(var_w + diag(1e-12, nrow(var_w)))
-        } else {
-            wt <- chol2inv(ch)
-        }
         covwx <- V[-(1:2), 2]
         covwy <- V[-(1:2), 1]
-        wxwx <- as.numeric(t(covwx) %*% wt %*% covwx)
-        wywy <- as.numeric(t(covwy) %*% wt %*% covwy)
-        wxwy <- as.numeric(t(covwx) %*% wt %*% covwy)
+        # Every quadratic form below is u' Var(W1)^{-1} v. Whitening u and v
+        # once turns each into a crossprod() of two vectors, so the inverse
+        # is never formed.
+        whiten <- whitener(var_w)
+        zx <- whiten(covwx)
+        zy <- whiten(covwy)
+        wxwx <- sum(zx^2)
+        wywy <- sum(zy^2)
+        wxwy <- as.numeric(crossprod(zx, zy))
     }
     covxy <- V[1, 2]
 
@@ -275,17 +272,19 @@ get_dgp <- function(inputs) {
         gamma_med <- numeric(0)
         pi_med <- numeric(0)
         gamma_med_norm_sq <- 0
+        gamma_wx <- 0
     } else {
         gamma_med <- covwy - beta_med * covwx
         pi_med <- covwx
-        gamma_med_norm_sq <- as.numeric(t(gamma_med) %*% wt %*% gamma_med)
+        # Whitening is linear, so gamma_med whitens to zy - beta_med * zx.
+        zg <- zy - beta_med * zx
+        gamma_med_norm_sq <- sum(zg^2)
+        gamma_wx <- as.numeric(crossprod(zg, zx))
     }
 
     r_short <- beta_short^2 * var_x / var_y
-    r_med <- (beta_med^2 * var_x +
-              gamma_med_norm_sq +
-              2 * beta_med * as.numeric(t(gamma_med) %*% (if (length(gamma_med)) wt %*% covwx else numeric(0)))) / var_y
-    # The second-term cross product simplifies to 0 when there are no W1.
+    r_med <- (beta_med^2 * var_x + gamma_med_norm_sq +
+              2 * beta_med * gamma_wx) / var_y
 
     # Change-of-basis matrix used in the DIRECT optimization (DMP, ry<inf, c>0).
     wy_orthogonal_norm <- sqrt(max(wywy * wxwx - wxwy^2, 0))
@@ -299,7 +298,7 @@ get_dgp <- function(inputs) {
 
     structure(
         list(
-            var_y = var_y, var_x = var_x, var_w = var_w, wt = wt,
+            var_y = var_y, var_x = var_x, var_w = var_w,
             k0 = k0, k1 = k1, k2 = k2,
             wxwx = wxwx, wywy = wywy, wxwy = wxwy,
             covwx_norm_sq = covwx_norm_sq,
@@ -314,6 +313,26 @@ get_dgp <- function(inputs) {
         ),
         class = "regsen_dgp"
     )
+}
+
+# A function taking v to L^{-1} v, where L L' = V, so that the whitened
+# vectors' crossprod() is u' V^{-1} v. V is a variance matrix, hence
+# symmetric and positive semi-definite: the Cholesky factor is the cheap
+# route, and the symmetric eigendecomposition the fallback when V is
+# singular to working precision. drop_aliased() removes exact collinearity
+# first, so the fallback is rare; it discards the directions with no
+# variance, giving the Moore-Penrose form rather than a ridge-perturbed
+# inverse whose entries grow without bound as V approaches singularity.
+whitener <- function(V) {
+    ch <- tryCatch(chol(V), error = function(e) NULL)
+    if (!is.null(ch)) {
+        return(function(v) backsolve(ch, v, transpose = TRUE))
+    }
+    e <- eigen(V, symmetric = TRUE)
+    tol <- max(dim(V)) * max(e$values, 0) * .Machine$double.eps
+    keep <- e$values > tol
+    scale <- t(e$vectors[, keep, drop = FALSE]) / sqrt(e$values[keep])
+    function(v) drop(scale %*% v)
 }
 
 # A small helper used by display code.
