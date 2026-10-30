@@ -38,11 +38,11 @@ truth <- function(d) unname(coef(lm(update(form, . ~ . + u), d))["x"])
 
 | Where it appears | Name | What it is | How to read it |
 |----|----|----|----|
-| header, `$dgp$beta_med` | $`\beta_{\text{med}}`$ | the coefficient on $`X`$ from the regression you can run | the estimate under “no selection on unobservables” |
-| header, `$breakdown` | breakdown point $`\bar r_X^{bp}`$ | the smallest $`\bar r_X`$ at which the hypothesis (default: the sign of $`\beta_{\text{med}}`$) can fail | an unobservable would need to move $`X`$ at least this much, *relative to the calibration covariates*, to overturn the conclusion |
+| header, `coef(res)[["medium"]]` | $`\beta_{\text{med}}`$ | the coefficient on $`X`$ from the regression you can run | the estimate under “no selection on unobservables” |
+| header, `breakdown_point(res)` | breakdown point $`\bar r_X^{bp}`$ | the smallest $`\bar r_X`$ at which the hypothesis (default: the sign of $`\beta_{\text{med}}`$) can fail | an unobservable would need to move $`X`$ at least this much, *relative to the calibration covariates*, to overturn the conclusion |
 | [`calibrate_rho()`](https://mikenguyen13.github.io/regsensitivity/reference/calibrate_rho.md) | $`\rho_k`$ | how much covariate $`k`$ moves $`X`$ relative to the other calibration covariates | a reference scale for $`\bar r_X`$: the breakdown point is judged against these |
-| `$results` | identified set $`[\beta_{\min}, \beta_{\max}]`$ | every $`\beta_{\text{long}}`$ consistent with the data and the sensitivity parameters | the range of effects you cannot rule out at that level of selection |
-| `-Inf, +Inf` in `$results` | unbounded set | the sensitivity parameters no longer restrict $`\beta_{\text{long}}`$ | beyond this $`\bar r_X`$ the data say nothing; see `rmax` below |
+| `identified_set(res)` | identified set $`[\beta_{\min}, \beta_{\max}]`$ | every $`\beta_{\text{long}}`$ consistent with the data and the sensitivity parameters | the range of effects you cannot rule out at that level of selection |
+| `-Inf, +Inf` in `identified_set(res)` | unbounded set | the sensitivity parameters no longer restrict $`\beta_{\text{long}}`$ | beyond this $`\bar r_X`$ the data say nothing; see `rmax` below |
 | `direction = "rybar"` | $`\bar r_Y^{bp}(\bar r_X)`$ | the largest effect of the unobservable on $`Y`$ the conclusion survives, given its effect on $`X`$ | the breakdown *frontier*; `Inf` means no outcome effect can overturn it at that $`\bar r_X`$ |
 | `analysis = "oster"` | $`\delta^{bp}`$ | Oster’s relative-selection coefficient at which the hypothesis fails | $`|\delta| = 1`$ is “as much selection on unobservables as on observables”; the default sign-change value never exceeds 1 (Case 8) |
 | [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md) | confidence interval | sampling uncertainty in the breakdown point | the breakdown point is an estimate; report it with this |
@@ -92,7 +92,7 @@ set.seed(11)
 d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
 res <- regsen_bounds(form, d, compare = w1, cbar = 1)
 rho <- calibrate_rho(form, d, compare = w1)
-res$breakdown
+breakdown_point(res)
 #> [1] 0.5135717
 rho
 #>   variable      rho
@@ -113,7 +113,7 @@ all the way there:
 
 ``` r
 
-plot(res, xline = res$breakdown)
+plot(res, xline = breakdown_point(res))
 ```
 
 ![](interpreting-results_files/figure-html/robust-plot-1.png)
@@ -142,7 +142,7 @@ set.seed(12)
 d <- make_world(beta = 0, pi2 = 0.8, g2 = 0.8)
 res <- regsen_bounds(form, d, compare = w1, cbar = 1)
 rho <- calibrate_rho(form, d, compare = w1)
-c(beta_med = res$dgp$beta_med, breakdown = res$breakdown)
+c(beta_med = coef(res)[["medium"]], breakdown = breakdown_point(res))
 #>  beta_med breakdown 
 #> 0.4110880 0.3176581
 range(rho$rho) / 100
@@ -158,7 +158,7 @@ effect is 0.02.
 
 ``` r
 
-plot(res, xline = res$breakdown)
+plot(res, xline = breakdown_point(res))
 ```
 
 ![](interpreting-results_files/figure-html/fragile-plot-1.png)
@@ -180,17 +180,17 @@ $`\beta_{\text{med}}`$ itself.
 
 set.seed(11)
 d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
-regsen_breakdown(form, d, compare = w1, beta = bnd_lb(2))$results
-#>   index breakdown
-#> 1     1         0
+breakdown_frontier(regsen_breakdown(form, d, compare = w1, beta = bnd_lb(2)))
+#>   cbar breakdown
+#> 1    1         0
 ```
 
 Testing “$`\beta > 2`$” when $`\beta_{\text{med}} \approx 1`$ gives 0:
 no sensitivity analysis is needed to reject a hypothesis the point
 estimate already contradicts. The same happens with the default sign
 hypothesis when the coefficient is on the “wrong” side. Check the
-`Hypothesis:` line of the print and `res$dgp$beta_med` before reading
-anything else.
+`Hypothesis:` line of the print and `coef(res)[["medium"]]` before
+reading anything else.
 
 ## Case 4: the set is unbounded early – a weak calibration set
 
@@ -204,7 +204,7 @@ set.seed(13)
 d <- make_world(beta = 1, pi2 = 0.5, g2 = 0.5, pi1 = rep(0.08, 6))
 res <- regsen_bounds(form, d, compare = w1, cbar = 1)
 r2 <- res$dgp$covwx_norm_sq / res$dgp$var_x        # R2 of X on W1
-c(R2_x_on_w1 = r2, rmax = sqrt(1 - r2), breakdown = res$breakdown)
+c(R2_x_on_w1 = r2, rmax = sqrt(1 - r2), breakdown = breakdown_point(res))
 #> R2_x_on_w1       rmax  breakdown 
 #> 0.05820871 0.97045932 0.95321387
 calibrate_rho(form, d, compare = w1)
@@ -249,8 +249,9 @@ bform <- reformulate(c("tye_tfe890_500kNI_100_l6", geo, "statea"),
 
 ``` r
 
-bp_geo <- regsen_bounds(bform, bfg2020, compare = geo, cbar = 1)$breakdown
-bp_all <- regsen_bounds(bform, bfg2020, cbar = 1)$breakdown  # FE in W1 too
+bp_geo <- breakdown_point(regsen_bounds(bform, bfg2020, compare = geo,
+                                       cbar = 1))
+bp_all <- breakdown_point(regsen_bounds(bform, bfg2020, cbar = 1))  # FE in W1
 c(geography_only = bp_geo, geography_and_state_FE = bp_all)
 #>         geography_only geography_and_state_FE 
 #>              0.8035643              0.2909420
@@ -279,13 +280,14 @@ set, but it binds only once $`\bar r_X`$ exceeds it:
 
 set.seed(11)
 d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
-regsen_breakdown(form, d, compare = w1, cbar = c(0, 0.25, 0.5, 0.75, 1))$results
-#>   index breakdown
-#> 1  0.00 0.5985359
-#> 2  0.25 0.5354206
-#> 3  0.50 0.5136354
-#> 4  0.75 0.5135717
-#> 5  1.00 0.5135717
+breakdown_frontier(regsen_breakdown(form, d, compare = w1,
+                                     cbar = c(0, 0.25, 0.5, 0.75, 1)))
+#>   cbar breakdown
+#> 1 0.00 0.5985359
+#> 2 0.25 0.5354206
+#> 3 0.50 0.5136354
+#> 4 0.75 0.5135717
+#> 5 1.00 0.5135717
 ```
 
 The breakdown point is the same for every `cbar` at or above it. So if
@@ -312,7 +314,8 @@ overturns the sign once the outcome channel is capped tightly enough.
 set.seed(11)
 d <- make_world(beta = 1, pi2 = 0.2, g2 = 0.3, sy = 0.6)
 sapply(c(Inf, 2, 1, 0.5), function(ry) {
-    regsen_breakdown(form, d, compare = w1, cbar = 1, rybar = ry)$results$breakdown
+    breakdown_point(regsen_breakdown(form, d, compare = w1, cbar = 1,
+                                     rybar = ry))
 })
 #> [1] 0.5135717 0.5135895 0.5135895       Inf
 ```
@@ -326,8 +329,8 @@ $`\bar r_Y`$ may be:
 
 fr <- regsen_breakdown(form, d, compare = w1, cbar = 1,
                        direction = "rybar", rxbar = c(0.25, 0.5, 1, 2))
-fr$results
-#>   index breakdown
+breakdown_frontier(fr)
+#>   rxbar breakdown
 #> 1  0.25       Inf
 #> 2  0.50       Inf
 #> 3  1.00 0.5099323
@@ -363,10 +366,13 @@ $`0.974`$.
 
 set.seed(12)
 d <- make_world(beta = 0, pi2 = 0.8, g2 = 0.8)
-d_eq   <- regsen_breakdown(form, d, compare = w1, analysis = "oster",
-                           r2long = 1, beta = bnd_eq(0))$results$breakdown
-d_sign <- regsen_breakdown(form, d, compare = w1, analysis = "oster",
-                           r2long = 1)$results$breakdown
+os_eq   <- regsen_breakdown(form, d, compare = w1, analysis = "oster",
+                            r2long = 1, beta = bnd_eq(0))
+os_sign <- regsen_breakdown(form, d, compare = w1, analysis = "oster",
+                            r2long = 1)
+# signed = TRUE: the sign of the explain away delta is part of the answer
+d_eq   <- breakdown_point(os_eq, signed = TRUE)
+d_sign <- breakdown_point(os_sign)
 c(explain_away = d_eq, sign_change = d_sign)
 #> explain_away  sign_change 
 #>    0.8897076    0.6775042
@@ -421,16 +427,11 @@ bb <- regsen_boot(bform, bfg2020, compare = geo, cbar = 1,
 bb
 #> Bootstrap confidence interval for the breakdown point
 #> ------------------------------------------------------------
-#>   R                  : 199
-#>   Cluster bootstrap  : km_grid_cel_code
-#>   Interval           : BCa
-#>   Bias corr. (z0)    : 1.1233
-#>   Acceleration       : -0.0008
-#>   Confidence level   : 95%
 #>   Point estimate     : 0.8036
-#>   95% CI            : [0.7465, 0.9025]
-#>   (An endpoint is an extreme replicate; raise R)
-#>   95% CI (percentile): [0.4997, 0.8612]
+#>   95% CI (BCa)       : [0.7465, 0.9025]
+#>   Replicates         : 199, resampling clusters of km_grid_cel_code
+#> 
+#> Use summary() for the replicate distribution and both intervals.
 ```
 
 Read the BCa interval as the default; the percentile one is printed for
@@ -514,8 +515,8 @@ For a sensitivity analysis a referee can evaluate, the paper needs:
     and optionally their pairwise partial $`R^2`$
     ([`calibrate_partial_r2()`](https://mikenguyen13.github.io/regsensitivity/reference/calibrate_partial_r2.md)).
 4.  One figure: the identified set against $`\bar r_X`$ with the
-    breakdown point marked (`plot(res, xline = res$breakdown)`), or the
-    frontier.
+    breakdown point marked (`plot(res, xline = breakdown_point(res))`),
+    or the frontier.
 5.  If Oster’s $`\delta`$ is reported: the sign-change breakdown, the
     `r2long` used, and whether `maxovb` was imposed.
 6.  A sentence saying what magnitude of omitted variable the conclusion

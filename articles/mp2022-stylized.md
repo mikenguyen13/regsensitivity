@@ -117,11 +117,11 @@ $`\beta_{med}`$ rules one out and the breakdown point is $`+\infty`$:
 
 ``` r
 
-bmed <- regsen_bounds(form, dat, analysis = "oster",
-                       delta = 0, r2long = 1)$dgp$beta_med
+bmed <- coef(regsen_bounds(form, dat, analysis = "oster",
+                            delta = 0, r2long = 1))[["medium"]]
 sapply(c(0.5, 1, round(bmed, 3) + 0.001), function(M) {
-    regsen_breakdown(form, dat, analysis = "oster",
-                      r2long = 1, maxovb = M)$results$breakdown[1]
+    breakdown_point(regsen_breakdown(form, dat, analysis = "oster",
+                                     r2long = 1, maxovb = M))[1]
 })
 #> [1]      Inf      Inf 1.233942
 ```
@@ -137,11 +137,11 @@ out <- lapply(ovbs, function(M) {
     r <- regsen_breakdown(form, dat,
                            analysis = "oster",
                            r2long = 1, maxovb = M)
-    data.frame(maxovb = M, breakdown = r$results$breakdown[1])
+    data.frame(maxovb = M, breakdown = breakdown_point(r)[1])
 })
 out <- do.call(rbind, out)
-uncapped <- regsen_breakdown(form, dat, analysis = "oster",
-                              r2long = 1)$results$breakdown[1]
+uncapped <- breakdown_point(regsen_breakdown(form, dat, analysis = "oster",
+                                             r2long = 1))[1]
 
 ggplot(out, aes(maxovb, breakdown)) +
     geom_hline(yintercept = 1, linetype = "dotted", colour = "grey40") +
@@ -176,6 +176,6 @@ results <- lapply(study_list, function(study) {
                              analysis = "oster",
                              r2long = 1, maxovb = study$maxovb,
                              beta = bnd_eq(0))
-    out$results$breakdown[1]
+    breakdown_point(out, signed = TRUE)[1]
 })
 ```

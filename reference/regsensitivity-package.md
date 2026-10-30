@@ -19,6 +19,11 @@ with omitted variables.
 - [`plot.regsensitivity()`](https://mikenguyen13.github.io/regsensitivity/reference/plot.regsensitivity.md)
   – ggplot2 visualization
 
+- [`breakdown_point()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md),
+  [`identified_set()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md),
+  [`breakdown_frontier()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  – accessors for the reported quantities
+
 ## Reference data
 
 - [bfg2020](https://mikenguyen13.github.io/regsensitivity/reference/bfg2020.md)

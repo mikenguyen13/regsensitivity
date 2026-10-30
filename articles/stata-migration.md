@@ -99,25 +99,15 @@ summ
 #> 
 #> === DMP (2026) bounds ===
 #> 
-#> Regression Sensitivity Analysis ----- Bounds
+#> Regression Sensitivity Analysis -- Bounds [DMP (2026)]
 #> ------------------------------------------------------------------------
-#> Analysis:          DMP (2026)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     2.0548
 #> Hypothesis:        Beta > 0
 #> Breakdown point:   0.8036
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.9246
-#>   Beta (medium)                 2.0548
-#>   R2 (short)                    0.0328
-#>   R2 (medium)                   0.1051
-#>   Var(Y)                      101.7387
-#>   Var(X)                        0.9014
-#>   Var(X_Residual)               0.8823
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>     rxbar rybar   cbar     bmin   bmax
 #>         0  +Inf      1   2.0548 2.0548
 #>  0.098939  +Inf      1   1.9064 2.2031
@@ -131,26 +121,18 @@ summ
 #>   0.89045  +Inf      1 -0.99272 5.1022
 #>   0.98939  +Inf      1     -Inf   +Inf
 #> 
+#> Use summary() for the specification and full results.
+#> 
 #> === Oster (2019) breakdown ===
 #> 
-#> Regression Sensitivity Analysis ----- Breakdown Frontier
+#> Regression Sensitivity Analysis -- Breakdown Frontier [Oster (2019)]
 #> ------------------------------------------------------------------------
-#> Analysis:          Oster (2019)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     2.0548
 #> Hypothesis:        Beta > 0
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.9246
-#>   Beta (medium)                 2.0548
-#>   R2 (short)                    0.0328
-#>   R2 (medium)                   0.1051
-#>   Var(Y)                      101.7387
-#>   Var(X)                        0.9014
-#>   Var(X_Residual)               0.8823
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>    index breakdown
 #>  0.13667   0.97393
 #>  0.23667   0.97315
@@ -162,6 +144,8 @@ summ
 #>  0.83667   0.96739
 #>  0.93667   0.96622
 #>        1   0.96543
+#> 
+#> Use summary() for the specification and full results.
 ```
 
 ### Bounds at a single `cbar`
@@ -237,24 +221,14 @@ bd_ub <- regsen_breakdown(form, bfg2020, compare = w1,
                            cbar = seq(0, 1, 0.1), beta = bnd_ub(4))
 bd_ub
 #> 
-#> Regression Sensitivity Analysis ----- Breakdown Frontier
+#> Regression Sensitivity Analysis -- Breakdown Frontier [DMP (2026)]
 #> ------------------------------------------------------------------------
-#> Analysis:          DMP (2026)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     2.0548
 #> Hypothesis:        Beta < 4
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.9246
-#>   Beta (medium)                 2.0548
-#>   R2 (short)                    0.0328
-#>   R2 (medium)                   0.1051
-#>   Var(Y)                      101.7387
-#>   Var(X)                        0.9014
-#>   Var(X_Residual)               0.8823
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>   index breakdown
 #>       0    1.2807
 #>     0.1    1.1404
@@ -267,6 +241,8 @@ bd_ub
 #>     0.8   0.78819
 #>     0.9   0.78819
 #>       1   0.78819
+#> 
+#> Use summary() for the specification and full results.
 ```
 
 ### Bounding the unobservable’s effect on the outcome
@@ -281,7 +257,7 @@ regsensitivity bounds `y' `x' `w', compare(`w1') rybar(=rxbar)
 b_ry  <- regsen_bounds(form, bfg2020, compare = w1, rybar = 2)
 b_eq  <- regsen_bounds(form, bfg2020, compare = w1,
                         rybar_expr = function(rx) rx)
-c(rybar_2 = b_ry$breakdown, rybar_eq = b_eq$breakdown)
+c(rybar_2 = breakdown_point(b_ry), rybar_eq = breakdown_point(b_eq))
 #>   rybar_2  rybar_eq 
 #> 0.8035475 0.9583504
 ```
@@ -330,8 +306,8 @@ os_sign <- regsen_breakdown(form, bfg2020, compare = w1,
                              analysis = "oster",
                              r2long = seq(0, 1, 0.1),
                              beta = "sign")
-c(explain_away = os_bd$results$breakdown[1],
-  sign_change  = os_sign$results$breakdown[1])
+c(explain_away = breakdown_point(os_bd, signed = TRUE)[1],
+  sign_change  = breakdown_point(os_sign)[1])
 #> explain_away  sign_change 
 #>          Inf          Inf
 plot(os_sign)
@@ -361,10 +337,10 @@ overturns the conclusion.
 
 ``` r
 
-regsen_breakdown(form, bfg2020, compare = w1, cbar = 1,
-                  direction = "rybar",
-                  rxbar = c(0.5, 1, 2, 4))$results
-#>   index breakdown
+breakdown_frontier(regsen_breakdown(form, bfg2020, compare = w1, cbar = 1,
+                                   direction = "rybar",
+                                   rxbar = c(0.5, 1, 2, 4)))
+#>   rxbar breakdown
 #> 1   0.5       Inf
 #> 2   1.0 0.8632973
 #> 3   2.0 0.5901671
@@ -376,8 +352,8 @@ are *at least* that endogenous, which narrows the identified set.
 
 ``` r
 
-regsen_bounds(form, bfg2020, compare = w1, cbar = 1, clow = 0.99,
-               rxbar = c(0.5, 0.9))$results
+identified_set(regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
+                             clow = 0.99, rxbar = c(0.5, 0.9)))
 #>   rxbar rybar cbar      bmin     bmax
 #> 1   0.5   Inf    1 1.8463561 2.263163
 #> 2   0.9   Inf    1 0.2911616 3.818357
@@ -389,8 +365,8 @@ previously stopped:
 
 ``` r
 
-regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
-               rxbar = 2, rybar = 0.5)$results
-#>   rxbar rybar cbar      bmin     bmax
-#> 1     2   0.5    1 0.4241849 3.774923
+identified_set(regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
+                             rxbar = 2, rybar = 0.5))
+#>   rxbar rybar cbar     bmin     bmax
+#> 1     2   0.5    1 0.424218 3.774923
 ```

@@ -135,15 +135,10 @@ bb <- regsen_boot(form, bfg2020, compare = w1, cbar = 1,
 print(bb)
 #> Bootstrap confidence interval for the breakdown point
 #> ------------------------------------------------------------
-#>   R                  : 199
-#>   Cluster bootstrap  : km_grid_cel_code
-#>   Interval           : BCa
-#>   Bias corr. (z0)    : 1.1233
-#>   Acceleration       : -0.0008
-#>   Confidence level   : 95%
 #>   Point estimate     : 0.8036
-#>   95% CI            : [0.7465, 0.9025]
-#>   (An endpoint is an extreme replicate; raise R)
-#>   95% CI (percentile): [0.4997, 0.8612]
+#>   95% CI (BCa)       : [0.7465, 0.9025]
+#>   Replicates         : 199, resampling clusters of km_grid_cel_code
+#> 
+#> Use summary() for the replicate distribution and both intervals.
 # }
 ```

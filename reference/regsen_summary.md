@@ -8,6 +8,18 @@ analysis at a few standard r2long values.
 
 ``` r
 regsen_summary(formula, data, compare = NULL, nocompare = NULL, subset = NULL)
+
+# S3 method for class 'regsensitivity_summary'
+print(x, ...)
+
+# S3 method for class 'regsensitivity_summary'
+summary(object, ...)
+
+# S3 method for class 'summary.regsensitivity_summary'
+print(x, ...)
+
+# S3 method for class 'regsensitivity_summary'
+plot(x, which = c("both", "dmp", "oster"), ...)
 ```
 
 ## Arguments
@@ -37,10 +49,31 @@ regsen_summary(formula, data, compare = NULL, nocompare = NULL, subset = NULL)
   Optional logical or integer vector indicating which rows of `data` to
   include in the estimation.
 
+- x, object:
+
+  A `regsensitivity_summary` object, or for the
+  [`print()`](https://rdrr.io/r/base/print.html) method of its summary,
+  a `summary.regsensitivity_summary` object.
+
+- ...:
+
+  Passed to the methods for the two component analyses.
+
+- which:
+
+  Which panel to draw: `"both"` (default) side by side, or `"dmp"` or
+  `"oster"` alone.
+
 ## Value
 
 A list with elements `dmp_bounds` and `oster_breakdown`, each a
 `regsensitivity` object.
+
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) returns a
+`ggplot` for a single panel. For both it returns a list of the two, of
+class `regsensitivity_plots`, whose print method draws them side by
+side; each element is an ordinary `ggplot` that can be modified and
+drawn on its own.
 
 ## Examples
 
@@ -55,25 +88,15 @@ print(s)
 #> 
 #> === DMP (2026) bounds ===
 #> 
-#> Regression Sensitivity Analysis ----- Bounds
+#> Regression Sensitivity Analysis -- Bounds [DMP (2026)]
 #> ------------------------------------------------------------------------
-#> Analysis:          DMP (2026)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     1.3854
 #> Hypothesis:        Beta > 0
 #> Breakdown point:   0.3749
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.7078
-#>   Beta (medium)                 1.3854
-#>   R2 (short)                    0.0269
-#>   R2 (medium)                   0.0718
-#>   Var(Y)                      136.3204
-#>   Var(X)                        1.2574
-#>   Var(X_Residual)               1.1391
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>    rxbar rybar   cbar      bmin   bmax
 #>        0  +Inf      1    1.3854 1.3854
 #>  0.09518  +Inf      1    1.0605 1.7103
@@ -87,26 +110,18 @@ print(s)
 #>  0.85662  +Inf      1   -5.2891   8.06
 #>   0.9518  +Inf      1      -Inf   +Inf
 #> 
+#> Use summary() for the specification and full results.
+#> 
 #> === Oster (2019) breakdown ===
 #> 
-#> Regression Sensitivity Analysis ----- Breakdown Frontier
+#> Regression Sensitivity Analysis -- Breakdown Frontier [Oster (2019)]
 #> ------------------------------------------------------------------------
-#> Analysis:          Oster (2019)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     1.3854
 #> Hypothesis:        Beta > 0
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.7078
-#>   Beta (medium)                 1.3854
-#>   R2 (short)                    0.0269
-#>   R2 (medium)                   0.0718
-#>   Var(Y)                      136.3204
-#>   Var(X)                        1.2574
-#>   Var(X_Residual)               1.1391
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>     index breakdown
 #>  0.093344         1
 #>   0.19334         1
@@ -119,4 +134,6 @@ print(s)
 #>   0.89334   0.18456
 #>   0.99334   0.16488
 #>         1   0.16371
+#> 
+#> Use summary() for the specification and full results.
 ```

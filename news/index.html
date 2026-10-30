@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,6 +49,27 @@
       <small>Source: <a href="https://github.com/mikenguyen13/regsensitivity/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="regsensitivity-030">regsensitivity 0.3.0<a class="anchor" aria-label="anchor" href="#regsensitivity-030"></a></h2>
+<div class="section level3">
+<h3 id="results-are-read-through-accessors-not-fields-0-3-0">Results are read through accessors, not fields<a class="anchor" aria-label="anchor" href="#results-are-read-through-accessors-not-fields-0-3-0"></a></h3>
+<ul><li>New accessors <code><a href="../reference/regsensitivity-accessors.html">breakdown_point()</a></code>, <code><a href="../reference/regsensitivity-accessors.html">breakdown_frontier()</a></code>, <code><a href="../reference/regsensitivity-accessors.html">identified_set()</a></code> and <code><a href="../reference/regsensitivity-accessors.html">sensitivity_params()</a></code>, with <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs()</a></code> methods, return the reported quantities without reaching into the object. <code><a href="../reference/regsensitivity-accessors.html">breakdown_point()</a></code> reports the magnitude, as <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> does; <code>signed = TRUE</code> keeps the sign an Oster delta carries. <code><a href="../reference/regsensitivity-accessors.html">breakdown_frontier()</a></code> names its first column after the parameter swept rather than <code>index</code>. The vignettes and replication scripts now use them.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="print-and-summary-say-different-things-0-3-0">print() and summary() say different things<a class="anchor" aria-label="anchor" href="#print-and-summary-say-different-things-0-3-0"></a></h3>
+<ul><li><p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> on a <code>regsensitivity</code> object is now the headline: the model, the medium-regression coefficient, the hypothesis, the breakdown point and a thinned results table. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> used to print exactly the same thing. It now adds the call, the control and comparison sets, every sensitivity parameter, the summary statistics and the full results table; for an identified-set sweep that table gains a <code>holds</code> column, <code>TRUE</code> where the set lies wholly on the hypothesis’ side.</p></li>
+<li><p><code><a href="../reference/regsen_boot.html">regsen_boot()</a></code>, <code><a href="../reference/regsen_multi.html">regsen_multi()</a></code> and <code><a href="../reference/regsen_summary.html">regsen_summary()</a></code> results gain the methods they lacked. Each now has <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>: the bootstrap summary adds the bootstrap standard error, the bias, both intervals and the replicate quantiles, and its plot draws the replicates with the interval shaded; <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code> returns the interval and recomputes it at another <code>level</code> or <code>type</code> from the stored replicates. The multi-treatment summary ranks treatments from most to least fragile and counts those whose breakdown point is below 1. <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> on a <code><a href="../reference/regsen_summary.html">regsen_summary()</a></code> result draws the DMP bounds and the Oster frontier side by side. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on these used to fall through to <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary.default()</a></code>.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="regsensitivity-takes-the-formula-first-0-3-0">regsensitivity() takes the formula first<a class="anchor" aria-label="anchor" href="#regsensitivity-takes-the-formula-first-0-3-0"></a></h3>
+<ul><li>
+<code>regsensitivity(formula, data, subcommand = "bounds", ...)</code>, following the R convention for formula interfaces; the subcommand used to come first, as in Stata. The old order still runs, with a deprecation warning.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="quadratic-forms-no-longer-invert-varw1-0-3-0">Quadratic forms no longer invert Var(W1)<a class="anchor" aria-label="anchor" href="#quadratic-forms-no-longer-invert-varw1-0-3-0"></a></h3>
+<ul><li>The summary statistics need <code>u' Var(W1)^{-1} v</code> for several <code>u</code>, <code>v</code>. They were computed through an explicit inverse, from <code><a href="https://rdrr.io/r/base/chol2inv.html" class="external-link">chol2inv()</a></code> or, when the Cholesky factorization failed, <code><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve()</a></code> on a ridge-perturbed matrix. Each vector is now whitened once by a triangular solve on the Cholesky factor and the forms are <code><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod()</a></code>s of the results. The fallback for a matrix singular to working precision is the symmetric eigendecomposition, which gives the pseudo-inverse rather than an inverse whose entries grow without bound. Results are unchanged to the digits the numeric snapshots record.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="regsensitivity-020">regsensitivity 0.2.0<a class="anchor" aria-label="anchor" href="#regsensitivity-020"></a></h2><p class="text-muted">CRAN release: 2026-10-20</p>
 <div class="section level3">

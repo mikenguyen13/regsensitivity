@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -155,7 +155,7 @@ on every build rather than asserted in prose:</p>
 <span>                  <span class="st">"r^bp at cbar = 1, rybar = rxbar"</span><span class="op">)</span>,</span>
 <span>    published <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.804</span>, <span class="fl">0.959</span><span class="op">)</span>,</span>
 <span>    digits    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>,          <span class="co"># as printed in the paper's Table 1</span></span>
-<span>    computed  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">bp_conservative</span><span class="op">$</span><span class="va">breakdown</span>, <span class="va">bp_relaxed</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span></span>
+<span>    computed  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">bp_conservative</span><span class="op">)</span>, <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">bp_relaxed</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">cmp</span>, caption <span class="op">=</span> <span class="st">"Breakdown points: this package vs DMP (2026)."</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -506,8 +506,8 @@ values. All three are reproduced below.</p>
 <p>The two zero crossings are the two breakdown points of Table 1, Panel
 C:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rybar_inf   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">solid</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span>,     <span class="co"># paper: 0.804</span></span>
-<span>  rybar_rxbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">dashed</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span><span class="op">)</span>    <span class="co"># paper: 0.959</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rybar_inf   <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">solid</span><span class="op">)</span>,     <span class="co"># paper: 0.804</span></span>
+<span>  rybar_rxbar <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">dashed</span><span class="op">)</span><span class="op">)</span>    <span class="co"># paper: 0.959</span></span>
 <span><span class="co">#&gt;   rybar_inf rybar_rxbar </span></span>
 <span><span class="co">#&gt;   0.8035643   0.9583504</span></span></code></pre></div>
 </div>
@@ -532,7 +532,7 @@ at each
 <code class="sourceCode R"><span><span class="va">frontier</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">cbar</span>, <span class="va">rxs</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="va">cbar</span>,</span>
 <span>                           direction <span class="op">=</span> <span class="st">"rybar"</span>, rxbar <span class="op">=</span> <span class="va">rxs</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>rxbar <span class="op">=</span> <span class="va">rxs</span>, rybar <span class="op">=</span> <span class="va">r</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>rxbar <span class="op">=</span> <span class="va">rxs</span>, rybar <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>,</span>
 <span>               cbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">cbar</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
@@ -590,8 +590,8 @@ answer, and on it there is none, because no
 overturns the sign there.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7</span>, <span class="fl">0.6</span>, <span class="fl">0.55</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">ry</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
-<span>                     cbar <span class="op">=</span> <span class="fl">1</span>, rybar <span class="op">=</span> <span class="va">ry</span><span class="op">)</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span></span>
+<span>    <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
+<span>                                     cbar <span class="op">=</span> <span class="fl">1</span>, rybar <span class="op">=</span> <span class="va">ry</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1.074537 1.395827      Inf      Inf</span></span></code></pre></div>
 <p>The identified set at those larger
@@ -602,10 +602,10 @@ alone would say nothing there – restricting
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>Y</mi></msub><annotation encoding="application/x-tex">\bar r_Y</annotation></semantics></math>
 is what keeps it finite:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
-<span>              cbar <span class="op">=</span> <span class="fl">1</span>, rxbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">10</span><span class="op">)</span>, rybar <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">$</span><span class="va">results</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/regsensitivity-accessors.html">identified_set</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
+<span>                             cbar <span class="op">=</span> <span class="fl">1</span>, rxbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">10</span><span class="op">)</span>, rybar <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   rxbar rybar cbar      bmin     bmax</span></span>
-<span><span class="co">#&gt; 1     2   0.5    1 0.4241849 3.774923</span></span>
+<span><span class="co">#&gt; 1     2   0.5    1 0.4242180 3.774923</span></span>
 <span><span class="co">#&gt; 2     4   0.5    1 0.4239135 3.774923</span></span>
 <span><span class="co">#&gt; 3    10   0.5    1 0.4239135 3.774923</span></span></code></pre></div>
 </div>
@@ -672,8 +672,8 @@ illustration that
 is only interpretable relative to the calibration covariates:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fig3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">w1</span>, <span class="st">"statea"</span><span class="op">)</span>, cbar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`w1 only`            <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">bp_conservative</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span>,  <span class="co"># paper: ~0.80</span></span>
-<span>  `w1 + state effects` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">fig3</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span><span class="op">)</span>             <span class="co"># paper: ~0.30</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`w1 only`            <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">bp_conservative</span><span class="op">)</span>,  <span class="co"># paper: ~0.80</span></span>
+<span>  `w1 + state effects` <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">fig3</span><span class="op">)</span><span class="op">)</span>             <span class="co"># paper: ~0.30</span></span>
 <span><span class="co">#&gt;            w1 only w1 + state effects </span></span>
 <span><span class="co">#&gt;          0.8035643          0.2909420</span></span></code></pre></div>
 <p>The full figure, with both panels next to the published ones, is on

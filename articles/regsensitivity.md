@@ -128,25 +128,15 @@ $`(-\infty,+\infty)`$, holding `cbar` fixed at the supplied value.
 bnds <- regsen_bounds(form, bfg2020, compare = compare, cbar = 0.1)
 print(bnds)
 #> 
-#> Regression Sensitivity Analysis ----- Bounds
+#> Regression Sensitivity Analysis -- Bounds [DMP (2026)]
 #> ------------------------------------------------------------------------
-#> Analysis:          DMP (2026)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     2.0548
 #> Hypothesis:        Beta > 0
 #> Breakdown point:   1.1947
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.9246
-#>   Beta (medium)                 2.0548
-#>   R2 (short)                    0.0328
-#>   R2 (medium)                   0.1051
-#>   Var(Y)                      101.7387
-#>   Var(X)                        0.9014
-#>   Var(X_Residual)               0.8823
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>   rxbar rybar   cbar     bmin   bmax
 #>       0  +Inf    0.1   2.0548 2.0548
 #>  0.4063  +Inf    0.1   1.4249 2.6846
@@ -159,6 +149,8 @@ print(bnds)
 #>  3.2504  +Inf    0.1  -8.0056 12.115
 #>  3.6567  +Inf    0.1  -13.822 17.932
 #>   4.063  +Inf    0.1     -Inf   +Inf
+#> 
+#> Use summary() for the specification and full results.
 ```
 
 The bounds widen monotonically as `rxbar` (the strength of the
@@ -202,25 +194,15 @@ call:
 fin <- regsen_bounds(form, bfg2020, compare = compare, rybar = 2)
 print(fin)
 #> 
-#> Regression Sensitivity Analysis ----- Bounds
+#> Regression Sensitivity Analysis -- Bounds [DMP (2026)]
 #> ------------------------------------------------------------------------
-#> Analysis:          DMP (2026)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     2.0548
 #> Hypothesis:        Beta > 0
 #> Breakdown point:   0.8035
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.9246
-#>   Beta (medium)                 2.0548
-#>   R2 (short)                    0.0328
-#>   R2 (medium)                   0.1051
-#>   Var(Y)                      101.7387
-#>   Var(X)                        0.9014
-#>   Var(X_Residual)               0.8823
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>     rxbar  rybar   cbar     bmin   bmax
 #>         0      2      1   2.0548 2.0548
 #>  0.098939      2      1   1.9107 2.2007
@@ -233,6 +215,8 @@ print(fin)
 #>   0.79151      2      1 0.086812 4.0227
 #>   0.89045      2      1 -0.99272 5.1022
 #>   0.98939      2      1     -Inf   +Inf
+#> 
+#> Use summary() for the specification and full results.
 ```
 
 You can also express `rybar` as a function of `rxbar`,
@@ -243,7 +227,7 @@ e.g. `rybar = rxbar`:
 expr <- regsen_bounds(form, bfg2020, compare = compare,
                        rybar_expr = function(rx) rx,
                        rxbar = seq(0, 1, 0.1))
-expr$results
+identified_set(expr)
 #>    rxbar rybar cbar     bmin     bmax
 #> 1    0.0   0.0    1 2.054759 2.054759
 #> 2    0.1   0.1    1 2.050500 2.059033
@@ -281,24 +265,14 @@ hyp <- regsen_breakdown(form, bfg2020, compare = compare,
                          beta = bnd_lb(seq(-1, 1, 0.2)))
 print(hyp)
 #> 
-#> Regression Sensitivity Analysis ----- Breakdown Frontier
+#> Regression Sensitivity Analysis -- Breakdown Frontier [DMP (2026)]
 #> ------------------------------------------------------------------------
-#> Analysis:          DMP (2026)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     2.0548
 #> Hypothesis:        Beta > Beta(Hypothesis)
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.9246
-#>   Beta (medium)                 2.0548
-#>   R2 (short)                    0.0328
-#>   R2 (medium)                   0.1051
-#>   Var(Y)                      101.7387
-#>   Var(X)                        0.9014
-#>   Var(X_Residual)               0.8823
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>   index breakdown
 #>      -1   0.89085
 #>    -0.8   0.87887
@@ -311,6 +285,8 @@ print(hyp)
 #>     0.6   0.69452
 #>     0.8   0.64083
 #>       1   0.57525
+#> 
+#> Use summary() for the specification and full results.
 ```
 
 ### The frontier in the other direction
@@ -326,8 +302,8 @@ trace the same curve in the $`(\bar r_X, \bar r_Y)`$ plane.
 fr <- regsen_breakdown(form, bfg2020, compare = compare, cbar = 1,
                         direction = "rybar",
                         rxbar = c(0.5, 1, 2, 4))
-fr$results
-#>   index breakdown
+breakdown_frontier(fr)
+#>   rxbar breakdown
 #> 1   0.5       Inf
 #> 2   1.0 0.8632973
 #> 3   2.0 0.5901671
@@ -348,8 +324,8 @@ narrows the identified set rather than widening it.
 ``` r
 
 vapply(c(0, 0.9, 0.99), function(cl) {
-    regsen_breakdown(form, bfg2020, compare = compare,
-                      cbar = 1, clow = cl)$results$breakdown
+    breakdown_point(regsen_breakdown(form, bfg2020, compare = compare,
+                                     cbar = 1, clow = cl))
 }, numeric(1))
 #> [1] 0.8035643 0.8177462 0.9136661
 ```
@@ -364,25 +340,15 @@ o <- regsen_bounds(form, bfg2020, compare = compare,
                     analysis = "oster")
 print(o)
 #> 
-#> Regression Sensitivity Analysis ----- Bounds
+#> Regression Sensitivity Analysis -- Bounds [Oster (2019)]
 #> ------------------------------------------------------------------------
-#> Analysis:          Oster (2019)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     2.0548
 #> Hypothesis:        Beta > 0
 #> Breakdown point:   1.7039
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.9246
-#>   Beta (medium)                 2.0548
-#>   R2 (short)                    0.0328
-#>   R2 (medium)                   0.1051
-#>   Var(Y)                      101.7387
-#>   Var(X)                        0.9014
-#>   Var(X_Residual)               0.8823
-#> 
-#> --- Results ---------------------------------------------
+#> Results (11 of 21 rows):
 #>   delta r2long   beta1  beta2 beta3
 #>      -1      1 0.69842             
 #>    -0.8      1 0.93048             
@@ -394,7 +360,9 @@ print(o)
 #>     0.4      1  2.7747             
 #>     0.6      1  3.1917             
 #>     0.8      1  3.6595             
-#>       1      1 -46.171 4.1944
+#>       1      1 -46.171 4.1944      
+#> 
+#> Use summary() for the specification and full results.
 ```
 
 Plotting the equality identified set (rotated so that delta is on the
@@ -487,25 +455,15 @@ print(s)
 #> 
 #> === DMP (2026) bounds ===
 #> 
-#> Regression Sensitivity Analysis ----- Bounds
+#> Regression Sensitivity Analysis -- Bounds [DMP (2026)]
 #> ------------------------------------------------------------------------
-#> Analysis:          DMP (2026)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     2.0548
 #> Hypothesis:        Beta > 0
 #> Breakdown point:   0.8036
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.9246
-#>   Beta (medium)                 2.0548
-#>   R2 (short)                    0.0328
-#>   R2 (medium)                   0.1051
-#>   Var(Y)                      101.7387
-#>   Var(X)                        0.9014
-#>   Var(X_Residual)               0.8823
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>     rxbar rybar   cbar     bmin   bmax
 #>         0  +Inf      1   2.0548 2.0548
 #>  0.098939  +Inf      1   1.9064 2.2031
@@ -519,26 +477,18 @@ print(s)
 #>   0.89045  +Inf      1 -0.99272 5.1022
 #>   0.98939  +Inf      1     -Inf   +Inf
 #> 
+#> Use summary() for the specification and full results.
+#> 
 #> === Oster (2019) breakdown ===
 #> 
-#> Regression Sensitivity Analysis ----- Breakdown Frontier
+#> Regression Sensitivity Analysis -- Breakdown Frontier [Oster (2019)]
 #> ------------------------------------------------------------------------
-#> Analysis:          Oster (2019)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     2.0548
 #> Hypothesis:        Beta > 0
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.9246
-#>   Beta (medium)                 2.0548
-#>   R2 (short)                    0.0328
-#>   R2 (medium)                   0.1051
-#>   Var(Y)                      101.7387
-#>   Var(X)                        0.9014
-#>   Var(X_Residual)               0.8823
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>    index breakdown
 #>  0.13667   0.97393
 #>  0.23667   0.97315
@@ -550,6 +500,8 @@ print(s)
 #>  0.83667   0.96739
 #>  0.93667   0.96622
 #>        1   0.96543
+#> 
+#> Use summary() for the specification and full results.
 ```
 
 ## References

@@ -151,25 +151,15 @@ bnds <- regsen_bounds(
 )
 print(bnds)
 #> 
-#> Regression Sensitivity Analysis ----- Bounds
+#> Regression Sensitivity Analysis -- Bounds [DMP (2026)]
 #> ------------------------------------------------------------------------
-#> Analysis:          DMP (2026)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     1.5864
 #> Hypothesis:        Beta > 0
 #> Breakdown point:   0.3726
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.7078
-#>   Beta (medium)                 1.5864
-#>   R2 (short)                    0.0269
-#>   R2 (medium)                   0.1345
-#>   Var(Y)                      136.3204
-#>   Var(X)                        1.2574
-#>   Var(X_Residual)               1.0903
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>    rxbar rybar   cbar     bmin   bmax
 #>        0  +Inf    0.1   1.5864 1.5864
 #>  0.20427  +Inf    0.1   0.7386 2.4343
@@ -182,4 +172,6 @@ print(bnds)
 #>   1.6342  +Inf    0.1  -10.614 13.786
 #>   1.8385  +Inf    0.1  -17.445 20.618
 #>   2.0427  +Inf    0.1     -Inf   +Inf
+#> 
+#> Use summary() for the specification and full results.
 ```

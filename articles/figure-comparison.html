@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -152,8 +152,8 @@ The marks on the zero line are the Table 4 calibration values.</p>
 <p><img src="figure-comparison_files/figure-html/fig1-left-1.png" class="r-plt" alt="" width="930"></p>
 <p>The two curves cross zero at the paper’s two breakdown points:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`rybar = Inf`   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">solid</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span>,    <span class="co"># paper: 0.804</span></span>
-<span>  `rybar = rxbar` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">dashed</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span><span class="op">)</span>   <span class="co"># paper: 0.959 (96% in prose)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`rybar = Inf`   <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">solid</span><span class="op">)</span>,    <span class="co"># paper: 0.804</span></span>
+<span>  `rybar = rxbar` <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">dashed</span><span class="op">)</span><span class="op">)</span>   <span class="co"># paper: 0.959 (96% in prose)</span></span>
 <span><span class="co">#&gt;   rybar = Inf rybar = rxbar </span></span>
 <span><span class="co">#&gt;     0.8035643     0.9583504</span></span></code></pre></div>
 <p>Both bounds go infinite at
@@ -187,7 +187,7 @@ space, one curve per
 <span>    <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">mclapply</a></span><span class="op">(</span><span class="va">rxs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">rx</span><span class="op">)</span> <span class="op">{</span></span>
 <span>        <span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w</span>, cbar <span class="op">=</span> <span class="va">cbar</span>,</span>
 <span>                               direction <span class="op">=</span> <span class="st">"rybar"</span>, rxbar <span class="op">=</span> <span class="va">rx</span><span class="op">)</span></span>
-<span>        <span class="va">r</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span>        <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span>    <span class="op">}</span>, mc.cores <span class="op">=</span> <span class="va">cores</span><span class="op">)</span></span>
 <span>    <span class="va">ry</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">res</span>, <span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">is.numeric</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">)</span> <span class="va">z</span> <span class="kw">else</span> <span class="cn">NA_real_</span>,</span>
 <span>                 <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -248,16 +248,16 @@ leaves the conclusion standing.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Far out on the horizontal arm, where the identified set is still</span></span>
 <span><span class="co"># bounded because rybar is restricted even though rxbar is not.</span></span>
-<span><span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>              rxbar <span class="op">=</span> <span class="fl">2</span>, rybar <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span><span class="op">$</span><span class="va">results</span></span>
+<span><span class="fu"><a href="../reference/regsensitivity-accessors.html">identified_set</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                             rxbar <span class="op">=</span> <span class="fl">2</span>, rybar <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   rxbar rybar cbar        bmin    bmax</span></span>
 <span><span class="co">#&gt; 1     2   0.6    1 -0.05202383 4.31302</span></span>
 <span></span>
 <span><span class="co"># ... and the rybar frontier at the same rxbar, which is what the curve</span></span>
 <span><span class="co"># above plots.</span></span>
-<span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                 direction <span class="op">=</span> <span class="st">"rybar"</span>, rxbar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">$</span><span class="va">results</span></span>
-<span><span class="co">#&gt;   index breakdown</span></span>
+<span><span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_frontier</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                                   direction <span class="op">=</span> <span class="st">"rybar"</span>, rxbar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   rxbar breakdown</span></span>
 <span><span class="co">#&gt; 1     2 0.5901671</span></span></code></pre></div>
 </div>
 </div>
@@ -322,8 +322,8 @@ surrounding text.</p>
 <p>Both arms again, with the vertical one now near 0.29 instead of 0.80
 – the inward shift the paper describes.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`w1 only`            <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">solid</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span>,   <span class="co"># paper: ~0.80</span></span>
-<span>  `w1 + state effects` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">s3</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span><span class="op">)</span>      <span class="co"># paper: ~0.30</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`w1 only`            <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">solid</span><span class="op">)</span>,   <span class="co"># paper: ~0.80</span></span>
+<span>  `w1 + state effects` <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">s3</span><span class="op">)</span><span class="op">)</span>      <span class="co"># paper: ~0.30</span></span>
 <span><span class="co">#&gt;            w1 only w1 + state effects </span></span>
 <span><span class="co">#&gt;          0.8035643          0.2909420</span></span></code></pre></div>
 </div>

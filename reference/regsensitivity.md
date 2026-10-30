@@ -11,18 +11,14 @@ directly is clearer.
 
 ``` r
 regsensitivity(
-  subcommand = c("bounds", "breakdown", "summary"),
   formula,
   data,
+  subcommand = c("bounds", "breakdown", "summary"),
   ...
 )
 ```
 
 ## Arguments
-
-- subcommand:
-
-  One of `"bounds"`, `"breakdown"`, `"summary"`.
 
 - formula:
 
@@ -33,13 +29,24 @@ regsensitivity(
 
   A data.frame.
 
+- subcommand:
+
+  One of `"bounds"` (the default), `"breakdown"`, `"summary"`.
+
 - ...:
 
   Additional arguments forwarded to the underlying function.
 
 ## Value
 
-An object of class `regsensitivity`.
+An object of class `regsensitivity`, or for `subcommand = "summary"` one
+of class `regsensitivity_summary`.
+
+## Details
+
+Versions before 0.3.0 took `subcommand` first, following the Stata
+syntax. A call in that order, `regsensitivity("bounds", y ~ x, data)`,
+still runs, with a deprecation warning.
 
 ## See also
 
@@ -52,32 +59,22 @@ An object of class `regsensitivity`.
 ``` r
 data(bfg2020)
 regsensitivity(
-  "bounds",
   avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
     log_area_2010 + lat + lon,
   data = bfg2020,
+  subcommand = "bounds",
   cbar = 0.1
 )
 #> 
-#> Regression Sensitivity Analysis ----- Bounds
+#> Regression Sensitivity Analysis -- Bounds [DMP (2026)]
 #> ------------------------------------------------------------------------
-#> Analysis:          DMP (2026)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     1.3854
 #> Hypothesis:        Beta > 0
 #> Breakdown point:   0.3906
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.7078
-#>   Beta (medium)                 1.3854
-#>   R2 (short)                    0.0269
-#>   R2 (medium)                   0.0718
-#>   Var(Y)                      136.3204
-#>   Var(X)                        1.2574
-#>   Var(X_Residual)               1.1391
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>    rxbar rybar   cbar    bmin   bmax
 #>        0  +Inf    0.1  1.3854 1.3854
 #>  0.23774  +Inf    0.1 0.55995 2.2109
@@ -90,4 +87,6 @@ regsensitivity(
 #>   1.9019  +Inf    0.1 -10.676 13.447
 #>   2.1396  +Inf    0.1  -17.46 20.231
 #>   2.3774  +Inf    0.1    -Inf   +Inf
+#> 
+#> Use summary() for the specification and full results.
 ```

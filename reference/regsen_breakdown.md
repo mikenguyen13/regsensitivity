@@ -158,24 +158,14 @@ bk <- regsen_breakdown(
 )
 print(bk)
 #> 
-#> Regression Sensitivity Analysis ----- Breakdown Frontier
+#> Regression Sensitivity Analysis -- Breakdown Frontier [DMP (2026)]
 #> ------------------------------------------------------------------------
-#> Analysis:          DMP (2026)
-#> Treatment:         tye_tfe890_500kNI_100_l6
-#> Outcome:           avgrep2000to2016
+#> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6
 #> N (obs):           2036
+#> Beta (medium):     1.5864
 #> Hypothesis:        Beta > 0
 #> 
-#> --- Summary statistics ----------------------------------
-#>   Beta (short)                  1.7078
-#>   Beta (medium)                 1.5864
-#>   R2 (short)                    0.0269
-#>   R2 (medium)                   0.1345
-#>   Var(Y)                      136.3204
-#>   Var(X)                        1.2574
-#>   Var(X_Residual)               1.0903
-#> 
-#> --- Results ---------------------------------------------
+#> Results:
 #>   index breakdown
 #>       0   0.38508
 #>     0.1    0.3726
@@ -188,4 +178,6 @@ print(bk)
 #>     0.8   0.35936
 #>     0.9   0.35936
 #>       1   0.35936
+#> 
+#> Use summary() for the specification and full results.
 ```

@@ -23,6 +23,18 @@ regsen_multi(
 )
 
 # S3 method for class 'regsensitivity_multi'
+print(x, ...)
+
+# S3 method for class 'regsensitivity_multi'
+as.data.frame(x, row.names = NULL, optional = FALSE, ...)
+
+# S3 method for class 'regsensitivity_multi'
+summary(object, ...)
+
+# S3 method for class 'summary.regsensitivity_multi'
+print(x, ...)
+
+# S3 method for class 'regsensitivity_multi'
 plot(x, base_size = 11, ...)
 ```
 
@@ -69,6 +81,17 @@ plot(x, base_size = 11, ...)
 
 - x:
 
+  A `regsensitivity_multi` object, or for the
+  [`print()`](https://rdrr.io/r/base/print.html) method of its summary,
+  a `summary.regsensitivity_multi` object.
+
+- row.names, optional:
+
+  Ignored, present for S3 compatibility with
+  [`base::as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html).
+
+- object:
+
   A `regsensitivity_multi` object.
 
 - base_size:
@@ -83,6 +106,12 @@ with columns `treatment`, `estimate` (the medium-regression
 coefficient), `breakdown`, and `n`. Rows where the analysis failed carry
 `NA` and an `error` column explaining why, rather than aborting the
 whole sweep.
+
+[`summary()`](https://rdrr.io/r/base/summary.html) returns an object of
+class `summary.regsensitivity_multi`: the treatments ordered from most
+to least fragile, with the count of those whose breakdown point is below
+1, the benchmark at which the omitted variable is no more important than
+the comparison controls.
 
 ## Details
 

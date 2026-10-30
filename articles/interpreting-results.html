@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,7 +134,7 @@ real case.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>header, <code>$dgp$beta_med</code>
+<td>header, <code>coef(res)[["medium"]]</code>
 </td>
 <td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mtext mathvariant="normal">med</mtext></msub><annotation encoding="application/x-tex">\beta_{\text{med}}</annotation></semantics></math></td>
 <td>the coefficient on
@@ -143,7 +143,7 @@ from the regression you can run</td>
 <td>the estimate under “no selection on unobservables”</td>
 </tr>
 <tr class="even">
-<td>header, <code>$breakdown</code>
+<td>header, <code>breakdown_point(res)</code>
 </td>
 <td>breakdown point
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>X</mi><mrow><mi>b</mi><mi>p</mi></mrow></msubsup><annotation encoding="application/x-tex">\bar r_X^{bp}</annotation></semantics></math>
@@ -171,7 +171,7 @@ relative to the other calibration covariates</td>
 the breakdown point is judged against these</td>
 </tr>
 <tr class="even">
-<td><code>$results</code></td>
+<td><code>identified_set(res)</code></td>
 <td>identified set
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>β</mi><mi mathvariant="normal">min</mi></msub><mo>,</mo><msub><mi>β</mi><mi mathvariant="normal">max</mi></msub><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[\beta_{\min}, \beta_{\max}]</annotation></semantics></math>
 </td>
@@ -183,7 +183,7 @@ selection</td>
 </tr>
 <tr class="odd">
 <td>
-<code>-Inf, +Inf</code> in <code>$results</code>
+<code>-Inf, +Inf</code> in <code>identified_set(res)</code>
 </td>
 <td>unbounded set</td>
 <td>the sensitivity parameters no longer restrict
@@ -323,7 +323,7 @@ calibration set. Those three are what a referee will ask about.</p>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">make_world</span><span class="op">(</span>beta <span class="op">=</span> <span class="fl">1</span>, pi2 <span class="op">=</span> <span class="fl">0.2</span>, g2 <span class="op">=</span> <span class="fl">0.3</span>, sy <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">rho</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate_rho.html">calibrate_rho</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span><span class="op">)</span></span>
-<span><span class="va">res</span><span class="op">$</span><span class="va">breakdown</span></span>
+<span><span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.5135717</span></span>
 <span><span class="va">rho</span></span>
 <span><span class="co">#&gt;   variable      rho</span></span>
@@ -344,7 +344,7 @@ are printed as percentages; 49% means
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ρ</mi><mi>k</mi></msub><mo>=</mo><mn>0.49</mn></mrow><annotation encoding="application/x-tex">\rho_k = 0.49</annotation></semantics></math>.)
 The identified set stays on one side of zero all the way there:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res</span>, xline <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res</span>, xline <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="interpreting-results_files/figure-html/robust-plot-1.png" class="r-plt" alt="" width="576"></p>
 <p>Whether that is “robust enough” is an argument, not a computation:
 the analysis says how important an omitted variable must be, and the
@@ -375,7 +375,7 @@ the same way.</p>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">make_world</span><span class="op">(</span>beta <span class="op">=</span> <span class="fl">0</span>, pi2 <span class="op">=</span> <span class="fl">0.8</span>, g2 <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">rho</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate_rho.html">calibrate_rho</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>beta_med <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">dgp</span><span class="op">$</span><span class="va">beta_med</span>, breakdown <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>beta_med <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">[[</span><span class="st">"medium"</span><span class="op">]</span><span class="op">]</span>, breakdown <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  beta_med breakdown </span></span>
 <span><span class="co">#&gt; 0.4110880 0.3176581</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">rho</span><span class="op">$</span><span class="va">rho</span><span class="op">)</span> <span class="op">/</span> <span class="fl">100</span></span>
@@ -388,7 +388,7 @@ important observed covariate would already be enough to overturn the
 sign. That is the analysis working as intended – the true effect is
 0.02.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res</span>, xline <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res</span>, xline <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="interpreting-results_files/figure-html/fragile-plot-1.png" class="r-plt" alt="" width="576"></p>
 <p><strong>What to write.</strong> Do not write “the effect is robust to
 omitted variable bias.” Write what the number says: “the sign is
@@ -410,9 +410,9 @@ itself.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">make_world</span><span class="op">(</span>beta <span class="op">=</span> <span class="fl">1</span>, pi2 <span class="op">=</span> <span class="fl">0.2</span>, g2 <span class="op">=</span> <span class="fl">0.3</span>, sy <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, beta <span class="op">=</span> <span class="fu"><a href="../reference/hypothesis_helpers.html">bnd_lb</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">results</span></span>
-<span><span class="co">#&gt;   index breakdown</span></span>
-<span><span class="co">#&gt; 1     1         0</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_frontier</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, beta <span class="op">=</span> <span class="fu"><a href="../reference/hypothesis_helpers.html">bnd_lb</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   cbar breakdown</span></span>
+<span><span class="co">#&gt; 1    1         0</span></span></code></pre></div>
 <p>Testing
 “<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>&gt;</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta &gt; 2</annotation></semantics></math>”
 when
@@ -421,7 +421,7 @@ gives 0: no sensitivity analysis is needed to reject a hypothesis the
 point estimate already contradicts. The same happens with the default
 sign hypothesis when the coefficient is on the “wrong” side. Check the
 <code>Hypothesis:</code> line of the print and
-<code>res$dgp$beta_med</code> before reading anything else.</p>
+<code>coef(res)[["medium"]]</code> before reading anything else.</p>
 </div>
 <div class="section level2">
 <h2 id="case-4-the-set-is-unbounded-early-a-weak-calibration-set">Case 4: the set is unbounded early – a weak calibration set<a class="anchor" aria-label="anchor" href="#case-4-the-set-is-unbounded-early-a-weak-calibration-set"></a>
@@ -435,7 +435,7 @@ short and the identified set blows up at a small
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">make_world</span><span class="op">(</span>beta <span class="op">=</span> <span class="fl">1</span>, pi2 <span class="op">=</span> <span class="fl">0.5</span>, g2 <span class="op">=</span> <span class="fl">0.5</span>, pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.08</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">r2</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">dgp</span><span class="op">$</span><span class="va">covwx_norm_sq</span> <span class="op">/</span> <span class="va">res</span><span class="op">$</span><span class="va">dgp</span><span class="op">$</span><span class="va">var_x</span>        <span class="co"># R2 of X on W1</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>R2_x_on_w1 <span class="op">=</span> <span class="va">r2</span>, rmax <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">r2</span><span class="op">)</span>, breakdown <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">breakdown</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>R2_x_on_w1 <span class="op">=</span> <span class="va">r2</span>, rmax <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">r2</span><span class="op">)</span>, breakdown <span class="op">=</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R2_x_on_w1       rmax  breakdown </span></span>
 <span><span class="co">#&gt; 0.05820871 0.97045932 0.95321387</span></span>
 <span><span class="fu"><a href="../reference/calibrate_rho.html">calibrate_rho</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span><span class="op">)</span></span>
@@ -483,8 +483,9 @@ effects, and the difference is not cosmetic:</p>
 <span><span class="va">bform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">reformulate</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tye_tfe890_500kNI_100_l6"</span>, <span class="va">geo</span>, <span class="st">"statea"</span><span class="op">)</span>,</span>
 <span>                     response <span class="op">=</span> <span class="st">"avgrep2000to2016"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bp_geo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">bform</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">geo</span>, cbar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">breakdown</span></span>
-<span><span class="va">bp_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">bform</span>, <span class="va">bfg2020</span>, cbar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">breakdown</span>  <span class="co"># FE in W1 too</span></span>
+<code class="sourceCode R"><span><span class="va">bp_geo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">bform</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">geo</span>,</span>
+<span>                                       cbar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">bp_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_bounds.html">regsen_bounds</a></span><span class="op">(</span><span class="va">bform</span>, <span class="va">bfg2020</span>, cbar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>  <span class="co"># FE in W1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>geography_only <span class="op">=</span> <span class="va">bp_geo</span>, geography_and_state_FE <span class="op">=</span> <span class="va">bp_all</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         geography_only geography_and_state_FE </span></span>
 <span><span class="co">#&gt;              0.8035643              0.2909420</span></span></code></pre></div>
@@ -519,13 +520,14 @@ exceeds it:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">make_world</span><span class="op">(</span>beta <span class="op">=</span> <span class="fl">1</span>, pi2 <span class="op">=</span> <span class="fl">0.2</span>, g2 <span class="op">=</span> <span class="fl">0.3</span>, sy <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">results</span></span>
-<span><span class="co">#&gt;   index breakdown</span></span>
-<span><span class="co">#&gt; 1  0.00 0.5985359</span></span>
-<span><span class="co">#&gt; 2  0.25 0.5354206</span></span>
-<span><span class="co">#&gt; 3  0.50 0.5136354</span></span>
-<span><span class="co">#&gt; 4  0.75 0.5135717</span></span>
-<span><span class="co">#&gt; 5  1.00 0.5135717</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_frontier</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>,</span>
+<span>                                     cbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   cbar breakdown</span></span>
+<span><span class="co">#&gt; 1 0.00 0.5985359</span></span>
+<span><span class="co">#&gt; 2 0.25 0.5354206</span></span>
+<span><span class="co">#&gt; 3 0.50 0.5136354</span></span>
+<span><span class="co">#&gt; 4 0.75 0.5135717</span></span>
+<span><span class="co">#&gt; 5 1.00 0.5135717</span></span></code></pre></div>
 <p>The breakdown point is the same for every <code>cbar</code> at or
 above it. So if you report a breakdown point of, say, 0.5 under
 <code>cbar = 1</code>, an assertion that the controls are exogenous
@@ -553,7 +555,8 @@ tightly enough.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">make_world</span><span class="op">(</span>beta <span class="op">=</span> <span class="fl">1</span>, pi2 <span class="op">=</span> <span class="fl">0.2</span>, g2 <span class="op">=</span> <span class="fl">0.3</span>, sy <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">Inf</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">ry</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>, rybar <span class="op">=</span> <span class="va">ry</span><span class="op">)</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span></span>
+<span>    <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                                     rybar <span class="op">=</span> <span class="va">ry</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.5135717 0.5135895 0.5135895       Inf</span></span></code></pre></div>
 <p>Read <code>Inf</code> here as a statement about the frontier, not a
@@ -567,8 +570,8 @@ may be:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                       direction <span class="op">=</span> <span class="st">"rybar"</span>, rxbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">fr</span><span class="op">$</span><span class="va">results</span></span>
-<span><span class="co">#&gt;   index breakdown</span></span>
+<span><span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_frontier</a></span><span class="op">(</span><span class="va">fr</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   rxbar breakdown</span></span>
 <span><span class="co">#&gt; 1  0.25       Inf</span></span>
 <span><span class="co">#&gt; 2  0.50       Inf</span></span>
 <span><span class="co">#&gt; 3  1.00 0.5099323</span></span>
@@ -618,10 +621,13 @@ against
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">make_world</span><span class="op">(</span>beta <span class="op">=</span> <span class="fl">0</span>, pi2 <span class="op">=</span> <span class="fl">0.8</span>, g2 <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
-<span><span class="va">d_eq</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
-<span>                           r2long <span class="op">=</span> <span class="fl">1</span>, beta <span class="op">=</span> <span class="fu"><a href="../reference/hypothesis_helpers.html">bnd_eq</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span></span>
-<span><span class="va">d_sign</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
-<span>                           r2long <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">results</span><span class="op">$</span><span class="va">breakdown</span></span>
+<span><span class="va">os_eq</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
+<span>                            r2long <span class="op">=</span> <span class="fl">1</span>, beta <span class="op">=</span> <span class="fu"><a href="../reference/hypothesis_helpers.html">bnd_eq</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">os_sign</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">form</span>, <span class="va">d</span>, compare <span class="op">=</span> <span class="va">w1</span>, analysis <span class="op">=</span> <span class="st">"oster"</span>,</span>
+<span>                            r2long <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co"># signed = TRUE: the sign of the explain away delta is part of the answer</span></span>
+<span><span class="va">d_eq</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">os_eq</span>, signed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">d_sign</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regsensitivity-accessors.html">breakdown_point</a></span><span class="op">(</span><span class="va">os_sign</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>explain_away <span class="op">=</span> <span class="va">d_eq</span>, sign_change <span class="op">=</span> <span class="va">d_sign</span><span class="op">)</span></span>
 <span><span class="co">#&gt; explain_away  sign_change </span></span>
 <span><span class="co">#&gt;    0.8897076    0.6775042</span></span></code></pre></div>
@@ -674,16 +680,11 @@ honest:</p>
 <span><span class="va">bb</span></span>
 <span><span class="co">#&gt; Bootstrap confidence interval for the breakdown point</span></span>
 <span><span class="co">#&gt; ------------------------------------------------------------</span></span>
-<span><span class="co">#&gt;   R                  : 199</span></span>
-<span><span class="co">#&gt;   Cluster bootstrap  : km_grid_cel_code</span></span>
-<span><span class="co">#&gt;   Interval           : BCa</span></span>
-<span><span class="co">#&gt;   Bias corr. (z0)    : 1.1233</span></span>
-<span><span class="co">#&gt;   Acceleration       : -0.0008</span></span>
-<span><span class="co">#&gt;   Confidence level   : 95%</span></span>
 <span><span class="co">#&gt;   Point estimate     : 0.8036</span></span>
-<span><span class="co">#&gt;   95% CI            : [0.7465, 0.9025]</span></span>
-<span><span class="co">#&gt;   (An endpoint is an extreme replicate; raise R)</span></span>
-<span><span class="co">#&gt;   95% CI (percentile): [0.4997, 0.8612]</span></span></code></pre></div>
+<span><span class="co">#&gt;   95% CI (BCa)       : [0.7465, 0.9025]</span></span>
+<span><span class="co">#&gt;   Replicates         : 199, resampling clusters of km_grid_cel_code</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Use summary() for the replicate distribution and both intervals.</span></span></code></pre></div>
 <p>Read the BCa interval as the default; the percentile one is printed
 for comparison. Here the two differ a good deal: <code>z0</code> is
 large, meaning most cluster resamples gave a breakdown point below the
@@ -802,7 +803,8 @@ partial
 <li>One figure: the identified set against
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>r</mi><mo accent="true">‾</mo></mover><mi>X</mi></msub><annotation encoding="application/x-tex">\bar r_X</annotation></semantics></math>
 with the breakdown point marked
-(<code>plot(res, xline = res$breakdown)</code>), or the frontier.</li>
+(<code>plot(res, xline = breakdown_point(res))</code>), or the
+frontier.</li>
 <li>If Oster’s
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>
 is reported: the sign-change breakdown, the <code>r2long</code> used,

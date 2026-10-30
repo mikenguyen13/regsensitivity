@@ -1,5 +1,82 @@
 # Changelog
 
+## regsensitivity 0.3.0
+
+### Results are read through accessors, not fields
+
+- New accessors
+  [`breakdown_point()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md),
+  [`breakdown_frontier()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md),
+  [`identified_set()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  and
+  [`sensitivity_params()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md),
+  with [`coef()`](https://rdrr.io/r/stats/coef.html) and
+  [`nobs()`](https://rdrr.io/r/stats/nobs.html) methods, return the
+  reported quantities without reaching into the object.
+  [`breakdown_point()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  reports the magnitude, as
+  [`print()`](https://rdrr.io/r/base/print.html) does; `signed = TRUE`
+  keeps the sign an Oster delta carries.
+  [`breakdown_frontier()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  names its first column after the parameter swept rather than `index`.
+  The vignettes and replication scripts now use them.
+
+### print() and summary() say different things
+
+- [`print()`](https://rdrr.io/r/base/print.html) on a `regsensitivity`
+  object is now the headline: the model, the medium-regression
+  coefficient, the hypothesis, the breakdown point and a thinned results
+  table. [`summary()`](https://rdrr.io/r/base/summary.html) used to
+  print exactly the same thing. It now adds the call, the control and
+  comparison sets, every sensitivity parameter, the summary statistics
+  and the full results table; for an identified-set sweep that table
+  gains a `holds` column, `TRUE` where the set lies wholly on the
+  hypothesis’ side.
+
+- [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md),
+  [`regsen_multi()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
+  and
+  [`regsen_summary()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md)
+  results gain the methods they lacked. Each now has
+  [`print()`](https://rdrr.io/r/base/print.html),
+  [`summary()`](https://rdrr.io/r/base/summary.html) and
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html): the
+  bootstrap summary adds the bootstrap standard error, the bias, both
+  intervals and the replicate quantiles, and its plot draws the
+  replicates with the interval shaded;
+  [`confint()`](https://rdrr.io/r/stats/confint.html) returns the
+  interval and recomputes it at another `level` or `type` from the
+  stored replicates. The multi-treatment summary ranks treatments from
+  most to least fragile and counts those whose breakdown point is
+  below 1. [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a
+  [`regsen_summary()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md)
+  result draws the DMP bounds and the Oster frontier side by side.
+  [`summary()`](https://rdrr.io/r/base/summary.html) on these used to
+  fall through to
+  [`summary.default()`](https://rdrr.io/r/base/summary.html).
+
+### regsensitivity() takes the formula first
+
+- `regsensitivity(formula, data, subcommand = "bounds", ...)`, following
+  the R convention for formula interfaces; the subcommand used to come
+  first, as in Stata. The old order still runs, with a deprecation
+  warning.
+
+### Quadratic forms no longer invert Var(W1)
+
+- The summary statistics need `u' Var(W1)^{-1} v` for several `u`, `v`.
+  They were computed through an explicit inverse, from
+  [`chol2inv()`](https://rdrr.io/r/base/chol2inv.html) or, when the
+  Cholesky factorization failed,
+  [`solve()`](https://rdrr.io/r/base/solve.html) on a ridge-perturbed
+  matrix. Each vector is now whitened once by a triangular solve on the
+  Cholesky factor and the forms are
+  [`crossprod()`](https://rdrr.io/r/base/crossprod.html)s of the
+  results. The fallback for a matrix singular to working precision is
+  the symmetric eigendecomposition, which gives the pseudo-inverse
+  rather than an inverse whose entries grow without bound. Results are
+  unchanged to the digits the numeric snapshots record.
+
 ## regsensitivity 0.2.0
 
 CRAN release: 2026-10-20

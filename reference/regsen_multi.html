@@ -13,7 +13,7 @@ and which would not?", answered in a single call.'><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +76,18 @@ and which would not?", answered in a single call.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'regsensitivity_multi'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'regsensitivity_multi'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">x</span>, row.names <span class="op">=</span> <span class="cn">NULL</span>, optional <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'regsensitivity_multi'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'summary.regsensitivity_multi'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'regsensitivity_multi'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, base_size <span class="op">=</span> <span class="fl">11</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -121,6 +133,16 @@ runs serially inside, so cores are not oversubscribed.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>A <code>regsensitivity_multi</code> object, or for the <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method of
+its summary, a <code>summary.regsensitivity_multi</code> object.</p></dd>
+
+
+<dt id="arg-row-names-optional">row.names, optional<a class="anchor" aria-label="anchor" href="#arg-row-names-optional"></a></dt>
+<dd><p>Ignored, present for S3 compatibility with
+<code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">base::as.data.frame()</a></code>.</p></dd>
+
+
+<dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
 <dd><p>A <code>regsensitivity_multi</code> object.</p></dd>
 
 
@@ -135,6 +157,11 @@ treatment, with columns <code>treatment</code>, <code>estimate</code> (the mediu
 coefficient), <code>breakdown</code>, and <code>n</code>. Rows where the analysis failed
 carry <code>NA</code> and an <code>error</code> column explaining why, rather than aborting
 the whole sweep.</p>
+<p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns an object of class
+<code>summary.regsensitivity_multi</code>: the treatments ordered from most to
+least fragile, with the count of those whose breakdown point is below
+1, the benchmark at which the omitted variable is no more important
+than the comparison controls.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

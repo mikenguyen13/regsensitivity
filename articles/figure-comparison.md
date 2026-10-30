@@ -67,8 +67,8 @@ The two curves cross zero at the paper’s two breakdown points:
 
 ``` r
 
-c(`rybar = Inf`   = abs(solid$breakdown),    # paper: 0.804
-  `rybar = rxbar` = abs(dashed$breakdown))   # paper: 0.959 (96% in prose)
+c(`rybar = Inf`   = breakdown_point(solid),    # paper: 0.804
+  `rybar = rxbar` = breakdown_point(dashed))   # paper: 0.959 (96% in prose)
 #>   rybar = Inf rybar = rxbar 
 #>     0.8035643     0.9583504
 ```
@@ -98,7 +98,7 @@ frontier <- function(cbar, rxs, w = w1) {
     res <- parallel::mclapply(rxs, function(rx) {
         r <- regsen_breakdown(form, bfg2020, compare = w, cbar = cbar,
                                direction = "rybar", rxbar = rx)
-        r$results$breakdown[1]
+        breakdown_point(r)[1]
     }, mc.cores = cores)
     ry <- vapply(res, function(z) if (is.numeric(z)) z else NA_real_,
                  numeric(1))
@@ -154,16 +154,16 @@ $`+\infty`$: every $`\bar r_X`$ leaves the conclusion standing.
 
 # Far out on the horizontal arm, where the identified set is still
 # bounded because rybar is restricted even though rxbar is not.
-regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
-              rxbar = 2, rybar = 0.6)$results
+identified_set(regsen_bounds(form, bfg2020, compare = w1, cbar = 1,
+                             rxbar = 2, rybar = 0.6))
 #>   rxbar rybar cbar        bmin    bmax
 #> 1     2   0.6    1 -0.05202383 4.31302
 
 # ... and the rybar frontier at the same rxbar, which is what the curve
 # above plots.
-regsen_breakdown(form, bfg2020, compare = w1, cbar = 1,
-                 direction = "rybar", rxbar = 2)$results
-#>   index breakdown
+breakdown_frontier(regsen_breakdown(form, bfg2020, compare = w1, cbar = 1,
+                                   direction = "rybar", rxbar = 2))
+#>   rxbar breakdown
 #> 1     2 0.5901671
 ```
 
@@ -235,8 +235,8 @@ the inward shift the paper describes.
 
 ``` r
 
-c(`w1 only`            = abs(solid$breakdown),   # paper: ~0.80
-  `w1 + state effects` = abs(s3$breakdown))      # paper: ~0.30
+c(`w1 only`            = breakdown_point(solid),   # paper: ~0.80
+  `w1 + state effects` = breakdown_point(s3))      # paper: ~0.30
 #>            w1 only w1 + state effects 
 #>          0.8035643          0.2909420
 ```

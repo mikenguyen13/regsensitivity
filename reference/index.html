@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,10 +81,33 @@
 
         <dt>
 
-          <code><a href="regsen_summary.html">regsen_summary()</a></code>
+          <code><a href="regsen_summary.html">regsen_summary()</a></code> <code><a href="regsen_summary.html">print(<i>&lt;regsensitivity_summary&gt;</i>)</a></code> <code><a href="regsen_summary.html">summary(<i>&lt;regsensitivity_summary&gt;</i>)</a></code> <code><a href="regsen_summary.html">print(<i>&lt;summary.regsensitivity_summary&gt;</i>)</a></code> <code><a href="regsen_summary.html">plot(<i>&lt;regsensitivity_summary&gt;</i>)</a></code>
 
         </dt>
         <dd>Sensitivity summary (DMP bounds + Oster breakdown)</dd>
+      </dl></div><div class="section level2">
+      <h2 id="reading-the-results">Reading the results<a class="anchor" aria-label="anchor" href="#reading-the-results"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="regsensitivity-display.html">print(<i>&lt;regsensitivity&gt;</i>)</a></code> <code><a href="regsensitivity-display.html">summary(<i>&lt;regsensitivity&gt;</i>)</a></code> <code><a href="regsensitivity-display.html">print(<i>&lt;summary.regsensitivity&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print and summarize a sensitivity analysis</dd>
+
+        <dt>
+
+          <code><a href="regsensitivity-accessors.html">breakdown_point()</a></code> <code><a href="regsensitivity-accessors.html">breakdown_frontier()</a></code> <code><a href="regsensitivity-accessors.html">identified_set()</a></code> <code><a href="regsensitivity-accessors.html">sensitivity_params()</a></code> <code><a href="regsensitivity-accessors.html">coef(<i>&lt;regsensitivity&gt;</i>)</a></code> <code><a href="regsensitivity-accessors.html">nobs(<i>&lt;regsensitivity&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Extract results from a sensitivity analysis</dd>
       </dl></div><div class="section level2">
       <h2 id="inference">Inference<a class="anchor" aria-label="anchor" href="#inference"></a></h2>
 
@@ -101,6 +124,13 @@
 
         </dt>
         <dd>Bootstrap confidence interval for the breakdown point</dd>
+
+        <dt>
+
+          <code><a href="regsen_boot-methods.html">print(<i>&lt;regsensitivity_boot&gt;</i>)</a></code> <code><a href="regsen_boot-methods.html">summary(<i>&lt;regsensitivity_boot&gt;</i>)</a></code> <code><a href="regsen_boot-methods.html">print(<i>&lt;summary.regsensitivity_boot&gt;</i>)</a></code> <code><a href="regsen_boot-methods.html">confint(<i>&lt;regsensitivity_boot&gt;</i>)</a></code> <code><a href="regsen_boot-methods.html">plot(<i>&lt;regsensitivity_boot&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print, summarize and plot a bootstrapped breakdown point</dd>
       </dl></div><div class="section level2">
       <h2 id="parallel-computation">Parallel computation<a class="anchor" aria-label="anchor" href="#parallel-computation"></a></h2>
 
@@ -129,7 +159,7 @@
 
       <dl><dt>
 
-          <code><a href="regsen_multi.html">regsen_multi()</a></code> <code><a href="regsen_multi.html">plot(<i>&lt;regsensitivity_multi&gt;</i>)</a></code>
+          <code><a href="regsen_multi.html">regsen_multi()</a></code> <code><a href="regsen_multi.html">print(<i>&lt;regsensitivity_multi&gt;</i>)</a></code> <code><a href="regsen_multi.html">as.data.frame(<i>&lt;regsensitivity_multi&gt;</i>)</a></code> <code><a href="regsen_multi.html">summary(<i>&lt;regsensitivity_multi&gt;</i>)</a></code> <code><a href="regsen_multi.html">print(<i>&lt;summary.regsensitivity_multi&gt;</i>)</a></code> <code><a href="regsen_multi.html">plot(<i>&lt;regsensitivity_multi&gt;</i>)</a></code>
 
         </dt>
         <dd>Sensitivity analysis for several treatments at once</dd>

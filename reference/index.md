@@ -9,12 +9,36 @@
 - [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md)
   : Breakdown frontier for a regression coefficient hypothesis
 - [`regsen_summary()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md)
+  [`print(`*`<regsensitivity_summary>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md)
+  [`summary(`*`<regsensitivity_summary>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md)
+  [`print(`*`<summary.regsensitivity_summary>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md)
+  [`plot(`*`<regsensitivity_summary>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md)
   : Sensitivity summary (DMP bounds + Oster breakdown)
+
+## Reading the results
+
+- [`print(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-display.md)
+  [`summary(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-display.md)
+  [`print(`*`<summary.regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-display.md)
+  : Print and summarize a sensitivity analysis
+- [`breakdown_point()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  [`breakdown_frontier()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  [`identified_set()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  [`sensitivity_params()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  [`coef(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  [`nobs(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  : Extract results from a sensitivity analysis
 
 ## Inference
 
 - [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md)
   : Bootstrap confidence interval for the breakdown point
+- [`print(`*`<regsensitivity_boot>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot-methods.md)
+  [`summary(`*`<regsensitivity_boot>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot-methods.md)
+  [`print(`*`<summary.regsensitivity_boot>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot-methods.md)
+  [`confint(`*`<regsensitivity_boot>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot-methods.md)
+  [`plot(`*`<regsensitivity_boot>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot-methods.md)
+  : Print, summarize and plot a bootstrapped breakdown point
 
 ## Parallel computation
 
@@ -24,6 +48,10 @@
 ## Several treatments
 
 - [`regsen_multi()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
+  [`print(`*`<regsensitivity_multi>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
+  [`as.data.frame(`*`<regsensitivity_multi>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
+  [`summary(`*`<regsensitivity_multi>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
+  [`print(`*`<summary.regsensitivity_multi>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
   [`plot(`*`<regsensitivity_multi>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md)
   : Sensitivity analysis for several treatments at once
 

@@ -13,7 +13,7 @@ parameters. Implements the analyses of Diegert, Masten &amp;amp; Poirier (2026)
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -207,25 +207,15 @@ result carries the value in <code>results$breakdown</code> alone.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">bnds</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Regression Sensitivity Analysis ----- Bounds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Regression Sensitivity Analysis -- Bounds [DMP (2026)]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------------------------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Analysis:          DMP (2026)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Treatment:         tye_tfe890_500kNI_100_l6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Outcome:           avgrep2000to2016</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Model:             avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> N (obs):           2036</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Beta (medium):     1.5864</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Hypothesis:        Beta &gt; 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Breakdown point:   0.3726</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> --- Summary statistics ----------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Beta (short)                  1.7078</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Beta (medium)                 1.5864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   R2 (short)                    0.0269</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   R2 (medium)                   0.1345</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Var(Y)                      136.3204</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Var(X)                        1.2574</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Var(X_Residual)               1.0903</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> --- Results ---------------------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Results:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    rxbar rybar   cbar     bmin   bmax</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        0  +Inf    0.1   1.5864 1.5864</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  0.20427  +Inf    0.1   0.7386 2.4343</span>
@@ -238,6 +228,8 @@ result carries the value in <code>results$breakdown</code> alone.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1.6342  +Inf    0.1  -10.614 13.786</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1.8385  +Inf    0.1  -17.445 20.618</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   2.0427  +Inf    0.1     -Inf   +Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Use summary() for the specification and full results.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
