@@ -2,7 +2,7 @@
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
   "identifier": "regsensitivity",
-  "description": "Sensitivity analysis for linear regression coefficients in the presence of omitted variables. Implements the identified-set and breakdown-point analyses of 'Diegert', 'Masten' and 'Poirier' (2026) <doi:10.48550/arXiv.2206.02303>, 'Oster' (2019) <doi:10.1080/07350015.2016.1227711> and 'Masten' and 'Poirier' (2026) <doi:10.48550/arXiv.2208.00552>. Provides bounds on regression coefficients under relaxations of the no-omitted-variables assumption indexed by interpretable sensitivity parameters, the breakdown point of a hypothesis about the long-regression coefficient, and plotting helpers.",
+  "description": "Sensitivity analysis for linear regression coefficients in the presence of omitted variables. Implements the identified-set and breakdown-point analyses of 'Diegert', 'Masten' and 'Poirier' (2026) <doi:10.48550/arXiv.2206.02303>, 'Oster' (2019) <doi:10.1080/07350015.2016.1227711> and 'Masten' and 'Poirier' (2026) <doi:10.1257/aer.20230242>. Provides bounds on regression coefficients under relaxations of the no-omitted-variables assumption indexed by interpretable sensitivity parameters, the breakdown point of a hypothesis about the long-regression coefficient, and plotting helpers.",
   "name": "regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias",
   "relatedLink": "https://mikenguyen13.github.io/regsensitivity/",
   "codeRepository": "https://github.com/mikenguyen13/regsensitivity",
@@ -332,13 +332,18 @@
         }
       ],
       "name": "The Effect of Omitted Variables on the Sign of Regression Coefficients",
-      "url": "https://arxiv.org/abs/2208.00552",
+      "identifier": "10.1257/aer.20230242",
+      "pagination": "2685--2710",
+      "@id": "https://doi.org/10.1257/aer.20230242",
+      "sameAs": "https://doi.org/10.1257/aer.20230242",
       "isPartOf": {
         "@type": "PublicationIssue",
+        "issueNumber": "7",
         "datePublished": "2026",
         "isPartOf": {
           "@type": ["PublicationVolume", "Periodical"],
-          "name": "arXiv preprint"
+          "volumeNumber": "116",
+          "name": "American Economic Review"
         }
       }
     }

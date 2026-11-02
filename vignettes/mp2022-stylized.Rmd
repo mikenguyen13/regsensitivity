@@ -30,7 +30,7 @@ solutions at any $\delta$, the vertical asymptote at $\delta = 1$ --
 are what should carry over. The numerical values should not be
 compared.
 
-[mp]: https://arxiv.org/abs/2208.00552
+[mp]: https://doi.org/10.1257/aer.20230242
 
 ## A stylized data-generating process
 

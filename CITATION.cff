@@ -60,5 +60,9 @@ references:
       - family-names: Poirier
         given-names: Alexandre
     year: 2026
-    journal: "arXiv preprint"
-    url: "https://arxiv.org/abs/2208.00552"
+    journal: "American Economic Review"
+    volume: 116
+    issue: 7
+    start: 2685
+    end: 2710
+    doi: "10.1257/aer.20230242"
