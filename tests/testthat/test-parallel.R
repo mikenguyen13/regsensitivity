@@ -6,6 +6,13 @@
 # point.
 two <- 2L
 
+# Results agree across cores and backends to the last bit under the
+# reference BLAS, but not under an optimized one: MKL picks its kernel by
+# memory alignment, which differs between a forked and a fresh worker, and
+# moves the last digit or two (about 1e-15). The tolerance is well above
+# that and well below any digit the package reports.
+same <- function(a, b) expect_equal(a, b, tolerance = 1e-10)
+
 test_that("regsen_cores() reads, sets and validates the session default", {
     old <- getOption("regsensitivity.ncores")
     on.exit(options(regsensitivity.ncores = old), add = TRUE)
@@ -58,8 +65,8 @@ test_that("finite-rybar identified sets are identical across cores", {
     b <- regsen_bounds(bfg_formula(), bfg(), compare = bfg_compare(),
                        rxbar = c(0.3, 0.6, 0.9), rybar = c(0.5, 1), cbar = 1,
                        ncores = two)
-    expect_identical(a$results, b$results)
-    expect_identical(a$breakdown, b$breakdown)
+    same(a$results, b$results)
+    same(a$breakdown, b$breakdown)
 })
 
 test_that("closed-form sets take the serial path and match", {
@@ -67,7 +74,7 @@ test_that("closed-form sets take the serial path and match", {
                        cbar = c(0.1, 0.5, 1))
     b <- regsen_bounds(bfg_formula(), bfg(), compare = bfg_compare(),
                        cbar = c(0.1, 0.5, 1), ncores = two)
-    expect_identical(a$results, b$results)
+    same(a$results, b$results)
 })
 
 test_that("breakdown frontiers are identical across cores", {
@@ -77,19 +84,19 @@ test_that("breakdown frontiers are identical across cores", {
                                                   rxbar = c(0.5, 1, 2), ncores = 1)))
     ry2 <- do.call(regsen_breakdown, c(args, list(cbar = 1, direction = "rybar",
                                                   rxbar = c(0.5, 1, 2), ncores = two)))
-    expect_identical(ry1$results, ry2$results)
+    same(ry1$results, ry2$results)
     rx1 <- do.call(regsen_breakdown, c(args, list(cbar = c(0.5, 1), rybar = 1,
                                                   ncores = 1)))
     rx2 <- do.call(regsen_breakdown, c(args, list(cbar = c(0.5, 1), rybar = 1,
                                                   ncores = two)))
-    expect_identical(rx1$results, rx2$results)
+    same(rx1$results, rx2$results)
     ce1 <- do.call(regsen_breakdown, c(args, list(cbar = c(0.5, 1),
                                                   rybar_expr = function(r) r,
                                                   ncores = 1)))
     ce2 <- do.call(regsen_breakdown, c(args, list(cbar = c(0.5, 1),
                                                   rybar_expr = function(r) r,
                                                   ncores = two)))
-    expect_identical(ce1$results, ce2$results)
+    same(ce1$results, ce2$results)
 })
 
 test_that("regsen_multi() is identical across cores and reports failures per row", {
@@ -98,7 +105,7 @@ test_that("regsen_multi() is identical across cores and reports failures per row
                       compare = bfg_compare(), cbar = 1, ncores = 1)
     b <- regsen_multi(bfg_formula(), bfg(), treatments = trs,
                       compare = bfg_compare(), cbar = 1, ncores = two)
-    expect_identical(as.data.frame(a), as.data.frame(b))
+    same(as.data.frame(a), as.data.frame(b))
     # A fun that errors on one treatment: the others still come back.
     boom <- function(formula, data, compare = NULL, ...) {
         if (all.vars(formula)[2] == "lat") stop("no lat")
@@ -135,7 +142,7 @@ test_that("the socket backend gives what the fork backend gives", {
                        compare = helper(), cbar = 1, ncores = two)
     m1 <- regsen_multi(bfg_formula(), bfg(), treatments = trs,
                        compare = bfg_compare(), cbar = 1, ncores = 1)
-    expect_identical(as.data.frame(m2), as.data.frame(m1))
+    same(as.data.frame(m2), as.data.frame(m1))
 
     bb <- regsen_boot(bfg_formula(), bfg(), compare = helper(), cbar = 1,
                       R = 4, seed = 1, type = "perc", show_progress = FALSE,
@@ -143,14 +150,14 @@ test_that("the socket backend gives what the fork backend gives", {
     bb1 <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(), cbar = 1,
                        R = 4, seed = 1, type = "perc", show_progress = FALSE,
                        ncores = 1)
-    expect_identical(bb$replicates, bb1$replicates)
+    same(bb$replicates, bb1$replicates)
     expect_equal(bb$na, 0L)
 
     b2 <- regsen_bounds(bfg_formula(), bfg(), compare = helper(),
                         rxbar = c(0.3, 0.6), rybar = 1, cbar = 1, ncores = two)
     b1 <- regsen_bounds(bfg_formula(), bfg(), compare = bfg_compare(),
                         rxbar = c(0.3, 0.6), rybar = 1, cbar = 1, ncores = 1)
-    expect_identical(b2$results, b1$results)
+    same(b2$results, b1$results)
 })
 
 test_that("the session default reaches every entry point", {
@@ -164,5 +171,5 @@ test_that("the session default reaches every entry point", {
     bb1 <- regsen_boot(bfg_formula(), bfg(), compare = bfg_compare(), cbar = 1,
                        R = 4, seed = 1, type = "perc", show_progress = FALSE)
     expect_equal(bb1$ncores, 1L)
-    expect_identical(bb$replicates, bb1$replicates)
+    same(bb$replicates, bb1$replicates)
 })

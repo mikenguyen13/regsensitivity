@@ -1,5 +1,16 @@
 # Submission notes
 
+## Resubmission
+
+This replaces the 0.3.0 submission of 2 November, whose auto-check
+reported an additional issue for 0.2.0 under MKL. Three tests in
+`test-parallel.R` compared results computed on one core and on two, or
+under the fork and the socket backend, with `expect_identical()`. MKL
+moves the last digit or two between those runs (about 1e-15), so the
+tests failed although the results agree to every digit the package
+reports. The submission that was pending had the same tests. They now
+compare with `expect_equal(tolerance = 1e-10)`. No package code changed.
+
 ## Update
 
 This is an update of regsensitivity 0.2.0, published on 20 October. It

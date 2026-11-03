@@ -1,5 +1,14 @@
 # regsensitivity 0.3.0
 
+## Tests no longer demand bit-identical results across cores
+
+* The tests that run an analysis on one core and on two, or under the
+  fork and the socket backend, compared the results with
+  `expect_identical()`. Under an optimized BLAS such as Intel MKL the two
+  differ in the last digit or two, and CRAN's MKL check failed three of
+  them. They now compare to a relative tolerance of 1e-10. Nothing the
+  package computes changed.
+
 ## Results are read through accessors, not fields
 
 * New accessors `breakdown_point()`, `breakdown_frontier()`,
