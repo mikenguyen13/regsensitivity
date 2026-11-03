@@ -308,11 +308,15 @@ test_that("the rybar frontier traces the same curve as the rxbar breakdown", {
     expect_true(all(is.finite(ry)))
     expect_true(ry[1] > ry[2])          # frontier decreasing in rxbar
     # Duality: at (rxbar, frontier) the tested bound sits at the hypothesis.
+    # Only to the accuracy of the two solves, though: the frontier is a root
+    # found to 1e-4 in rybar, the bound falls about 6 per unit of rybar
+    # there, and each global optimization is good to about 3e-4. That adds
+    # up to roughly 1e-3, which an Intel Mac reaches; 5e-3 leaves room.
     for (i in 2:3) {
         b <- regsen_bounds(f, d, compare = w1, cbar = 1,
                            rxbar = bk$results$index[i],
                            rybar = bk$results$breakdown[i])
-        expect_equal(b$results$bmin, 0, tolerance = 1e-3)
+        expect_equal(b$results$bmin, 0, tolerance = 5e-3)
     }
 })
 

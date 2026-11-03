@@ -1,0 +1,42 @@
+# R CMD check under the alternative BLAS/LAPACK libraries CRAN tests with
+# as "additional issues". An optimized BLAS moves the last digit or two of
+# a result, which a test demanding bit-identical output turns into a
+# failure; 0.2.0 failed CRAN's MKL check exactly that way. The R-hub
+# containers carry R-devel built against each library.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+name: alt-BLAS
+
+permissions:
+  contents: read
+
+concurrency:
+  group: alt-BLAS-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    name: ${{ matrix.blas }}
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false
+      matrix:
+        blas: [mkl, atlas]
+
+    container:
+      image: ghcr.io/r-hub/containers/${{ matrix.blas }}:latest
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: r-hub/actions/platform-info@v1
+      - uses: r-hub/actions/setup-deps@v1
+      - uses: r-hub/actions/run-check@v1

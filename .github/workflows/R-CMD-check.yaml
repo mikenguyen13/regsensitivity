@@ -38,6 +38,10 @@ jobs:
       matrix:
         config:
           - {os: macos-latest,   r: 'release'}
+          # macos-latest is Apple Silicon. CRAN still checks on Intel Macs,
+          # where the optimizer takes a different path, and 0.3.0 failed a
+          # test there that no runner here could see.
+          - {os: macos-15-intel, r: 'release'}
           - {os: windows-latest, r: 'release'}
           - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,  r: 'release'}

@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/mikenguyen13/regsensitivity",
   "issueTracker": "https://github.com/mikenguyen13/regsensitivity/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -257,7 +257,7 @@
       ],
       "name": "{regsensitivity}: Regression Sensitivity Analysis for Omitted Variable Bias",
       "url": "https://github.com/mikenguyen13/regsensitivity",
-      "description": "R package version 0.3.0"
+      "description": "R package version 0.3.1"
     },
     {
       "@type": "ScholarlyArticle",
