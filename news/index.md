@@ -1,6 +1,16 @@
 # Changelog
 
+## regsensitivity 0.3.1
+
+- A test checks that the bound at a point on the rybar breakdown
+  frontier sits at the hypothesis. It allowed a gap of 1e-3, about what
+  the two numerical solves it compares can be off by between them, and
+  on CRAN’s Intel macOS machines the gap came to just over that. It now
+  allows 5e-3. Nothing the package computes changed.
+
 ## regsensitivity 0.3.0
+
+CRAN release: 2026-11-03
 
 ### Tests no longer demand bit-identical results across cores
 
