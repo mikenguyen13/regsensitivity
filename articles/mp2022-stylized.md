@@ -3,17 +3,17 @@
 This vignette illustrates, on a *stylized* constructed example, the
 figures of **Masten and Poirier (2026),** [*The Effect of Omitted
 Variables on the Sign of Regression
-Coefficients*](https://arxiv.org/abs/2208.00552). The paper’s Figures 1,
-2, and S1 are built on its empirical application to Satyanath,
-Voigtländer and Voth (2017), whose microdata is distributed separately
-(Harvard Dataverse, <doi:10.7910/DVN/EE6I7N>) and is not bundled here;
-the paper itself does not print the moments needed to regenerate those
-curves. Its survey tables aggregate across many published studies. So
-this vignette exercises the machinery in `regsensitivity` end-to-end on
-a data-generating process we control, and the structural features of the
-published figures – at most three solutions at any $`\delta`$, the
-vertical asymptote at $`\delta = 1`$ – are what should carry over. The
-numerical values should not be compared.
+Coefficients*](https://doi.org/10.1257/aer.20230242). The paper’s
+Figures 1, 2, and S1 are built on its empirical application to
+Satyanath, Voigtländer and Voth (2017), whose microdata is distributed
+separately (Harvard Dataverse, <doi:10.7910/DVN/EE6I7N>) and is not
+bundled here; the paper itself does not print the moments needed to
+regenerate those curves. Its survey tables aggregate across many
+published studies. So this vignette exercises the machinery in
+`regsensitivity` end-to-end on a data-generating process we control, and
+the structural features of the published figures – at most three
+solutions at any $`\delta`$, the vertical asymptote at $`\delta = 1`$ –
+are what should carry over. The numerical values should not be compared.
 
 ## A stylized data-generating process
 
