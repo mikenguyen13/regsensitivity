@@ -148,7 +148,12 @@ test_that("bounds are finite and computable for rxbar > rmax(cbar) > rybar", {
     b <- regsen_bounds(bfg_formula(), bfg(), compare = bfg_compare(),
                        cbar = 1, rxbar = 2, rybar = 0.5)
     expect_true(is.finite(b$results$bmin))
-    expect_equal(b$results$bmin, idset$bmin[1], tolerance = 1e-6)
+    # bmin here comes from the DIRECT search, which is accurate to about
+    # 3e-4 (see dmp_minimize()). The two routes run the same arithmetic, so
+    # on any one machine they agree exactly, but a relative 1e-13 change in
+    # the moments moves this bmin by up to 1e-4. Compare at the solver's
+    # accuracy, not at a precision only bit-identical runs can meet.
+    expect_equal(b$results$bmin, idset$bmin[1], tolerance = 1e-3)
 })
 
 test_that("bounds match a direct search over the constraint set", {

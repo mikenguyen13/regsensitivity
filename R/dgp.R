@@ -33,6 +33,19 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
         # A logical subset with NAs would select rows of NA, which na.omit
         # then drops silently; an NA in the row bookkeeping would later
         # misalign a cluster column. Treat NA as FALSE, as subset() does.
+        # A logical subset of the wrong length used to be recycled by `[`
+        # and then reported as "got 1 observation", which pointed nowhere
+        # near the mistake.
+        if (is.logical(subset) && length(subset) != nrow(data)) {
+            stop("`subset` is a logical vector of length ", length(subset),
+                 ", but `data` has ", nrow(data), " rows.", call. = FALSE)
+        }
+        # Negative indices (rows to drop) are fine; numbers past the last
+        # row would select rows of NA that na.omit then drops silently.
+        if (is.numeric(subset) && any(abs(subset) > nrow(data), na.rm = TRUE)) {
+            stop("`subset` holds row numbers beyond the ", nrow(data),
+                 " rows of `data`.", call. = FALSE)
+        }
         if (is.logical(subset)) subset <- which(subset)
         data <- data[subset, , drop = FALSE]
         orig_rows <- orig_rows[subset]
@@ -48,6 +61,13 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
              call. = FALSE)
     }
     y <- stats::model.response(mf)
+    # A one-sided formula has no response, and a cbind() response is a
+    # matrix: the first used to run on y = NULL, the second on a matrix
+    # read as one long vector.
+    if (is.null(y) || !is.null(dim(y)) || !(is.numeric(y) || is.logical(y))) {
+        stop("`formula` needs a single numeric outcome on its left-hand ",
+             "side (e.g. y ~ x + w).", call. = FALSE)
+    }
     tt <- stats::terms(mf)
     # x is the first non-response term; remaining terms are controls.
     rhs <- attr(tt, "term.labels")
@@ -118,6 +138,18 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
     x <- x[, 1]
     w1 <- expand(w1_names, use_data)
     w0 <- expand(w0_names, use_data)
+
+    # na.omit drops NA and NaN but keeps Inf, which used to surface as
+    # "NA/NaN/Inf in foreign function call" from deep inside qr().
+    bad <- c(if (any(!is.finite(y))) all.vars(formula)[1],
+             if (any(!is.finite(x))) xname,
+             colnames(w1)[colSums(!is.finite(w1)) > 0],
+             colnames(w0)[colSums(!is.finite(w0)) > 0])
+    if (length(bad)) {
+        stop("Infinite values in ", paste0("`", bad, "`", collapse = ", "),
+             ". Remove or recode those rows before the analysis.",
+             call. = FALSE)
+    }
 
     list(
         y = y, x = x, w1 = w1, w0 = w0,
@@ -262,6 +294,27 @@ get_dgp <- function(inputs) {
     k0 <- var_x - wxwx
     k1 <- covxy - wxwy
     k2 <- var_y - wywy
+
+    # With no variation left in the treatment, beta_med = k1 / k0 divides
+    # rounding error by rounding error: a constant treatment used to come
+    # back with a coefficient of 1e15 and a breakdown point that looked
+    # like any other. Judge "no variation" relative to the variable's
+    # variance before partialling, by the same cut-off drop_aliased() uses.
+    novar <- function(v_after, v_before) {
+        !is.finite(v_after) || v_after <= 1e-10 * max(v_before, .Machine$double.eps)
+    }
+    if (novar(var_y, stats::var(inputs$y))) {
+        stop("The outcome `", inputs$y_name, "` has no variation once the ",
+             "controls outside the comparison set are partialled out: it is ",
+             "constant, or a linear combination of those controls.",
+             call. = FALSE)
+    }
+    if (novar(k0, stats::var(inputs$x))) {
+        stop("The treatment `", inputs$x_name, "` has no variation once the ",
+             "controls are partialled out: it is constant, or a linear ",
+             "combination of the controls. Its coefficient is not identified.",
+             call. = FALSE)
+    }
     covwx_norm_sq <- var_x - k0
 
     beta_short <- covxy / var_x

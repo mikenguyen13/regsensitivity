@@ -153,3 +153,113 @@ test_that("regsen_summary uses each r2long value once", {
     idx <- s$oster_breakdown$results$index
     expect_false(any(duplicated(idx)))
 })
+
+## Degenerate data: each of these used to return a number or a cryptic error.
+
+sim_small <- function(n = 200) {
+    set.seed(11)
+    w1a <- rnorm(n); w1b <- rnorm(n); w0 <- rnorm(n)
+    x <- 0.5 * w1a + 0.3 * w1b + 0.2 * w0 + rnorm(n)
+    y <- 1 + 0.4 * x + 0.5 * w1a - 0.2 * w1b + 0.3 * w0 + rnorm(n)
+    data.frame(y, x, w1a, w1b, w0)
+}
+sim_f <- y ~ x + w1a + w1b + w0
+sim_cmp <- c("w1a", "w1b")
+
+test_that("a treatment with no variation left is an error, not a number", {
+    d <- sim_small()
+    # A constant treatment used to report beta = 1e15 and a breakdown of 0.76.
+    dd <- d; dd$x <- 1
+    expect_error(regsen_breakdown(sim_f, dd, compare = sim_cmp),
+                 "treatment `x` has no variation")
+    expect_error(regsen_bounds(sim_f, dd, compare = sim_cmp),
+                 "treatment `x` has no variation")
+    # Collinear with a control outside the comparison set ...
+    dd <- d; dd$x <- dd$w0 + 1
+    expect_error(regsen_breakdown(sim_f, dd, compare = sim_cmp),
+                 "not identified")
+    # ... and with one inside it, which used to fail on an NA in if().
+    dd <- d; dd$x <- 2 * dd$w1a
+    expect_error(regsen_breakdown(sim_f, dd, compare = sim_cmp),
+                 "not identified")
+    expect_error(regsen_bounds(sim_f, dd, compare = sim_cmp, analysis = "oster"),
+                 "not identified")
+    # A treatment that is nearly, but not exactly, collinear still runs.
+    dd <- d; dd$x <- dd$w0 + 1e-3 * dd$x
+    expect_s3_class(regsen_breakdown(sim_f, dd, compare = sim_cmp),
+                    "regsensitivity")
+})
+
+test_that("an outcome with no variation left is an error", {
+    d <- sim_small()
+    dd <- d; dd$y <- 3
+    expect_error(regsen_breakdown(sim_f, dd, compare = sim_cmp),
+                 "outcome `y` has no variation")
+    dd <- d; dd$y <- 2 * dd$w0 - 1
+    expect_error(regsen_breakdown(sim_f, dd, compare = sim_cmp),
+                 "outcome `y` has no variation")
+    # Collinear with the comparison controls is a legitimate, if extreme,
+    # model: the comparison set explains Y fully.
+    dd <- d; dd$y <- dd$w1a + dd$x
+    expect_s3_class(regsen_bounds(sim_f, dd, compare = sim_cmp),
+                    "regsensitivity")
+})
+
+test_that("infinite values are named instead of failing inside qr()", {
+    d <- sim_small()
+    dd <- d; dd$y[1] <- Inf
+    expect_error(regsen_bounds(sim_f, dd, compare = sim_cmp),
+                 "Infinite values in `y`")
+    dd <- d; dd$w0[3] <- -Inf; dd$x[2] <- Inf
+    expect_error(regsen_bounds(sim_f, dd, compare = sim_cmp),
+                 "`x`, `w0`")
+})
+
+test_that("a subset that does not fit the data is an error", {
+    d <- sim_small()
+    expect_error(regsen_bounds(sim_f, d, compare = sim_cmp,
+                               subset = c(TRUE, FALSE)),
+                 "length 2, but `data` has 200 rows")
+    expect_error(regsen_bounds(sim_f, d, compare = sim_cmp, subset = 1:500),
+                 "beyond the 200 rows")
+    # Logical of the right length, positive and negative indices still work.
+    a <- regsen_bounds(sim_f, d, compare = sim_cmp, subset = d$w0 > -1)
+    b <- regsen_bounds(sim_f, d, compare = sim_cmp, subset = which(d$w0 > -1))
+    neg <- regsen_bounds(sim_f, d, compare = sim_cmp, subset = -which(d$w0 <= -1))
+    expect_equal(a$results, b$results)
+    expect_equal(a$results, neg$results)
+})
+
+test_that("a cluster bootstrap needs at least two clusters and no missing ids", {
+    d <- sim_small()
+    dd <- d; dd$g <- 1L
+    expect_error(regsen_boot(sim_f, dd, compare = sim_cmp, R = 5, seed = 1,
+                             cluster = "g", show_progress = FALSE),
+                 "single cluster")
+    dd$g <- rep(1:20, each = 10); dd$g[4] <- NA
+    expect_error(regsen_boot(sim_f, dd, compare = sim_cmp, R = 5, seed = 1,
+                             cluster = "g", show_progress = FALSE),
+                 "missing for 1 of the rows")
+    expect_error(regsen_boot(sim_f, dd, compare = sim_cmp, R = 5, seed = 1,
+                             cluster = c("g", "w0"), show_progress = FALSE),
+                 "single column name")
+})
+
+test_that("the outcome must be one numeric column", {
+    d <- sim_small()
+    # A one-sided formula used to run with no outcome at all.
+    expect_error(regsen_bounds(~ x + w1a + w1b + w0, d, compare = sim_cmp),
+                 "single numeric outcome")
+    expect_error(regsen_bounds(cbind(y, w0) ~ x + w1a + w1b, d,
+                               compare = sim_cmp),
+                 "single numeric outcome")
+    dd <- d; dd$y <- factor(dd$y > 0)
+    expect_error(regsen_bounds(sim_f, dd, compare = sim_cmp),
+                 "single numeric outcome")
+    # A transformed or logical outcome is still fine.
+    expect_s3_class(regsen_bounds(log(exp(y)) ~ x + w1a + w1b + w0, d,
+                                  compare = sim_cmp), "regsensitivity")
+    dd <- d; dd$y <- dd$y > 0
+    expect_s3_class(regsen_bounds(sim_f, dd, compare = sim_cmp),
+                    "regsensitivity")
+})

@@ -164,13 +164,30 @@ regsen_boot <- function(formula, data,
 
     n <- inputs$n
     if (!is.null(cluster)) {
+        if (!is.character(cluster) || length(cluster) != 1 || is.na(cluster)) {
+            stop("`cluster` must be a single column name.", call. = FALSE)
+        }
         if (!cluster %in% names(data)) {
             stop("`cluster` column '", cluster, "' not found in data.",
                  call. = FALSE)
         }
         # The rows the model frame kept, in the order the inputs hold them.
         cluster_id <- data[[cluster]][inputs$rows]
+        # A row with no cluster would match no level below and fall out of
+        # every resample without a word.
+        if (anyNA(cluster_id)) {
+            stop("`cluster` column '", cluster, "' is missing for ",
+                 sum(is.na(cluster_id)), " of the rows in the analysis.",
+                 call. = FALSE)
+        }
         cluster_levels <- unique(cluster_id)
+        # Resampling one cluster returns the data unchanged every time, so
+        # the interval would be a point; it used to come back with a stray
+        # warning from deep inside the replicate loop.
+        if (length(cluster_levels) < 2) {
+            stop("`cluster` column '", cluster, "' has a single cluster; ",
+                 "a cluster bootstrap needs at least two.", call. = FALSE)
+        }
         unit_rows <- lapply(cluster_levels, function(g) which(cluster_id == g))
     } else {
         unit_rows <- NULL

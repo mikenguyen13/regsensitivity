@@ -1,10 +1,50 @@
 # regsensitivity 0.3.1
 
+## Degenerate data is an error, not a result
+
+* A treatment with no variation once the controls are partialled out (a
+  constant, or a linear combination of the controls) used to come back
+  with a coefficient of order 1e15 and a breakdown point that looked like
+  any other. Its coefficient is not identified, and every function now
+  stops with a message saying so. When the treatment was collinear with a
+  comparison control, the error was "missing value where TRUE/FALSE
+  needed"; it is now the same message.
+
+* An outcome with no variation once the controls outside the comparison
+  set are partialled out is an error too. A constant outcome used to give a
+  breakdown point for a coefficient of 0.
+
+* A formula without a single numeric outcome (one-sided, a `cbind()`
+  response, or a factor) is an error. A one-sided formula used to run
+  with no outcome at all.
+
+* An infinite value in the data used to fail inside `qr()` with "NA/NaN/Inf
+  in foreign function call". The error now names the variables that hold
+  one.
+
+* A logical `subset` whose length is not the number of rows, or row numbers
+  beyond the data, are errors. The first used to be recycled and reported
+  as "got 1 observation".
+
+* `regsen_boot()` stops when the `cluster` column has a single cluster or
+  missing values, or when `cluster` is not one column name. A single
+  cluster used to give an interval of one point and a stray warning;
+  rows with a missing cluster were dropped from every resample without a
+  word.
+
+## Tests
+
 * A test checks that the bound at a point on the rybar breakdown frontier
   sits at the hypothesis. It allowed a gap of 1e-3, about what the two
   numerical solves it compares can be off by between them, and on CRAN's
   Intel macOS machines the gap came to just over that. It now allows
   5e-3. Nothing the package computes changed.
+
+* A test compared a bound from two routes to the same solve at 1e-6. The
+  routes agree exactly on any one machine, but the bound comes from a
+  global search accurate to about 3e-4, and rounding at the level that
+  differs between platforms moves it by up to 1e-4. It now compares at
+  1e-3.
 
 # regsensitivity 0.3.0
 
