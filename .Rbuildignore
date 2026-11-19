@@ -29,3 +29,4 @@
 ^reference-papers$
 ^vignettes/articles$
 ^Rplots\.pdf$
+^CRAN-SUBMISSION$
