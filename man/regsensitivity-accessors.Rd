@@ -14,6 +14,8 @@
 \alias{sensitivity_params.regsensitivity}
 \alias{coef.regsensitivity}
 \alias{nobs.regsensitivity}
+\alias{formula.regsensitivity}
+\alias{formula.regsensitivity_boot}
 \title{Extract results from a sensitivity analysis}
 \usage{
 breakdown_point(x, ...)
@@ -39,6 +41,10 @@ sensitivity_params(x, ...)
 \method{coef}{regsensitivity}(object, ...)
 
 \method{nobs}{regsensitivity}(object, ...)
+
+\method{formula}{regsensitivity}(x, ...)
+
+\method{formula}{regsensitivity_boot}(x, ...)
 }
 \arguments{
 \item{x, object}{A result object.}
@@ -75,6 +81,9 @@ was run at, as a named list.
 \item \code{coef()} returns the short- and medium-regression coefficients on the
 treatment, the two estimates the sensitivity analysis starts from, and
 \code{nobs()} the number of observations used.
+\item \code{formula()} returns the model formula the analysis was run on, with
+the outcome, the treatment (the first right-hand-side term) and the
+controls.
 }
 }
 \examples{
@@ -86,6 +95,7 @@ bnds <- regsen_bounds(f, bfg2020, compare = w1, cbar = 0.1)
 breakdown_point(bnds)
 head(identified_set(bnds))
 coef(bnds)
+formula(bnds)
 
 bk <- regsen_breakdown(f, bfg2020, compare = w1, cbar = c(0, 0.5, 1))
 breakdown_frontier(bk)

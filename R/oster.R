@@ -7,6 +7,11 @@
 ## Optional:
 ##   maxovb : maximum absolute value of the omitted-variable bias
 
+# The natural size of a coefficient, sd(y) / sd(x). Every polynomial below
+# is in beta_long or in the bias bm - beta_long, so its roots are on this
+# scale, and real_roots() solves them in these units (see there for why).
+oster_unit <- function(s) sqrt(s$var_y / s$var_x)
+
 ## ---------------------------------------------------------------------------
 ## Identified set, delta = d (equal): solve the cubic in beta_long.
 ## ---------------------------------------------------------------------------
@@ -22,7 +27,7 @@ oster_idset_scalar <- function(delta, r_max, s) {
     c2 <- s$var_x_resid * (s$beta_short - s$beta_med) * s$var_x * (delta - 2)
     c3 <- (delta - 1) * (s$var_x_resid * s$var_x - s$var_x_resid^2)
 
-    rts <- real_roots(c(c0, c1, c2, c3))
+    rts <- real_roots(c(c0, c1, c2, c3), scale = oster_unit(s))
     sols <- s$beta_med - rts
 
     if (length(rts) == 0 || length(s$gamma_med) == 0) {
@@ -41,13 +46,16 @@ oster_idset_scalar <- function(delta, r_max, s) {
     # epsilon is below that floor, and the spurious root then survived at
     # scattered deltas and drew a stray spur along the asymptote. Half the
     # digits is the usual root-finder allowance, and it is still many orders
-    # of magnitude below any genuine root's residual.
+    # of magnitude below any genuine root's residual. The tolerance is
+    # relative to the size of the two terms and has no absolute floor: a floor
+    # of 1 discarded genuine roots whenever the data were measured in small
+    # units, where every residual is below 1e-8.
     keep <- logical(length(rts))
     for (i in seq_along(rts)) {
         ref <- max(abs(rts[i] * s$pi_med), abs(s$gamma_med))
-        tol <- sqrt(.Machine$double.eps) * max(ref, 1)
+        tol <- sqrt(.Machine$double.eps) * ref
         check <- sqrt(sum((s$gamma_med + rts[i] * s$pi_med)^2))
-        keep[i] <- check >= tol
+        keep[i] <- check > tol
     }
     sols[keep]
 }
@@ -227,7 +235,7 @@ oster_breakdown_bound_scalar <- function(beta, r_max, ovb_bound, lower_bound, s)
     derivd <- polymult(polyderiv(dcoef, 1), -ncoef)
     deriv <- polyadd(derivn, derivd)
 
-    critpoints <- real_roots(deriv)
+    critpoints <- real_roots(deriv, scale = oster_unit(s))
     if (lower_bound) {
         critpoints <- critpoints[critpoints > bm - beta]
     } else {
@@ -288,7 +296,7 @@ oster_delta_asymptotes <- function(r_max, s) {
         vxr * (bs - bm) * vx,
         vxr * vx - vxr^2
     )
-    roots <- real_roots(coef)
+    roots <- real_roots(coef, scale = oster_unit(s))
 
     # A zero of the denominator that is also a zero of the numerator is a
     # hole, not an asymptote: delta(beta) stays finite through it and the
@@ -299,8 +307,8 @@ oster_delta_asymptotes <- function(r_max, s) {
     if (length(roots) && length(s$gamma_med)) {
         removable <- vapply(roots, function(rt) {
             ref <- max(abs(rt * s$pi_med), abs(s$gamma_med))
-            sqrt(sum((s$gamma_med + rt * s$pi_med)^2)) <
-                sqrt(.Machine$double.eps) * max(ref, 1)
+            sqrt(sum((s$gamma_med + rt * s$pi_med)^2)) <=
+                sqrt(.Machine$double.eps) * ref
         }, logical(1))
         roots <- roots[!removable]
     }

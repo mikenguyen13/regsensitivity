@@ -125,3 +125,42 @@ test_that("breakdown is signed in results, and a magnitude on bounds", {
     expect_type(bb$breakdown, "double")
     expect_gt(bb$breakdown, 0)
 })
+
+# Oster's delta and R-squared do not depend on the units of y and x, and a
+# coefficient scales by a / b when y is multiplied by a and x by b. The
+# polynomial solvers once used absolute tolerances: an outcome in millionths
+# returned an empty identified set and an outcome in millions dropped its
+# roots as complex. Every result must scale exactly.
+test_that("Oster results are equivariant to the units of y and x", {
+    set.seed(11)
+    n <- 400
+    w <- rnorm(n); u <- rnorm(n)
+    x <- 0.6 * w + 0.5 * u + rnorm(n)
+    y <- x + 0.8 * w + 1.2 * u + rnorm(n)
+    base <- data.frame(y, x, w)
+    oster_all <- function(d, k) {
+        eq <- regsen_bounds(y ~ x + w, d, compare = "w", analysis = "oster",
+                            delta = c(0.5, 1, 2), r2long = 1)$results
+        bd <- regsen_bounds(y ~ x + w, d, compare = "w", analysis = "oster",
+                            delta = c(0.2, 0.5), r2long = 0.9,
+                            delta_type = "bound")$results
+        brk <- regsen_breakdown(y ~ x + w, d, compare = "w",
+                                analysis = "oster", r2long = c(0.5, 1),
+                                beta = bnd_lb(0.5 * k))$results
+        list(eq = as.matrix(eq[, c("beta1", "beta2", "beta3")]) / k,
+             bd = as.matrix(bd[, c("bmin", "bmax")]) / k,
+             brk = brk$breakdown)
+    }
+    ref <- oster_all(base, 1)
+    expect_true(any(is.finite(ref$eq)))
+    for (sc in list(c(1e-6, 1e-4), c(1e6, 1e-4), c(1e-3, 1e4), c(1e5, 1e5))) {
+        d <- transform(base, y = y * sc[1], x = x * sc[2])
+        got <- oster_all(d, sc[1] / sc[2])
+        expect_equal(got$eq, ref$eq, tolerance = 1e-6,
+                     info = paste("y x", sc[1], "x x", sc[2]))
+        expect_equal(got$bd, ref$bd, tolerance = 1e-6,
+                     info = paste("y x", sc[1], "x x", sc[2]))
+        expect_equal(got$brk, ref$brk, tolerance = 1e-6,
+                     info = paste("y x", sc[1], "x x", sc[2]))
+    }
+})

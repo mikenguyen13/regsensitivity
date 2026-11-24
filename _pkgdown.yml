@@ -21,9 +21,10 @@ reference:
     contents:
       - regsen_boot
       - regsen_boot-methods
-  - title: "Parallel computation"
+  - title: "Computation"
     contents:
       - regsen_cores
+      - regsen_control
   - title: "Several treatments"
     contents:
       - regsen_multi

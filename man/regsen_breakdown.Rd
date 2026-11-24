@@ -22,7 +22,8 @@ regsen_breakdown(
   maxovb_type = c("bound", "relative"),
   beta = "sign",
   subset = NULL,
-  ncores = NULL
+  ncores = NULL,
+  control = regsen_control()
 )
 }
 \arguments{
@@ -81,6 +82,11 @@ of \code{data} to include in the estimation.}
 need the optimizer (finite \code{rybar}, \code{rybar_expr}, or
 \code{direction = "rybar"}) are costly enough to benefit. Results are
 identical for any number of cores.}
+
+\item{control}{(DMP) Budget of the optimizer used when \code{rybar} is finite
+and \code{cbar > 0}, from \code{\link[=regsen_control]{regsen_control()}}. The default is
+\code{regsen_control()}. Rerun with a larger budget to check that a result
+has settled.}
 }
 \value{
 A \code{regsensitivity} object. \code{results$index} holds the swept

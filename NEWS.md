@@ -1,3 +1,38 @@
+# regsensitivity (development version)
+
+## Oster results no longer depend on the units of the data
+
+* The Oster (2019) identified set, its bound version, and the sign-change
+  breakdown point solve polynomials whose roots were found with absolute
+  tolerances. With an outcome measured in small units (around 1e-6 of the
+  treatment's scale) every coefficient fell below the cut-off and the
+  identified set came back empty, printed as `NA`. With an outcome in large
+  units (around 1e6) the roots were so large that rounding in their
+  imaginary parts exceeded the cut-off, and they were discarded as complex.
+  The polynomials are now solved in units of sd(y) / sd(x), so rescaling `y`
+  or `x` rescales every Oster result exactly. Data on ordinary scales,
+  including the bundled `bfg2020`, give the same numbers as before. A new
+  test checks the results at five combinations of units.
+
+* The step that removes the spurious root of the Oster cubic had an
+  absolute floor on its tolerance for the same reason, and could drop a
+  genuine root of small-scale data. It is now relative.
+
+## Control over the optimizer
+
+* New `regsen_control()` sets the budget of the global optimizer used when
+  `rybar` is finite and `cbar > 0`: evaluations of the global search
+  (`maxiter`), of the local polish (`polish`), and the stopping tolerance
+  (`precision`). `regsen_bounds()` and `regsen_breakdown()` take it as
+  `control`, and `regsen_boot()` passes it to every replicate. The defaults
+  are unchanged, so results are too. Rerunning with a larger budget is how
+  to check that a finite-`rybar` result has settled.
+
+## Accessors
+
+* `formula()` returns the formula an analysis was run on, for
+  `regsensitivity` and `regsensitivity_boot` objects.
+
 # regsensitivity 0.3.1
 
 ## Degenerate data is an error, not a result

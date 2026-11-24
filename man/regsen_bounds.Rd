@@ -24,7 +24,8 @@ regsen_bounds(
   beta = "sign",
   product = TRUE,
   subset = NULL,
-  ncores = NULL
+  ncores = NULL,
+  control = regsen_control()
 )
 }
 \arguments{
@@ -82,6 +83,11 @@ uses the session setting of \code{\link[=regsen_cores]{regsen_cores()}}, which i
 changed; \code{"auto"} uses all but two of the machine's cores. Only the
 finite-\code{rybar} regime is costly enough to benefit. Results are
 identical for any number of cores.}
+
+\item{control}{(DMP) Budget of the optimizer used when \code{rybar} is finite
+and \code{cbar > 0}, from \code{\link[=regsen_control]{regsen_control()}}. The default is
+\code{regsen_control()}. Rerun with a larger budget to check that a result
+has settled.}
 }
 \value{
 A \code{regsensitivity} object. The \code{results} field holds a data.frame

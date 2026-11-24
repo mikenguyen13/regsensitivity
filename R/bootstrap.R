@@ -282,7 +282,7 @@ resolve_boot_args <- function(...) {
     args <- list(...)
     keep <- c("analysis", "beta", "cbar", "clow", "rybar", "rybar_expr",
               "direction", "rxbar", "r2long", "maxovb", "r2long_type",
-              "maxovb_type")
+              "maxovb_type", "control")
     args <- args[intersect(names(args), keep)]   # drops ncores too
     if (!is.null(args$analysis)) args$analysis <- match_analysis(args$analysis)
     args
