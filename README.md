@@ -103,6 +103,22 @@ See `vignette("regsensitivity")` for a full tour, `vignette("interpreting-result
 | `regsensitivity plot` | `plot(result)` |
 | `regsensitivity` (no subcommand) | `regsen_summary(...)` |
 
+## Feedback wanted
+
+The package is young, and the next round of changes should come from the
+people using it. If you run `regsensitivity` on real data, please tell us
+how it went:
+
+-   **Used it in a paper, thesis, or course?** Open a
+    [usage report](https://github.com/mikenguyen13/regsensitivity/issues/new?template=usage_report.md).
+    Two minutes, every field optional.
+-   **Stuck or unsure how to read a result?** Ask in
+    [Discussions](https://github.com/mikenguyen13/regsensitivity/discussions).
+-   **Found a bug or a missing feature?** Open an
+    [issue](https://github.com/mikenguyen13/regsensitivity/issues/new/choose).
+-   **Coming from Stata?** Tell us which parts of the crosswalk above
+    did not map cleanly.
+
 ## Citation
 
 Inside R, every format is one call away:
