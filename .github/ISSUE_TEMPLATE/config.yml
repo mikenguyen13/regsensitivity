@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and discussion
+    url: https://github.com/mikenguyen13/regsensitivity/discussions
+    about: Ask how to set up an analysis, interpret a breakdown point, or compare with Stata / sensemakr.
