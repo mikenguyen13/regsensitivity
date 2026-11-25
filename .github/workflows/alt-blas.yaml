@@ -39,6 +39,22 @@ jobs:
       - uses: actions/checkout@v5
       - uses: r-hub/actions/platform-info@v1
       - uses: r-hub/actions/setup-deps@v1
+      # The dependencies come as binaries built for Fedora's default BLAS,
+      # FlexiBLAS. Since November 2026 several of them (nloptr, fracdiff,
+      # forecast, ...) link libflexiblas.so.3, which the MKL image does not
+      # ship, so they fail to load before any of this package's code runs.
+      # Rebuilding them from source is fragile (dependents get built before
+      # their dependencies), so install the FlexiBLAS runtime instead. The
+      # test is unaffected: regsensitivity has no compiled code, and its
+      # linear algebra goes through R's own BLAS, which is still MKL.
+      - name: Provide the FlexiBLAS runtime the binaries link against
+        run: |
+          if ldconfig -p | grep -q 'libflexiblas\.so\.3'; then
+            echo "libflexiblas.so.3 present"
+          else
+            dnf install -y flexiblas
+          fi
+          R -q -e 'loadNamespace("nloptr"); extSoftVersion()["BLAS"]'
       # r-hub/actions/run-check expects a job-config that only R-hub's own
       # dispatcher supplies, so the check is run directly.
       - name: R CMD check --as-cran
