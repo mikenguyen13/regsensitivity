@@ -324,7 +324,7 @@ vapply(c(0.7, 0.6, 0.55, 0.5), function(ry) {
     breakdown_point(regsen_breakdown(form, bfg2020, compare = w1,
                                      cbar = 1, rybar = ry))
 }, numeric(1))
-#> [1] 1.074635 1.395827      Inf      Inf
+#> [1] 1.074537 1.395827      Inf      Inf
 ```
 
 The identified set at those larger $`\bar r_X`$ is bounded, even though
