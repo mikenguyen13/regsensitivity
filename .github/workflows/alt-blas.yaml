@@ -42,9 +42,26 @@ jobs:
       # Some prebuilt binaries are linked against a BLAS the image does not
       # ship: in November 2026 nloptr's needed libflexiblas.so.3, which the
       # MKL image lacks, so it failed to load before any of this package's
-      # code ran. Rebuild from source every installed package that cannot
-      # be loaded; pak also installs what the build needs (cmake for nloptr).
-      - name: Rebuild binaries that do not load against this BLAS
+      # code ran. Rebuild those from source; pak also installs what the build
+      # needs (cmake for nloptr). Two passes, because a package whose own
+      # library is fine still fails to load while a dependency's is broken
+      # (lme4 on nloptr), and building it before that dependency fails:
+      # first the packages whose shared object cannot be dyn.load()ed, then,
+      # in a fresh R process, anything that still does not load.
+      - name: Rebuild binaries whose shared objects do not load
+        run: |
+          R -q -e '
+            lib <- .libPaths()[1]
+            pk <- rownames(utils::installed.packages(lib.loc = lib))
+            so_loads <- function(p) {
+              so <- Sys.glob(file.path(lib, p, "libs", "*.so"))
+              all(vapply(so, function(f) isTRUE(tryCatch({ dyn.load(f); TRUE }, error = function(e) FALSE)), logical(1)))
+            }
+            bad <- pk[!vapply(pk, so_loads, logical(1))]
+            cat("Shared objects that do not load:", if (length(bad)) bad else "none", "\n")
+            if (length(bad)) pak::pkg_install(paste0(bad, "?source"), lib = lib, upgrade = FALSE)
+          '
+      - name: Rebuild packages that still do not load
         run: |
           R -q -e '
             lib <- .libPaths()[1]
