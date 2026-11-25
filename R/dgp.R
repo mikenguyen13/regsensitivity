@@ -153,6 +153,7 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
 
     list(
         y = y, x = x, w1 = w1, w0 = w0,
+        formula = formula,
         y_name = all.vars(formula)[1],
         x_name = xname,
         compare_names = colnames(w1),

@@ -202,6 +202,7 @@ new_regsen <- function(subcommand, analysis, dgp, inputs, sparams, results,
                 subcommand = subcommand,
                 analysis = analysis,
                 call = call,
+                formula = inputs$formula,
                 n = inputs$n,
                 depvar = inputs$y_name,
                 indvar = inputs$x_name,
@@ -261,6 +262,10 @@ new_regsen <- function(subcommand, analysis, dgp, inputs, sparams, results,
 #'   changed; `"auto"` uses all but two of the machine's cores. Only the
 #'   finite-`rybar` regime is costly enough to benefit. Results are
 #'   identical for any number of cores.
+#' @param control (DMP) Budget of the optimizer used when `rybar` is finite
+#'   and `cbar > 0`, from [regsen_control()]. The default is
+#'   `regsen_control()`. Rerun with a larger budget to check that a result
+#'   has settled.
 #'
 #' @return A `regsensitivity` object. The `results` field holds a data.frame
 #'   with one row per sensitivity-parameter point.
@@ -298,13 +303,15 @@ regsen_bounds <- function(formula, data,
                           beta = "sign",
                           product = TRUE,
                           subset = NULL,
-                          ncores = NULL) {
+                          ncores = NULL,
+                          control = regsen_control()) {
     cl <- match.call()
     analysis <- match_analysis(analysis)
     delta_type  <- match.arg(delta_type)
     r2long_type <- match.arg(r2long_type)
     maxovb_type <- match.arg(maxovb_type)
     ncores <- resolve_ncores(ncores)
+    control <- as_regsen_control(control)
 
     inputs <- build_dgp_inputs(formula, data, compare = compare,
                                 nocompare = nocompare, subset = subset)
@@ -331,7 +338,8 @@ regsen_bounds <- function(formula, data,
             rxbar = rxbar,
             rybar = if (!is.null(rybar_expr)) ry_vals else rybar,
             cbar  = cbar,
-            s = dgp, product = product, clow = clow, ncores = ncores
+            s = dgp, product = product, clow = clow, ncores = ncores,
+            control = control
         )
 
         # Decide which sparams are scalar vs varying, for downstream display.
@@ -351,7 +359,8 @@ regsen_bounds <- function(formula, data,
                 beta = hypo$value, cs = unique(cbar),
                 ry = if (!is.null(rybar_expr)) Inf else unique(rybar),
                 hyposign = hypo$sign, s = dgp,
-                ry_expr = rybar_expr, clow = clow, ncores = ncores
+                ry_expr = rybar_expr, clow = clow, ncores = ncores,
+                control = control
             )
             breakdown <- bf$breakdown[1]
         }
@@ -504,13 +513,15 @@ regsen_breakdown <- function(formula, data,
                              maxovb_type = c("bound", "relative"),
                              beta = "sign",
                              subset = NULL,
-                             ncores = NULL) {
+                             ncores = NULL,
+                             control = regsen_control()) {
     cl <- match.call()
     analysis <- match_analysis(analysis)
     direction <- match.arg(direction)
     r2long_type <- match.arg(r2long_type)
     maxovb_type <- match.arg(maxovb_type)
     ncores <- resolve_ncores(ncores)
+    control <- as_regsen_control(control)
 
     inputs <- build_dgp_inputs(formula, data, compare = compare,
                                 nocompare = nocompare, subset = subset)
@@ -521,7 +532,7 @@ regsen_breakdown <- function(formula, data,
         direction = direction, rxbar = rxbar,
         r2long = r2long, maxovb = maxovb,
         r2long_type = r2long_type, maxovb_type = maxovb_type,
-        ncores = ncores
+        ncores = ncores, control = control
     )
     new_regsen(
         subcommand = "breakdown",
@@ -549,8 +560,9 @@ breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
                                direction = "rxbar", rxbar = NULL,
                                r2long = 1, maxovb = NA,
                                r2long_type = "eq", maxovb_type = "bound",
-                               ncores = 1L) {
+                               ncores = 1L, control = regsen_control()) {
     hypo <- parse_beta(beta, dgp)
+    control <- as_regsen_control(control)
 
     if (analysis == "dmp") {
         check_dmp_sparams(rxbar, rybar, cbar)
@@ -567,14 +579,16 @@ breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
             }
             bf <- dmp_breakdown_frontier_ry(
                 beta = hypo$value[1], cbar = cbar[1], rxbar = rxbar,
-                hyposign = hypo$sign, s = dgp, clow = clow, ncores = ncores
+                hyposign = hypo$sign, s = dgp, clow = clow, ncores = ncores,
+                control = control
             )
         } else {
             bf <- dmp_breakdown_frontier(
                 beta = hypo$value, cs = cbar,
                 ry = if (is.null(rybar_expr)) rybar[1] else Inf,
                 hyposign = hypo$sign, s = dgp,
-                ry_expr = rybar_expr, clow = clow, ncores = ncores
+                ry_expr = rybar_expr, clow = clow, ncores = ncores,
+                control = control
             )
         }
         return(list(

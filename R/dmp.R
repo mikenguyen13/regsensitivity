@@ -476,11 +476,12 @@ beta_bounds_ryfinite_cbar_neq0 <- function(sp, s, maxiter = 1000L,
 # so the parallel path is taken only when at least one point needs the
 # optimizer.
 dmp_identified_set <- function(rxbar, rybar, cbar, s, product = TRUE,
-                                clow = 0, ncores = 1L) {
+                                clow = 0, ncores = 1L,
+                                control = regsen_control()) {
     # Forced here so a socket worker receives values, not promises into
     # the caller's frame (which it cannot evaluate, and which would ship
     # the whole frame along with them).
-    force(s); force(clow)
+    force(s); force(clow); force(control)
     sp <- format_dmp_sparams(rxbar, rybar, cbar, product)
     n <- length(sp$rxbar)
     out <- data.frame(
@@ -502,7 +503,10 @@ dmp_identified_set <- function(rxbar, rybar, cbar, s, product = TRUE,
         } else if (is.finite(spi$rybar) && isTRUE(spi$cbar == 0)) {
             beta_bounds_ryfinite_cbar_eq0(spi, s)
         } else if (is.finite(spi$rybar)) {
-            beta_bounds_ryfinite_cbar_neq0(spi, s)
+            beta_bounds_ryfinite_cbar_neq0(spi, s,
+                                           maxiter = control$maxiter,
+                                           precision = control$precision,
+                                           polish = control$polish)
         } else {
             beta_bounds_ryinf(spi, s)
         }
@@ -565,7 +569,7 @@ breakdown_point_dmp <- function(beta, c, lower_bound, s, clow = 0) {
 # directions, which reported the wrong breakdown point for an upper-bound
 # hypothesis.)
 dmp_tested_bound <- function(rx, ry, c, clow, s, lower_bound,
-                              maxiter = 1000L, polish = 300L) {
+                              control = regsen_control()) {
     sp <- list(rxbar = rx, rybar = ry, cbar = c, clow = clow)
     # A rybar_expr may hand back +Inf at some rxbar; that is the closed-form
     # regime, not a degenerate case of the optimizer's.
@@ -576,7 +580,8 @@ dmp_tested_bound <- function(rx, ry, c, clow, s, lower_bound,
         beta_bounds_ryfinite_cbar_eq0(sp, s)
     } else {
         beta_bounds_ryfinite_cbar_neq0(
-            sp, s, maxiter = maxiter, polish = polish,
+            sp, s, maxiter = control$maxiter, precision = control$precision,
+            polish = control$polish,
             which = if (lower_bound) "lower" else "upper"
         )
     }
@@ -603,7 +608,7 @@ breakdown_point_rx_idx <- function(beta, c, ry, lower_bound, s,
                                     ry_expr = NULL, clow = 0,
                                     start_hi = NA_real_, tol = 1e-4,
                                     rx_cap = 1e4,
-                                    maxiter = 1000L, polish = 300L) {
+                                    control = regsen_control()) {
     if (!is.finite(beta) || !is.finite(c) || !is.finite(s$beta_med)) {
         return(NA_real_)
     }
@@ -618,7 +623,7 @@ breakdown_point_rx_idx <- function(beta, c, ry, lower_bound, s,
     slack <- function(rx) {
         ryv <- if (is.null(ry_expr)) ry else ry_expr(rx)
         b <- dmp_tested_bound(rx, ryv, c, clow, s, lower_bound,
-                               maxiter = maxiter, polish = polish)
+                               control = control)
         if (is.na(b)) return(big)
         v <- if (lower_bound) b - beta else beta - b
         clip(v, -big, big)
@@ -647,7 +652,7 @@ breakdown_point_rx_idx <- function(beta, c, ry, lower_bound, s,
 # overturn it.
 breakdown_point_ry_idx <- function(beta, c, rx, lower_bound, s, clow = 0,
                                     tol = 1e-4, ry_cap = 1e4,
-                                    maxiter = 1000L, polish = 300L) {
+                                    control = regsen_control()) {
     if (!is.finite(beta) || !is.finite(c) || !is.finite(s$beta_med)) {
         return(NA_real_)
     }
@@ -661,7 +666,7 @@ breakdown_point_ry_idx <- function(beta, c, rx, lower_bound, s, clow = 0,
     big <- 1e6
     slack <- function(ry) {
         b <- dmp_tested_bound(rx, ry, c, clow, s, lower_bound,
-                               maxiter = maxiter, polish = polish)
+                               control = control)
         if (is.na(b)) return(big)
         clip(if (lower_bound) b - beta else beta - b, -big, big)
     }
@@ -684,8 +689,9 @@ breakdown_point_ry_idx <- function(beta, c, rx, lower_bound, s, clow = 0,
 # worth a fork.
 dmp_breakdown_frontier <- function(beta, cs, ry = POS_INF, hyposign = ">",
                                     s, ry_expr = NULL, clow = 0,
-                                    ncores = 1L) {
+                                    ncores = 1L, control = regsen_control()) {
     force(s); force(ry); force(ry_expr); force(clow)   # see dmp_identified_set
+    force(control)
     if (length(beta) > 1) {
         cs <- rep(cs[1], length(beta))
         index <- beta
@@ -713,7 +719,8 @@ dmp_breakdown_frontier <- function(beta, cs, ry = POS_INF, hyposign = ">",
             breakdown_point_rx_idx(
                 beta[i], cs[i], ry, lower_bound[i], s,
                 ry_expr = ry_expr, clow = clow,
-                start_hi = max_beta_bound(cs[i], s, clow = clow)
+                start_hi = max_beta_bound(cs[i], s, clow = clow),
+                control = control
             )
         }, ncores)
     }
@@ -724,8 +731,10 @@ dmp_breakdown_frontier <- function(beta, cs, ry = POS_INF, hyposign = ">",
 # Returns a data.frame with columns `index` (the rxbar value) and `breakdown`
 # (the rybar at which the hypothesis fails, possibly +Inf).
 dmp_breakdown_frontier_ry <- function(beta, cbar, rxbar, hyposign = ">", s,
-                                       clow = 0, ncores = 1L) {
+                                       clow = 0, ncores = 1L,
+                                       control = regsen_control()) {
     force(beta); force(cbar); force(rxbar); force(s); force(clow)
+    force(control)
     lower_bound <- if (identical(hyposign, "<")) {
         FALSE
     } else if (identical(hyposign, "=")) {
@@ -735,7 +744,7 @@ dmp_breakdown_frontier_ry <- function(beta, cbar, rxbar, hyposign = ">", s,
     }
     ry <- par_numeric_strict(length(rxbar), function(i) {
         breakdown_point_ry_idx(beta, cbar, rxbar[i], lower_bound, s,
-                               clow = clow)
+                               clow = clow, control = control)
     }, ncores)
     data.frame(index = rxbar, breakdown = ry)
 }

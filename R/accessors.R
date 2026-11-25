@@ -25,6 +25,9 @@
 #' * `coef()` returns the short- and medium-regression coefficients on the
 #'   treatment, the two estimates the sensitivity analysis starts from, and
 #'   `nobs()` the number of observations used.
+#' * `formula()` returns the model formula the analysis was run on, with
+#'   the outcome, the treatment (the first right-hand-side term) and the
+#'   controls.
 #'
 #' @param x,object A result object.
 #' @param signed Logical. The breakdown point is reported as a magnitude,
@@ -44,6 +47,7 @@
 #' breakdown_point(bnds)
 #' head(identified_set(bnds))
 #' coef(bnds)
+#' formula(bnds)
 #'
 #' bk <- regsen_breakdown(f, bfg2020, compare = w1, cbar = c(0, 0.5, 1))
 #' breakdown_frontier(bk)
@@ -133,4 +137,16 @@ coef.regsensitivity <- function(object, ...) {
 #' @export
 nobs.regsensitivity <- function(object, ...) {
     object$n
+}
+
+#' @rdname regsensitivity-accessors
+#' @export
+formula.regsensitivity <- function(x, ...) {
+    x$formula
+}
+
+#' @rdname regsensitivity-accessors
+#' @export
+formula.regsensitivity_boot <- function(x, ...) {
+    x$point_res$formula
 }

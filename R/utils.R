@@ -22,7 +22,20 @@ clip <- function(val, lo, hi) {
 # Trailing zero coefficients are dropped first so that, for example, a quadratic
 # expressed with a leading-zero cubic term still solves correctly. A tolerance
 # on the imaginary part decides which complex roots count as real.
-real_roots <- function(coef, tol = 1e-9) {
+#
+# Both of those tolerances are absolute, so they only mean something once the
+# polynomial is in natural units. `scale` is the size a root is expected to
+# have -- for a coefficient, sd(y) / sd(x). The polynomial is solved in
+# z = x / scale with its coefficients divided by the largest, and the roots are
+# mapped back. Without this an outcome measured in millionths made every
+# coefficient smaller than 1e-15, so all of them were dropped and no root came
+# back; an outcome in millions made the roots so large that rounding in their
+# imaginary parts exceeded 1e-9, and they were discarded as complex.
+real_roots <- function(coef, tol = 1e-9, scale = 1) {
+    if (!is.finite(scale) || scale <= 0) scale <- 1
+    coef <- coef * scale^(seq_along(coef) - 1)
+    big <- max(abs(coef))
+    if (is.finite(big) && big > 0) coef <- coef / big
     while (length(coef) > 1 && abs(coef[length(coef)]) < 1e-15) {
         coef <- coef[-length(coef)]
     }
@@ -30,7 +43,7 @@ real_roots <- function(coef, tol = 1e-9) {
         return(numeric(0))
     }
     rts <- polyroot(coef)
-    Re(rts)[abs(Im(rts)) < tol]
+    Re(rts)[abs(Im(rts)) < tol] * scale
 }
 
 # Polynomial multiplication, increasing-order coefficients.
