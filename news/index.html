@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,6 +49,23 @@
       <small>Source: <a href="https://github.com/mikenguyen13/regsensitivity/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="regsensitivity-development-version">regsensitivity (development version)<a class="anchor" aria-label="anchor" href="#regsensitivity-development-version"></a></h2>
+<div class="section level3">
+<h3 id="oster-results-no-longer-depend-on-the-units-of-the-data-development-version">Oster results no longer depend on the units of the data<a class="anchor" aria-label="anchor" href="#oster-results-no-longer-depend-on-the-units-of-the-data-development-version"></a></h3>
+<ul><li><p>The Oster (2019) identified set, its bound version, and the sign-change breakdown point solve polynomials whose roots were found with absolute tolerances. With an outcome measured in small units (around 1e-6 of the treatment’s scale) every coefficient fell below the cut-off and the identified set came back empty, printed as <code>NA</code>. With an outcome in large units (around 1e6) the roots were so large that rounding in their imaginary parts exceeded the cut-off, and they were discarded as complex. The polynomials are now solved in units of sd(y) / sd(x), so rescaling <code>y</code> or <code>x</code> rescales every Oster result exactly. Data on ordinary scales, including the bundled <code>bfg2020</code>, give the same numbers as before. A new test checks the results at five combinations of units.</p></li>
+<li><p>The step that removes the spurious root of the Oster cubic had an absolute floor on its tolerance for the same reason, and could drop a genuine root of small-scale data. It is now relative.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="control-over-the-optimizer-development-version">Control over the optimizer<a class="anchor" aria-label="anchor" href="#control-over-the-optimizer-development-version"></a></h3>
+<ul><li>New <code><a href="../reference/regsen_control.html">regsen_control()</a></code> sets the budget of the global optimizer used when <code>rybar</code> is finite and <code>cbar &gt; 0</code>: evaluations of the global search (<code>maxiter</code>), of the local polish (<code>polish</code>), and the stopping tolerance (<code>precision</code>). <code><a href="../reference/regsen_bounds.html">regsen_bounds()</a></code> and <code><a href="../reference/regsen_breakdown.html">regsen_breakdown()</a></code> take it as <code>control</code>, and <code><a href="../reference/regsen_boot.html">regsen_boot()</a></code> passes it to every replicate. The defaults are unchanged, so results are too. Rerunning with a larger budget is how to check that a finite-<code>rybar</code> result has settled.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="accessors-development-version">Accessors<a class="anchor" aria-label="anchor" href="#accessors-development-version"></a></h3>
+<ul><li>
+<code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code> returns the formula an analysis was run on, for <code>regsensitivity</code> and <code>regsensitivity_boot</code> objects.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.1" id="regsensitivity-031">regsensitivity 0.3.1<a class="anchor" aria-label="anchor" href="#regsensitivity-031"></a></h2><p class="text-muted">CRAN release: 2026-11-23</p>
 <div class="section level3">

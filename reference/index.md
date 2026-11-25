@@ -27,6 +27,8 @@
   [`sensitivity_params()`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
   [`coef(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
   [`nobs(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  [`formula(`*`<regsensitivity>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
+  [`formula(`*`<regsensitivity_boot>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsensitivity-accessors.md)
   : Extract results from a sensitivity analysis
 
 ## Inference
@@ -40,10 +42,15 @@
   [`plot(`*`<regsensitivity_boot>`*`)`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot-methods.md)
   : Print, summarize and plot a bootstrapped breakdown point
 
-## Parallel computation
+## Computation
 
 - [`regsen_cores()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_cores.md)
   : Cores used by the package
+
+- [`regsen_control()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_control.md)
+  :
+
+  Tuning for the finite-`rybar` optimizer
 
 ## Several treatments
 

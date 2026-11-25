@@ -9,7 +9,7 @@ depend on how the result objects are laid out internally."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,13 @@ depend on how the result objects are laid out internally.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'regsensitivity'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'regsensitivity'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'regsensitivity_boot'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -134,6 +140,9 @@ was run at, as a named list.</p></li>
 <li><p><code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> returns the short- and medium-regression coefficients on the
 treatment, the two estimates the sensitivity analysis starts from, and
 <code><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs()</a></code> the number of observations used.</p></li>
+<li><p><code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code> returns the model formula the analysis was run on, with
+the outcome, the treatment (the first right-hand-side term) and the
+controls.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -160,6 +169,10 @@ treatment, the two estimates the sensitivity analysis starts from, and
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">bnds</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    short   medium </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1.707838 1.385416 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">bnds</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     lat + lon</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x579044f10558&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">bk</span> <span class="op">&lt;-</span> <span class="fu"><a href="regsen_breakdown.html">regsen_breakdown</a></span><span class="op">(</span><span class="va">f</span>, <span class="va">bfg2020</span>, compare <span class="op">=</span> <span class="va">w1</span>, cbar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">breakdown_frontier</span><span class="op">(</span><span class="va">bk</span><span class="op">)</span></span></span>

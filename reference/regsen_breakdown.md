@@ -28,7 +28,8 @@ regsen_breakdown(
   maxovb_type = c("bound", "relative"),
   beta = "sign",
   subset = NULL,
-  ncores = NULL
+  ncores = NULL,
+  control = regsen_control()
 )
 ```
 
@@ -121,6 +122,15 @@ regsen_breakdown(
   need the optimizer (finite `rybar`, `rybar_expr`, or
   `direction = "rybar"`) are costly enough to benefit. Results are
   identical for any number of cores.
+
+- control:
+
+  (DMP) Budget of the optimizer used when `rybar` is finite and
+  `cbar > 0`, from
+  [`regsen_control()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_control.md).
+  The default is
+  [`regsen_control()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_control.md).
+  Rerun with a larger budget to check that a result has settled.
 
 ## Value
 

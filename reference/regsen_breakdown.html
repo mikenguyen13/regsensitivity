@@ -15,7 +15,7 @@ a function of R-squared(long), beta and (optionally) maxovb."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">regsensitivity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,8 @@ a function of R-squared(long), beta and (optionally) maxovb.</p>
 <span>  maxovb_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bound"</span>, <span class="st">"relative"</span><span class="op">)</span>,</span>
 <span>  beta <span class="op">=</span> <span class="st">"sign"</span>,</span>
 <span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ncores <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  ncores <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  control <span class="op">=</span> <span class="fu"><a href="regsen_control.html">regsen_control</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -174,6 +175,13 @@ of <code>data</code> to include in the estimation.</p></dd>
 need the optimizer (finite <code>rybar</code>, <code>rybar_expr</code>, or
 <code>direction = "rybar"</code>) are costly enough to benefit. Results are
 identical for any number of cores.</p></dd>
+
+
+<dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
+<dd><p>(DMP) Budget of the optimizer used when <code>rybar</code> is finite
+and <code>cbar &gt; 0</code>, from <code><a href="regsen_control.html">regsen_control()</a></code>. The default is
+<code><a href="regsen_control.html">regsen_control()</a></code>. Rerun with a larger budget to check that a result
+has settled.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -37,6 +37,12 @@ coef(object, ...)
 
 # S3 method for class 'regsensitivity'
 nobs(object, ...)
+
+# S3 method for class 'regsensitivity'
+formula(x, ...)
+
+# S3 method for class 'regsensitivity_boot'
+formula(x, ...)
 ```
 
 ## Arguments
@@ -91,6 +97,10 @@ See Details.
   [`nobs()`](https://rdrr.io/r/stats/nobs.html) the number of
   observations used.
 
+- [`formula()`](https://rdrr.io/r/stats/formula.html) returns the model
+  formula the analysis was run on, with the outcome, the treatment (the
+  first right-hand-side term) and the controls.
+
 ## See also
 
 [`as.data.frame.regsensitivity()`](https://mikenguyen13.github.io/regsensitivity/reference/as.data.frame.regsensitivity.md)
@@ -117,6 +127,10 @@ head(identified_set(bnds))
 coef(bnds)
 #>    short   medium 
 #> 1.707838 1.385416 
+formula(bnds)
+#> avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + 
+#>     lat + lon
+#> <environment: 0x579044f10558>
 
 bk <- regsen_breakdown(f, bfg2020, compare = w1, cbar = c(0, 0.5, 1))
 breakdown_frontier(bk)
