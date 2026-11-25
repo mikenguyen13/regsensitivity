@@ -50,7 +50,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.1" id="regsensitivity-031">regsensitivity 0.3.1<a class="anchor" aria-label="anchor" href="#regsensitivity-031"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.1" id="regsensitivity-031">regsensitivity 0.3.1<a class="anchor" aria-label="anchor" href="#regsensitivity-031"></a></h2><p class="text-muted">CRAN release: 2026-11-23</p>
 <div class="section level3">
 <h3 id="degenerate-data-is-an-error-not-a-result-0-3-1">Degenerate data is an error, not a result<a class="anchor" aria-label="anchor" href="#degenerate-data-is-an-error-not-a-result-0-3-1"></a></h3>
 <ul><li><p>A treatment with no variation once the controls are partialled out (a constant, or a linear combination of the controls) used to come back with a coefficient of order 1e15 and a breakdown point that looked like any other. Its coefficient is not identified, and every function now stops with a message saying so. When the treatment was collinear with a comparison control, the error was “missing value where TRUE/FALSE needed”; it is now the same message.</p></li>

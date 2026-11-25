@@ -2,6 +2,8 @@
 
 ## regsensitivity 0.3.1
 
+CRAN release: 2026-11-23
+
 ### Degenerate data is an error, not a result
 
 - A treatment with no variation once the controls are partialled out (a
