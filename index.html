@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Regression Sensitivity Analysis for Omitted Variable Bias • regsensitivity</title>
+<title>regsensitivity: Sensitivity Analysis for Omitted Variable Bias in R • regsensitivity</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -14,10 +14,37 @@
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Regression Sensitivity Analysis for Omitted Variable Bias">
-<meta name="description" content="Sensitivity analysis for linear regression coefficients in the presence of omitted variables. Implements the identified-set and breakdown-point analyses of Diegert, Masten and Poirier (2026) &lt;doi:10.48550/arXiv.2206.02303&gt;, Oster (2019) &lt;doi:10.1080/07350015.2016.1227711&gt; and Masten and Poirier (2026) &lt;doi:10.1257/aer.20230242&gt;. Provides bounds on regression coefficients under relaxations of the no-omitted-variables assumption indexed by interpretable sensitivity parameters, the breakdown point of a hypothesis about the long-regression coefficient, and plotting helpers.">
-<meta property="og:description" content="Sensitivity analysis for linear regression coefficients in the presence of omitted variables. Implements the identified-set and breakdown-point analyses of Diegert, Masten and Poirier (2026) &lt;doi:10.48550/arXiv.2206.02303&gt;, Oster (2019) &lt;doi:10.1080/07350015.2016.1227711&gt; and Masten and Poirier (2026) &lt;doi:10.1257/aer.20230242&gt;. Provides bounds on regression coefficients under relaxations of the no-omitted-variables assumption indexed by interpretable sensitivity parameters, the breakdown point of a hypothesis about the long-regression coefficient, and plotting helpers.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="regsensitivity: Sensitivity Analysis for Omitted Variable Bias in R">
+<meta name="description" content="Bounds and breakdown points for regression coefficients under omitted variable bias in R, allowing the controls themselves to be endogenous (Diegert, Masten and Poirier), with Oster's delta and Masten-Poirier bounds, bootstrap intervals, plots, and a Stata crosswalk.
+">
+<meta property="og:description" content="Bounds and breakdown points for regression coefficients under omitted variable bias in R, allowing the controls themselves to be endogenous (Diegert, Masten and Poirier), with Oster's delta and Masten-Poirier bounds, bootstrap intervals, plots, and a Stata crosswalk.
+">
 <meta property="og:image" content="https://mikenguyen13.github.io/regsensitivity/logo.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "regsensitivity",
+  "alternateName": "Regression Sensitivity Analysis for Omitted Variable Bias",
+  "description": "R package for sensitivity analysis of regression coefficients to omitted variables: identified sets and breakdown points of Diegert, Masten and Poirier (endogenous controls), Oster's (2019) delta, and Masten and Poirier's (2026) bounds, with bootstrap intervals and plots.",
+  "url": "https://mikenguyen13.github.io/regsensitivity/",
+  "codeRepository": "https://github.com/mikenguyen13/regsensitivity",
+  "programmingLanguage": {"@type": "ComputerLanguage", "name": "R"},
+  "runtimePlatform": "R",
+  "license": "https://opensource.org/licenses/MIT",
+  "image": "https://mikenguyen13.github.io/regsensitivity/logo.png",
+  "author": {
+    "@type": "Person",
+    "name": "Mike Nguyen",
+    "identifier": "https://orcid.org/0000-0002-3432-8595"
+  }
+}
+</script><style>
+.rs-box{font-size:.9em;border:1px solid var(--bs-border-color,#dee2e6);border-radius:6px;padding:.75em 1em;margin:0 0 1em}
+.rs-box p{margin-bottom:.5em}
+.rs-box pre{font-size:.85em;margin-bottom:.5em;white-space:pre-wrap;overflow-wrap:anywhere}
+.rs-box .rs-install img{height:20px;margin:0 .25rem .25rem 0}
+</style>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -313,7 +340,27 @@ ER  -</code></pre>
 <p>MIT. See <code>LICENSE.md</code>. The bundled <code>bfg2020</code> data set is a subset of the replication data from Bazzi, Fiszbein and Gebresilasse (2020), <em>Frontier Culture</em>, <em>Econometrica</em>.</p>
 </div>
 </div>
-  </main><aside class="col-md-3"><div class="links">
+  </main><aside class="col-md-3"><div class="use-with-your-ai-assistant">
+<h2 data-toc-skip>Use with your AI assistant</h2>
+<ul class="list-unstyled">
+<li><div class="rs-box">
+<p>
+Ask Claude, Cursor, VS Code, or ChatGPT how to run and read these analyses, with answers that cite the documentation.
+</p>
+<div class="sourceCode">
+<pre><code>https://research-methods-mcp.vercel.app/mcp?src=book-regsensitivity</code></pre>
+</div>
+<p class="rs-install">
+<a href="https://cursor.com/en/install-mcp?name=research-methods&amp;config=eyJ1cmwiOiJodHRwczovL3Jlc2VhcmNoLW1ldGhvZHMtbWNwLnZlcmNlbC5hcHAvbWNwP3NyYz1ib29rLXJlZ3NlbnNpdGl2aXR5In0%3D" class="external-link"><img src="https://cursor.com/deeplink/mcp-install-dark.svg" alt="Add to Cursor"></a><a href="https://insiders.vscode.dev/redirect/mcp/install?name=research-methods&amp;config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fresearch-methods-mcp.vercel.app%2Fmcp%3Fsrc%3Dbook-regsensitivity%22%7D" class="external-link"><img src="https://img.shields.io/badge/VS_Code-Install_server-0098FF?logo=visualstudiocode&amp;logoColor=white" alt="Install in VS Code"></a>
+</p>
+<p>
+<a href="https://research-methods-mcp.vercel.app/" class="external-link">Setup for other clients</a>
+</p>
+</div></li>
+</ul>
+</div>
+
+<div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
 <li><a href="https://cloud.r-project.org/package=regsensitivity" class="external-link">View on CRAN</a></li>
