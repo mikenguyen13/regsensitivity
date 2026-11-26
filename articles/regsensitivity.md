@@ -504,6 +504,24 @@ print(s)
 #> Use summary() for the specification and full results.
 ```
 
+## Next steps, and telling us how it went
+
+For worked examples on other data, from labour economics, mortgage
+lending and education, see the [Use
+cases](https://mikenguyen13.github.io/regsensitivity/articles/use-cases.html)
+article on the package website.
+
+If you run the package on your own data, a short note on how it went
+shapes what comes next:
+
+- Used it in a paper, thesis or course? Open a [usage
+  report](https://github.com/mikenguyen13/regsensitivity/issues/new?template=usage_report.md).
+  Every field is optional.
+- Unsure how to set up an analysis or read a result? Ask in
+  [Discussions](https://github.com/mikenguyen13/regsensitivity/discussions).
+- Found a bug or a missing feature? Open an
+  [issue](https://github.com/mikenguyen13/regsensitivity/issues/new/choose).
+
 ## References
 
 - Diegert, P., Masten, M., and Poirier, A. (2026). Assessing Omitted
