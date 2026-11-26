@@ -98,7 +98,8 @@ on how collinear the comparison controls are.</p>
 <span>  <span class="va">data</span>,</span>
 <span>  compare <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nocompare <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  subset <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fe <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -130,6 +131,19 @@ the comparison set.</p></dd>
 <dt id="arg-subset">subset<a class="anchor" aria-label="anchor" href="#arg-subset"></a></dt>
 <dd><p>Optional logical or integer vector indicating which rows
 of <code>data</code> to include in the estimation.</p></dd>
+
+
+<dt id="arg-fe">fe<a class="anchor" aria-label="anchor" href="#arg-fe"></a></dt>
+<dd><p>Optional fixed effects to absorb: a one-sided formula such as
+<code>~ firm + year</code>, or a character vector of column names. Each named
+column is a grouping variable whose effects are partialled out along
+with the controls outside the comparison set, without building dummy
+columns, so thousands of groups are cheap. The result equals adding the
+variables as factors to the formula outside <code>compare</code>. Observations
+alone in their group in some dimension carry no information and are
+dropped, as in fixest and reghdfe, and so are rows with a missing
+group. Build an interacted effect, such as firm by year, as a column of
+its own first.</p></dd>
 
 </dl></div>
     <div class="section level2">

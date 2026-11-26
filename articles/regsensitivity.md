@@ -70,6 +70,33 @@ unobserved W2, which appears in no formula.](figures/covariates.png)
 instead; give at most one of the two. If you give neither, every control
 enters $`W_1`$.
 
+### Fixed effects
+
+A factor in the formula becomes one dummy column per level. That is fine
+for 30 states, but a panel with thousands of firms would need thousands
+of columns. Name the grouping variables in `fe` instead and they are
+absorbed directly, as `fixest` and `reghdfe` do, with no dummy columns
+built:
+
+``` r
+
+form_fe <- avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 +
+    log_area_2010 + lat + lon + temp_mean + rain_mean + elev_mean +
+    d_coa + d_riv + d_lak + ave_gyi
+b_dummies <- regsen_breakdown(form, bfg2020, compare = compare, cbar = 1)
+b_fe      <- regsen_breakdown(form_fe, bfg2020, compare = compare, cbar = 1,
+                              fe = ~ statea)
+c(dummies = breakdown_point(b_dummies), absorbed = breakdown_point(b_fe))
+#>   dummies  absorbed 
+#> 0.8035643 0.8035643
+```
+
+The answer is the same, because absorbed fixed effects are part of
+$`W_0`$. Several dimensions work the same way (`fe = ~ firm + year`);
+for an interacted effect such as firm by year, build that column first.
+Observations alone in their group carry no information and are dropped,
+and the printed result says how many.
+
 ## The three sensitivity parameters
 
 Rather than assume $`\pi_2 = 0`$, DMP bound how large the unobservable’s

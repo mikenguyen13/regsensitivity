@@ -123,7 +123,7 @@
 <p>Both arXiv working papers above are still revised periodically; citations in this package track the year of the latest arXiv revision.</p>
 </blockquote>
 <p>The package provides a formula + <code>data.frame</code> API, <code>ggplot2</code>-based plotting, and percentile and bias-corrected-and-accelerated bootstrap intervals — i.i.d. or clustered — on the breakdown point.</p>
-<p>Beyond the Stata original it computes the identified set at every triple of sensitivity parameters, including the region <code>rxbar &gt; rmax(cbar) &gt; rybar</code>; traces the breakdown frontier in either direction (<code>direction = "rybar"</code>); and takes Assumption A6 in its two-sided form (<code>clow</code>).</p>
+<p>Beyond the Stata original it computes the identified set at every triple of sensitivity parameters, including the region <code>rxbar &gt; rmax(cbar) &gt; rybar</code>; traces the breakdown frontier in either direction (<code>direction = "rybar"</code>); takes Assumption A6 in its two-sided form (<code>clow</code>); and absorbs high-dimensional fixed effects (<code>fe = ~ firm + year</code>) without building dummy columns.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>

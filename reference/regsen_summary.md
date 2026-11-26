@@ -7,7 +7,14 @@ analysis at a few standard r2long values.
 ## Usage
 
 ``` r
-regsen_summary(formula, data, compare = NULL, nocompare = NULL, subset = NULL)
+regsen_summary(
+  formula,
+  data,
+  compare = NULL,
+  nocompare = NULL,
+  subset = NULL,
+  fe = NULL
+)
 
 # S3 method for class 'regsensitivity_summary'
 print(x, ...)
@@ -48,6 +55,19 @@ plot(x, which = c("both", "dmp", "oster"), ...)
 
   Optional logical or integer vector indicating which rows of `data` to
   include in the estimation.
+
+- fe:
+
+  Optional fixed effects to absorb: a one-sided formula such as
+  `~ firm + year`, or a character vector of column names. Each named
+  column is a grouping variable whose effects are partialled out along
+  with the controls outside the comparison set, without building dummy
+  columns, so thousands of groups are cheap. The result equals adding
+  the variables as factors to the formula outside `compare`.
+  Observations alone in their group in some dimension carry no
+  information and are dropped, as in fixest and reghdfe, and so are rows
+  with a missing group. Build an interacted effect, such as firm by
+  year, as a column of its own first.
 
 - x, object:
 

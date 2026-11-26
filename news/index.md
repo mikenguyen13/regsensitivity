@@ -2,6 +2,33 @@
 
 ## regsensitivity (development version)
 
+### Fixed effects
+
+- [`regsen_bounds()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_bounds.md),
+  [`regsen_breakdown()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_breakdown.md),
+  [`regsen_summary()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_summary.md),
+  [`regsen_boot()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_boot.md),
+  [`regsen_multi()`](https://mikenguyen13.github.io/regsensitivity/reference/regsen_multi.md),
+  [`calibrate_rho()`](https://mikenguyen13.github.io/regsensitivity/reference/calibrate_rho.md)
+  and
+  [`calibrate_partial_r2()`](https://mikenguyen13.github.io/regsensitivity/reference/calibrate_partial_r2.md)
+  take a new `fe` argument, such as `fe = ~ firm + year`, that absorbs
+  fixed effects without building a dummy column per group. One dimension
+  is removed exactly; several are removed by alternating projections,
+  the method behind fixest and reghdfe. The results equal those from
+  adding the grouping variables to the formula as factors outside
+  `compare`, so fixed effects stay controls and never act as a
+  yardstick. A panel of 80,000 rows with 10,000 firm and 10 year effects
+  takes under a second.
+
+- Observations alone in their group in some dimension are dropped, as in
+  fixest and reghdfe; printed and summarized results report how many.
+  They are demeaned to zero in every variable, so the estimates do not
+  change, only the reported N.
+
+- The bootstrap removes the fixed effects again in every replicate,
+  because the group means change with each resample.
+
 ### Oster results no longer depend on the units of the data
 
 - The Oster (2019) identified set, its bound version, and the
