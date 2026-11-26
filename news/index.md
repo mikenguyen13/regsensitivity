@@ -43,6 +43,13 @@
   formula an analysis was run on, for `regsensitivity` and
   `regsensitivity_boot` objects.
 
+### Documentation
+
+- New article on the website, “Use cases: three applied questions”:
+  returns to schooling, race and mortgage denials, and class size, each
+  worked through on data from AER, with Oster’s delta beside the DMP
+  breakdown point and a reporting recipe.
+
 ## regsensitivity 0.3.1
 
 CRAN release: 2026-11-23

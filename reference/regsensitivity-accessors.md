@@ -130,7 +130,7 @@ coef(bnds)
 formula(bnds)
 #> avgrep2000to2016 ~ tye_tfe890_500kNI_100_l6 + log_area_2010 + 
 #>     lat + lon
-#> <environment: 0x6184fb882ee0>
+#> <environment: 0x611518caa0a8>
 
 bk <- regsen_breakdown(f, bfg2020, compare = w1, cbar = c(0, 0.5, 1))
 breakdown_frontier(bk)

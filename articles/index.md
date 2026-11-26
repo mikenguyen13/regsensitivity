@@ -9,6 +9,8 @@
 
 - [Reading the output: interpretation, edge cases and
   decisions](https://mikenguyen13.github.io/regsensitivity/articles/interpreting-results.md):
+- [Use cases: three applied
+  questions](https://mikenguyen13.github.io/regsensitivity/articles/use-cases.md):
 - [Publication-ready plots and
   tables](https://mikenguyen13.github.io/regsensitivity/articles/plots-and-tables.md):
 - [Coming from the Stata
