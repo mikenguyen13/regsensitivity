@@ -8,7 +8,14 @@
 \alias{plot.regsensitivity_summary}
 \title{Sensitivity summary (DMP bounds + Oster breakdown)}
 \usage{
-regsen_summary(formula, data, compare = NULL, nocompare = NULL, subset = NULL)
+regsen_summary(
+  formula,
+  data,
+  compare = NULL,
+  nocompare = NULL,
+  subset = NULL,
+  fe = NULL
+)
 
 \method{print}{regsensitivity_summary}(x, ...)
 
@@ -34,6 +41,17 @@ the comparison set.}
 
 \item{subset}{Optional logical or integer vector indicating which rows
 of \code{data} to include in the estimation.}
+
+\item{fe}{Optional fixed effects to absorb: a one-sided formula such as
+\code{~ firm + year}, or a character vector of column names. Each named
+column is a grouping variable whose effects are partialled out along
+with the controls outside the comparison set, without building dummy
+columns, so thousands of groups are cheap. The result equals adding the
+variables as factors to the formula outside \code{compare}. Observations
+alone in their group in some dimension carry no information and are
+dropped, as in fixest and reghdfe, and so are rows with a missing
+group. Build an interacted effect, such as firm by year, as a column of
+its own first.}
 
 \item{x, object}{A \code{regsensitivity_summary} object, or for the \code{print()}
 method of its summary, a \code{summary.regsensitivity_summary} object.}

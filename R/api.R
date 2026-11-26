@@ -208,6 +208,8 @@ new_regsen <- function(subcommand, analysis, dgp, inputs, sparams, results,
                 indvar = inputs$x_name,
                 compare = inputs$compare_names,
                 controls = inputs$control_names,
+                fe = inputs$fe_names,
+                n_singletons = inputs$n_singletons,
                 sparams = sparams,
                 summary_stats = sumstats_table(dgp),
                 dgp = dgp,
@@ -257,6 +259,16 @@ new_regsen <- function(subcommand, analysis, dgp, inputs, sparams, results,
 #'   zipped element-wise. Maps to Stata's `noproduct` option (inverted).
 #' @param subset Optional logical or integer vector indicating which rows
 #'   of `data` to include in the estimation.
+#' @param fe Optional fixed effects to absorb: a one-sided formula such as
+#'   `~ firm + year`, or a character vector of column names. Each named
+#'   column is a grouping variable whose effects are partialled out along
+#'   with the controls outside the comparison set, without building dummy
+#'   columns, so thousands of groups are cheap. The result equals adding the
+#'   variables as factors to the formula outside `compare`. Observations
+#'   alone in their group in some dimension carry no information and are
+#'   dropped, as in fixest and reghdfe, and so are rows with a missing
+#'   group. Build an interacted effect, such as firm by year, as a column of
+#'   its own first.
 #' @param ncores Number of cores to spread the grid over. `NULL` (default)
 #'   uses the session setting of [regsen_cores()], which is 1 unless
 #'   changed; `"auto"` uses all but two of the machine's cores. Only the
@@ -303,6 +315,7 @@ regsen_bounds <- function(formula, data,
                           beta = "sign",
                           product = TRUE,
                           subset = NULL,
+                          fe = NULL,
                           ncores = NULL,
                           control = regsen_control()) {
     cl <- match.call()
@@ -314,7 +327,8 @@ regsen_bounds <- function(formula, data,
     control <- as_regsen_control(control)
 
     inputs <- build_dgp_inputs(formula, data, compare = compare,
-                                nocompare = nocompare, subset = subset)
+                                nocompare = nocompare, subset = subset,
+                                fe = fe)
     dgp <- get_dgp(inputs)
     hypo <- parse_beta(beta, dgp)
 
@@ -513,6 +527,7 @@ regsen_breakdown <- function(formula, data,
                              maxovb_type = c("bound", "relative"),
                              beta = "sign",
                              subset = NULL,
+                             fe = NULL,
                              ncores = NULL,
                              control = regsen_control()) {
     cl <- match.call()
@@ -524,7 +539,8 @@ regsen_breakdown <- function(formula, data,
     control <- as_regsen_control(control)
 
     inputs <- build_dgp_inputs(formula, data, compare = compare,
-                                nocompare = nocompare, subset = subset)
+                                nocompare = nocompare, subset = subset,
+                                fe = fe)
     dgp <- get_dgp(inputs)
     bd <- breakdown_from_dgp(
         dgp, analysis = analysis, beta = beta,
@@ -660,20 +676,21 @@ breakdown_from_dgp <- function(dgp, analysis = "dmp", beta = "sign",
 #' @export
 regsen_summary <- function(formula, data,
                             compare = NULL, nocompare = NULL,
-                            subset = NULL) {
+                            subset = NULL, fe = NULL) {
     inputs <- build_dgp_inputs(formula, data, compare = compare,
-                                nocompare = nocompare, subset = subset)
+                                nocompare = nocompare, subset = subset,
+                                fe = fe)
     dgp <- get_dgp(inputs)
 
     bnds <- regsen_bounds(formula, data, analysis = "dmp",
                           compare = compare, nocompare = nocompare,
-                          subset = subset)
+                          subset = subset, fe = fe)
     r2rot <- min(dgp$r_med * 1.3, 1)
     # The grid ends at 1 whether or not the step lands there; unique() keeps
     # 1 from appearing twice when it does.
     breakdown <- regsen_breakdown(
         formula, data, analysis = "oster",
-        compare = compare, nocompare = nocompare, subset = subset,
+        compare = compare, nocompare = nocompare, subset = subset, fe = fe,
         r2long = unique(c(seq(r2rot, 1, by = 0.1), 1))
     )
     structure(list(dmp_bounds = bnds, oster_breakdown = breakdown),

@@ -47,6 +47,9 @@ print.regsensitivity <- function(x, max_rows = 12, ...) {
     print_header(x)
     cat(sprintf("%-18s %s ~ %s\n", "Model:", x$depvar, x$indvar))
     cat(sprintf("%-18s %d\n", "N (obs):", x$n))
+    if (length(x$fe)) {
+        cat(sprintf("%-18s %s\n", "Fixed effects:", format_fe(x)))
+    }
     cat(sprintf("%-18s %.4f\n", "Beta (medium):", x$dgp$beta_med))
     cat(sprintf("%-18s %s\n", "Hypothesis:", format_hypothesis(x)))
     print_breakdown_line(x)
@@ -54,6 +57,17 @@ print.regsensitivity <- function(x, max_rows = 12, ...) {
     print_results_table(x$results, max_rows)
     cat("\nUse summary() for the specification and full results.\n")
     invisible(x)
+}
+
+# "firm, year" plus how many singleton observations were dropped, if any.
+format_fe <- function(x) {
+    out <- paste(x$fe, collapse = ", ")
+    ns <- x$n_singletons
+    if (!is.null(ns) && ns > 0) {
+        out <- paste0(out, " (", ns, " singleton",
+                      if (ns > 1) "s" else "", " dropped)")
+    }
+    out
 }
 
 print_header <- function(x) {
@@ -186,6 +200,8 @@ summary.regsensitivity <- function(object, ...) {
             n = object$n,
             controls = object$controls,
             compare = object$compare,
+            fe = object$fe,
+            n_singletons = object$n_singletons,
             hypothesis = format_hypothesis(object),
             sparams = describe_sparams(object$sparams),
             statistics = object$summary_stats,
@@ -210,6 +226,9 @@ print.summary.regsensitivity <- function(x, max_rows = Inf, ...) {
     cat(sprintf("  %-20s %d\n", "N (obs):", x$n))
     cat(sprintf("  %-20s %s\n", "Controls:", list_names(x$controls)))
     cat(sprintf("  %-20s %s\n", "Comparison set:", list_names(x$compare)))
+    if (length(x$fe)) {
+        cat(sprintf("  %-20s %s\n", "Fixed effects:", format_fe(x)))
+    }
     cat(sprintf("  %-20s %s\n", "Hypothesis:", x$hypothesis))
 
     cat("\n--- Sensitivity parameters ------------------------------\n")

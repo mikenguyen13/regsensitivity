@@ -26,18 +26,19 @@
 #'                     response = "avgrep2000to2016")
 #' calibrate_rho(form, bfg2020, compare = w1)
 calibrate_rho <- function(formula, data, compare = NULL, nocompare = NULL,
-                          subset = NULL) {
+                          subset = NULL, fe = NULL) {
     inp <- build_dgp_inputs(formula, data, compare = compare,
-                             nocompare = nocompare, subset = subset)
+                             nocompare = nocompare, subset = subset,
+                             fe = fe)
     # Need (X, W1) residualized on W0.
     if (ncol(inp$w1) < 2) {
         stop("rho calibration requires at least two comparison controls",
              call. = FALSE)
     }
-    x_res  <- project_residuals(matrix(inp$x, ncol = 1), inp$w0)[, 1]
+    x_res  <- partial_out(inp$x, inp)[, 1]
     # The same comparison block the analysis uses: an aliased column would
     # give an NA coefficient here and an NA rho for every variable.
-    w1_res <- drop_aliased(project_residuals(inp$w1, inp$w0), inp$w1)
+    w1_res <- drop_aliased(partial_out(inp$w1, inp), inp$w1)
     if (ncol(w1_res) < 2) {
         stop("rho calibration requires at least two linearly independent ",
              "comparison controls", call. = FALSE)
@@ -83,10 +84,12 @@ calibrate_rho <- function(formula, data, compare = NULL, nocompare = NULL,
 #' )
 #' @export
 calibrate_partial_r2 <- function(formula, data, compare = NULL,
-                                  nocompare = NULL, subset = NULL) {
+                                  nocompare = NULL, subset = NULL,
+                                  fe = NULL) {
     inp <- build_dgp_inputs(formula, data, compare = compare,
-                             nocompare = nocompare, subset = subset)
-    w1_res <- drop_aliased(project_residuals(inp$w1, inp$w0), inp$w1)
+                             nocompare = nocompare, subset = subset,
+                             fe = fe)
+    w1_res <- drop_aliased(partial_out(inp$w1, inp), inp$w1)
     if (ncol(w1_res) < 2) {
         stop("partial R^2 needs at least two linearly independent ",
              "comparison controls", call. = FALSE)

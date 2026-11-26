@@ -4,7 +4,14 @@
 \alias{calibrate_rho}
 \title{Calibration parameters rho_k for rxbar}
 \usage{
-calibrate_rho(formula, data, compare = NULL, nocompare = NULL, subset = NULL)
+calibrate_rho(
+  formula,
+  data,
+  compare = NULL,
+  nocompare = NULL,
+  subset = NULL,
+  fe = NULL
+)
 }
 \arguments{
 \item{formula}{Two-sided formula: \code{y ~ x + w1 + w2 + ...}. The first
@@ -22,6 +29,17 @@ the comparison set.}
 
 \item{subset}{Optional logical or integer vector indicating which rows
 of \code{data} to include in the estimation.}
+
+\item{fe}{Optional fixed effects to absorb: a one-sided formula such as
+\code{~ firm + year}, or a character vector of column names. Each named
+column is a grouping variable whose effects are partialled out along
+with the controls outside the comparison set, without building dummy
+columns, so thousands of groups are cheap. The result equals adding the
+variables as factors to the formula outside \code{compare}. Observations
+alone in their group in some dimension carry no information and are
+dropped, as in fixest and reghdfe, and so are rows with a missing
+group. Build an interacted effect, such as firm by year, as a column of
+its own first.}
 }
 \value{
 A data.frame with columns \code{variable} and \code{rho} (a percentage).

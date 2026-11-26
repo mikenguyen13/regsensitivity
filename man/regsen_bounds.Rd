@@ -24,6 +24,7 @@ regsen_bounds(
   beta = "sign",
   product = TRUE,
   subset = NULL,
+  fe = NULL,
   ncores = NULL,
   control = regsen_control()
 )
@@ -77,6 +78,17 @@ zipped element-wise. Maps to Stata's \code{noproduct} option (inverted).}
 
 \item{subset}{Optional logical or integer vector indicating which rows
 of \code{data} to include in the estimation.}
+
+\item{fe}{Optional fixed effects to absorb: a one-sided formula such as
+\code{~ firm + year}, or a character vector of column names. Each named
+column is a grouping variable whose effects are partialled out along
+with the controls outside the comparison set, without building dummy
+columns, so thousands of groups are cheap. The result equals adding the
+variables as factors to the formula outside \code{compare}. Observations
+alone in their group in some dimension carry no information and are
+dropped, as in fixest and reghdfe, and so are rows with a missing
+group. Build an interacted effect, such as firm by year, as a column of
+its own first.}
 
 \item{ncores}{Number of cores to spread the grid over. \code{NULL} (default)
 uses the session setting of \code{\link[=regsen_cores]{regsen_cores()}}, which is 1 unless

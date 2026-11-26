@@ -148,7 +148,8 @@ regsen_boot <- function(formula, data,
     inputs <- build_dgp_inputs(formula, data,
                                compare = dots$compare,
                                nocompare = dots$nocompare,
-                               subset = dots$subset)
+                               subset = dots$subset,
+                               fe = dots$fe)
     evaluate <- function(rows) {
         res <- tryCatch(
             do.call(breakdown_from_dgp,
