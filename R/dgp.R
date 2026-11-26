@@ -17,7 +17,7 @@
 # Factor variables are expanded via model.matrix and any aliased columns
 # (perfectly collinear after partialling out the intercept) are dropped.
 build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
-                              subset = NULL) {
+                              subset = NULL, fe = NULL) {
     if (!inherits(formula, "formula")) {
         stop("`formula` must be a formula object (e.g. y ~ x + w).",
              call. = FALSE)
@@ -49,6 +49,15 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
         if (is.logical(subset)) subset <- which(subset)
         data <- data[subset, , drop = FALSE]
         orig_rows <- orig_rows[subset]
+    }
+    # Fixed effects are not part of the formula, so model.frame() below
+    # never sees them; rows with a missing group are dropped here instead,
+    # with the same bookkeeping.
+    fe_names <- parse_fe(fe, data)
+    if (length(fe_names)) {
+        ok <- stats::complete.cases(data[fe_names])
+        data <- data[ok, , drop = FALSE]
+        orig_rows <- orig_rows[ok]
     }
     if (nrow(data) < 10) {
         stop("Need at least 10 complete observations; got ", nrow(data), ".",
@@ -131,6 +140,32 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
     # row labels (integer vs character vs subset-preserved).
     keep_rows <- match(rownames(mf), rownames(data))
     use_data <- data[keep_rows, , drop = FALSE]
+
+    # An observation alone in its fixed-effect group is fitted exactly by
+    # that group's effect: it carries no information about any coefficient
+    # and is demeaned to zero in every variable. Drop such rows, as fixest
+    # and reghdfe do, so that the reported N counts only rows that inform
+    # the analysis. The estimates are the same either way.
+    fe_codes <- list()
+    n_singletons <- 0L
+    if (length(fe_names)) {
+        fe_codes <- lapply(fe_names, function(v) use_data[[v]])
+        keep <- fe_non_singletons(fe_codes)
+        if (!all(keep)) {
+            n_singletons <- sum(!keep)
+            y <- y[keep]
+            use_data <- use_data[keep, , drop = FALSE]
+            keep_rows <- keep_rows[keep]
+            fe_codes <- lapply(fe_codes, function(g) g[keep])
+            if (length(y) < 10) {
+                stop("Fewer than 10 observations remain after dropping ",
+                     n_singletons, " that are alone in their fixed-effect ",
+                     "group; got ", length(y), ".", call. = FALSE)
+            }
+        }
+        names(fe_codes) <- fe_names
+    }
+
     x <- expand(xname, use_data)
     if (ncol(x) != 1) {
         stop("independent variable must be numeric/scalar", call. = FALSE)
@@ -158,9 +193,120 @@ build_dgp_inputs <- function(formula, data, compare = NULL, nocompare = NULL,
         x_name = xname,
         compare_names = colnames(w1),
         control_names = c(colnames(w1), colnames(w0)),
+        fe = fe_codes,
+        fe_names = fe_names,
+        n_singletons = n_singletons,
         rows = orig_rows[keep_rows],
         n = length(y)
     )
+}
+
+# Validate the `fe` argument and return the names of the grouping columns.
+#
+# `fe` is a one-sided formula of plain variable names (`~ firm + year`) or a
+# character vector of column names. An interaction written in the formula
+# (`~ firm:year`) would otherwise be read as two separate effects by
+# all.vars(), which is a different model, so it is refused with a pointer
+# to building the combined column first.
+parse_fe <- function(fe, data) {
+    if (is.null(fe)) return(character(0))
+    if (inherits(fe, "formula")) {
+        if (length(fe) != 2) {
+            stop("`fe` must be a one-sided formula such as `~ firm + year`.",
+                 call. = FALSE)
+        }
+        labels <- attr(stats::terms(fe), "term.labels")
+        nms <- all.vars(fe)
+        if (!identical(sort(labels), sort(nms))) {
+            stop("`fe` takes plain variable names joined by `+`. For an ",
+                 "interacted effect such as firm-by-year, build the column ",
+                 "first, e.g. `data$firm_year <- interaction(data$firm, ",
+                 "data$year)`, and use `fe = ~ firm_year`.", call. = FALSE)
+        }
+    } else if (is.character(fe)) {
+        nms <- fe
+    } else {
+        stop("`fe` must be a one-sided formula (`~ firm + year`) or a ",
+             "character vector of column names.", call. = FALSE)
+    }
+    nms <- unique(nms)
+    if (length(nms) == 0) return(character(0))
+    missing <- setdiff(nms, names(data))
+    if (length(missing)) {
+        stop("`fe` names ", if (length(missing) == 1) "a column " else
+             "columns ", "not in `data`: ", paste(missing, collapse = ", "),
+             ".", call. = FALSE)
+    }
+    nms
+}
+
+# Rows that are not alone in their group in any fixed-effect dimension.
+# Dropping a singleton in one dimension can create a new one in another, so
+# repeat until none is left.
+fe_non_singletons <- function(codes) {
+    keep <- rep(TRUE, length(codes[[1]]))
+    repeat {
+        single <- rep(FALSE, length(keep))
+        for (g in codes) {
+            gk <- match(g[keep], unique(g[keep]))
+            single[keep] <- single[keep] | tabulate(gk)[gk] == 1L
+        }
+        if (!any(single)) return(keep)
+        keep <- keep & !single
+    }
+}
+
+# Subtract fixed-effect group means from every column of `mat`.
+#
+# One dimension is a single exact pass. With two or more, the dimensions
+# are swept in turn until nothing moves (alternating projections, the
+# method fixest and reghdfe build on): the limit is the residual from the
+# regression on all the group dummies, by Frisch-Waugh-Lovell, without
+# ever forming them. Convergence is judged per column relative to its own
+# size, so a variable in small units is held to the same standard as one
+# in large units.
+fe_demean <- function(mat, fe, tol = 1e-12, maxit = 10000L) {
+    if (is.null(dim(mat))) mat <- matrix(mat, ncol = 1)
+    if (length(fe) == 0 || ncol(mat) == 0) return(mat)
+    groups <- lapply(fe, function(g) {
+        g <- match(g, unique(g))
+        list(g = g, n = tabulate(g))
+    })
+    sweep_one <- function(m, gr) {
+        m - (rowsum(m, gr$g, reorder = TRUE) / gr$n)[gr$g, , drop = FALSE]
+    }
+    if (length(groups) == 1) return(sweep_one(mat, groups[[1]]))
+
+    size <- apply(abs(mat), 2, max)
+    size[!is.finite(size) | size == 0] <- 1
+    for (it in seq_len(maxit)) {
+        old <- mat
+        for (gr in groups) mat <- sweep_one(mat, gr)
+        moved <- apply(abs(mat - old), 2, max) / size
+        if (max(moved) < tol) return(mat)
+    }
+    warning("Removing the fixed effects did not converge in ", maxit,
+            " sweeps (largest relative change ", signif(max(moved), 3),
+            "). The groups may be weakly connected; results may be ",
+            "inaccurate.", call. = FALSE)
+    mat
+}
+
+# Partial the fixed effects, the controls outside the comparison set and a
+# constant out of the columns of `mat`. By Frisch-Waugh-Lovell, demeaning
+# both `mat` and W0 by the fixed effects and then projecting on the
+# demeaned W0 gives the same residual as one regression on W0 and all the
+# group dummies together.
+partial_out <- function(mat, inputs) {
+    if (is.null(dim(mat))) mat <- matrix(mat, ncol = 1)
+    w0 <- inputs$w0
+    if (length(inputs$fe)) {
+        k <- ncol(mat)
+        both <- fe_demean(cbind(mat, w0), inputs$fe)
+        mat <- both[, seq_len(k), drop = FALSE]
+        w0 <- both[, -seq_len(k), drop = FALSE]
+    }
+    project_residuals(mat, w0)
 }
 
 # Take a row subset (or resample) of already-built dgp inputs.
@@ -175,6 +321,9 @@ subset_dgp_inputs <- function(inputs, rows) {
     inputs$x  <- inputs$x[rows]
     inputs$w1 <- inputs$w1[rows, , drop = FALSE]
     inputs$w0 <- inputs$w0[rows, , drop = FALSE]
+    # Group codes travel with their rows, and get_dgp() demeans the
+    # resample afresh: the group means change with every resample.
+    inputs$fe <- lapply(inputs$fe, function(g) g[rows])
     inputs$n  <- length(rows)
     inputs
 }
@@ -249,9 +398,9 @@ drop_aliased <- function(w_res, w_orig) {
 get_dgp <- function(inputs) {
     y <- inputs$y; x <- inputs$x; w1 <- inputs$w1; w0 <- inputs$w0
 
-    # Partial out W0 (and a constant) from (Y, X, W1).
+    # Partial out the fixed effects, W0 and a constant from (Y, X, W1).
     yxw <- cbind(y, x, w1)
-    yxw_r <- project_residuals(yxw, w0)
+    yxw_r <- partial_out(yxw, inputs)
     yr <- yxw_r[, 1]
     xr <- yxw_r[, 2]
     if (ncol(w1) > 0) {

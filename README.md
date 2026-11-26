@@ -39,7 +39,9 @@ The package provides a formula + `data.frame` API, `ggplot2`-based plotting, and
 Beyond the Stata original it computes the identified set at every triple of
 sensitivity parameters, including the region `rxbar > rmax(cbar) > rybar`;
 traces the breakdown frontier in either direction (`direction = "rybar"`);
-and takes Assumption A6 in its two-sided form (`clow`).
+takes Assumption A6 in its two-sided form (`clow`); and absorbs
+high-dimensional fixed effects (`fe = ~ firm + year`) without building
+dummy columns.
 
 ## Installation
 
