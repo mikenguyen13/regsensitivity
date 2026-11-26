@@ -121,6 +121,7 @@ articles:
     navbar: "Guides"
     contents:
       - interpreting-results
+      - articles/use-cases
       - plots-and-tables
       - stata-migration
   - title: "Verification"
